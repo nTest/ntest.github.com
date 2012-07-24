@@ -2,19 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>/</loc>
-    <lastmod>2012-07-24T14:04:27Z</lastmod>
+    <lastmod>2012-07-24T14:18:37Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>nil/highlight_test.html</loc>
-    <lastmod>2012-07-24T13:37:00Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-<url>
     <loc>nil/index.html</loc>
     <lastmod>2012-07-24T00:00:00Z</lastmod>
     <changefreq>weekly</changefreq>
@@ -31,13 +24,13 @@
 
 
   <url>
-    <loc>nil/highlight_test.html</loc>
+    <loc>nil/blog/2012/07/24_.html</loc>
     <lastmod>2012-07-24T13:37:00Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 <url>
-    <loc>nil/tips/2012/07/24_o-blog.html</loc>
+    <loc>nil/blog/2012/07/24_o-blog.html</loc>
     <lastmod>2012-07-24T10:36:00Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>

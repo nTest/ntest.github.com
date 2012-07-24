@@ -3,9 +3,9 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T14:04:27Z</updated>
+  <updated>2012-07-24T14:18:37Z</updated>
   <id>index.xml</id>
-  <entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/highlight_test.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>highlight_test.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
+  <entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
    c:
 &lt;/p&gt;
 
@@ -36,7 +36,7 @@
 &lt;/pre&gt;
 
 
-</content></entry><entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="nil/tips/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>tips/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>blog/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
   &#30003;&#35831;github
   &#30003;&#35831;DISQUS (&#35780;&#35770;&#31995;&#32479;)
 &lt;/p&gt;</content></entry>

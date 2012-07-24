@@ -30,21 +30,14 @@
 	  <a class="brand" href="./index.html">nTest blog</a>
 	  <div class="nav-collapse collapse">
 	    <ul>
-<li><a href="#"><i>icon-book icon-white</i> Blog</a>
-<ul>
-<li><a href="./highlight_test.html">语法高亮测试</a>
-
-</li>
-</ul>
+<li><a href="#"><i>icon-book icon-white</i> 文档</a>
 
 </li>
 <li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
 <ul>
-<li><a href="./highlight_test.html">语法高亮测试</a>
+<li><a href="./blog/2012/07/24_.html">语法高亮测试</a>
 </li>
-<li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a>
-</li>
-<li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
+<li><a href="./blog/2012/07/24_o-blog.html">搭建o-blog</a>
 </li>
 <li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
 </li>
@@ -57,16 +50,12 @@
 <li><a href="./tags/index.html"><i>icon-tags icon-white</i> 标签</a>
 
 </li>
-<li><a href="./archives.html"><i>icon-list icon-white</i> 归档</a>
+<li><a href="./archives.html"><i>icon-list icon-white</i> 归档博文</a>
 
 </li>
 <li><a href="./index.xml">RSS</a>
-
-</li>
-<li><a href="./debug.html">(调试)</a>
 </li>
 </ul>
-
 
 
 	  </div>
@@ -157,13 +146,13 @@
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
       <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
       <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "blog" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "highlight" "highlight" nil nil])</pre></td></tr>
-      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"highlight_test"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"highlight_test.html"</pre></td></tr>
-      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>""</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
 
@@ -234,12 +223,12 @@ Printf.printf \"Hello, caml\";;
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
       <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
       <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "blog" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "o blog" "o-blog" nil nil] [cl-struct-ob:tags "github" "github" nil nil])</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"tips/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
       <tr><td class="property"><code>filename</code></td><td class="value"><pre>"o-blog"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"tips/2012/07/24_o-blog.html"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_o-blog.html"</pre></td></tr>
       <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
@@ -261,89 +250,12 @@ Printf.printf \"Hello, caml\";;
   <h1>固定页面</h1>
   <div class="debug post">
   <div class="debug post">
-  <h2>语法高亮测试</h2>
-  <table>
-    <caption>导出博文信息 语法高亮测试</caption>
-    <thead><tr><th>属性</th><th>值</th></tr></thead>
-    <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
-      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 13436)</pre></td></tr>
-      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
-      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "highlight" "highlight" nil nil])</pre></td></tr>
-      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"highlight_test"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"highlight_test.html"</pre></td></tr>
-      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
-      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
-
-
-   c:
-#+begin_src c
-   #include &lt;stdio.h&gt;
-
-   int main () {
-      printf(\"hello, c\");
-   }
-#+end_src
-   
-   python:
-#+begin_src python
-   print \"Hello, python\"
-#+end_src
-
-   ocaml:
-#+begin_src ocaml
-Printf.printf \"Hello, caml\";;
-#+end_src
-   "</pre></td></tr>
-      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
-   c:
-&lt;/p&gt;
-
-
-&lt;pre class=\"src src-c\"&gt;&lt;span style=\"color: #c87e5f;\"&gt;#include&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
-
-&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;main&lt;/span&gt; () {
-   printf(&lt;span style=\"color: #b643aa;\"&gt;\"hello, c\"&lt;/span&gt;);
-}
-&lt;/pre&gt;
-
-
-&lt;p&gt;   
-   python:
-&lt;/p&gt;
-
-
-&lt;pre class=\"src src-python\"&gt;&lt;span style=\"color: #6e9ac9;\"&gt;print&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"Hello, python\"&lt;/span&gt;
-&lt;/pre&gt;
-
-
-&lt;p&gt;
-   ocaml:
-&lt;/p&gt;
-
-
-&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Hello, caml\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
-&lt;/pre&gt;
-
-
-"</pre></td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="debug post">
   <h2>首页</h2>
   <table>
     <caption>导出博文信息 首页</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#39318;&#39029;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -371,13 +283,13 @@ Printf.printf \"Hello, caml\";;
     <caption>导出博文信息 调试</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35843;&#35797;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
       <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
       <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#23384;&#26723;" ""]</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#38745;&#24577;&#39029;&#38754;" ""]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"debug.html"</pre></td></tr>
       <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
@@ -452,10 +364,10 @@ Copyright &#169; 2012 nTest.
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
 
 
-  &#20351;&#29992;o-blog
+  &#22522;&#20110;o-blog
 "</pre></td></tr>
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
-  &#20351;&#29992;o-blog
+  &#22522;&#20110;o-blog
 &lt;/p&gt;"</pre></td></tr>
     </tbody>
   </table>
@@ -483,44 +395,33 @@ Copyright &#169; 2012 nTest.
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
 
 
-- [[#][/icon-book icon-white/ Blog]]
-  - [[file:../../../highlight_test.html][&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;]]
+- [[#][/icon-book icon-white/ &#25991;&#26723;]]
 
 - [[#][/icon-file icon-white/ &#36817;&#26399;&#21338;&#25991;]]
-  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
-  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
-  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
-  - [[file:Lisp error in nil: (void-variable "%s/%s")][Lisp error in nil: (void-variable "Tips")]]
-  - [[file:Lisp error in nil: (void-variable "%s/%s")][Lisp error in nil: (void-variable "Tips")]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "blog")]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "blog")]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "blog")]]
+  - [[file:Lisp error in nil: (void-variable "%s/%s")][Lisp error in nil: (void-variable "blog")]]
 
 - [[file:../../../tags/index.html][/icon-tags icon-white/ &#26631;&#31614;]]
 
-- [[file:../../../archives.html][/icon-list icon-white/ &#24402;&#26723;]]
+- [[file:../../../archives.html][/icon-list icon-white/ &#24402;&#26723;&#21338;&#25991;]]
 
 - [[file:../../../index.xml][RSS]]
-
-- [[file:../../../debug.html][(&#35843;&#35797;)]]
-   "</pre></td></tr>
+"</pre></td></tr>
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;ul&gt;
-&lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-book icon-white&lt;/i&gt; Blog&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=\"../../../highlight_test.html\"&gt;&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;&lt;/a&gt;
-
-&lt;/li&gt;
-&lt;/ul&gt;
+&lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-book icon-white&lt;/i&gt; &#25991;&#26723;&lt;/a&gt;
 
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-file icon-white&lt;/i&gt; &#36817;&#26399;&#21338;&#25991;&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "blog")&lt;/a&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "blog")&lt;/a&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "blog")&lt;/a&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "blog")&lt;/a&gt;
 
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -529,16 +430,12 @@ Copyright &#169; 2012 nTest.
 &lt;li&gt;&lt;a href=\"../../../tags/index.html\"&gt;&lt;i&gt;icon-tags icon-white&lt;/i&gt; &#26631;&#31614;&lt;/a&gt;
 
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"../../../archives.html\"&gt;&lt;i&gt;icon-list icon-white&lt;/i&gt; &#24402;&#26723;&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"../../../archives.html\"&gt;&lt;i&gt;icon-list icon-white&lt;/i&gt; &#24402;&#26723;&#21338;&#25991;&lt;/a&gt;
 
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=\"../../../index.xml\"&gt;RSS&lt;/a&gt;
-
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=\"../../../debug.html\"&gt;(&#35843;&#35797;)&lt;/a&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-
 
 "</pre></td></tr>
     </tbody>
@@ -569,12 +466,11 @@ Copyright &#169; 2012 nTest.
 
 - [[file:../../../index.html][/icon-home icon-white/ 首页]]
 
-- [[file:Lisp error in nil: (void-variable "%s/%s")][/icon-file icon-white/ Tips]]
+- [[file:Lisp error in nil: (void-variable "%s/%s")][/icon-file icon-white/ &#25991;&#31456;]]
 
-- [[file:../../../tags/index.html][/icon-tags icon-white/ Tags]]
+- [[file:../../../tags/index.html][/icon-tags icon-white/ &#26631;&#31614;]]
 
-- [[file:../../../archives.html][/icon-list
-  icon-white/ &#24402;&#26723;]]
+- [[file:../../../archives.html][/icon-list icon-white/ &#24402;&#26723;]]
 
 - [[file:../../../index.xml][RSS]]
 "</pre></td></tr>
@@ -582,10 +478,10 @@ Copyright &#169; 2012 nTest.
 &lt;li&gt;&lt;a href=\"../../../index.html\"&gt;&lt;i&gt;icon-home icon-white&lt;/i&gt; 首页&lt;/a&gt;
 
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;&lt;i&gt;icon-file icon-white&lt;/i&gt; Tips&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;&lt;i&gt;icon-file icon-white&lt;/i&gt; &#25991;&#31456;&lt;/a&gt;
 
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=\"../../../tags/index.html\"&gt;&lt;i&gt;icon-tags icon-white&lt;/i&gt; Tags&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"../../../tags/index.html\"&gt;&lt;i&gt;icon-tags icon-white&lt;/i&gt; &#26631;&#31614;&lt;/a&gt;
 
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=\"../../../archives.html\"&gt;&lt;i&gt;icon-list icon-white&lt;/i&gt; &#24402;&#26723;&lt;/a&gt;
@@ -654,7 +550,7 @@ Copyright &#169; 2012 nTest.
 	    <section class="span3">
 	      <h1>关于</h1>
 	      <p>
-  使用o-blog
+  基于o-blog
 </p>
 	    </section>
 	    <nav id="links" class="span3">
@@ -664,10 +560,10 @@ Copyright &#169; 2012 nTest.
 <li><a href="./index.html"><i>icon-home icon-white</i> 首页</a>
 
 </li>
-<li><a href="./highlight_test.html"><i>icon-file icon-white</i> Tips</a>
+<li><a href="./blog/2012/07/24_.html"><i>icon-file icon-white</i> 文章</a>
 
 </li>
-<li><a href="./tags/index.html"><i>icon-tags icon-white</i> Tags</a>
+<li><a href="./tags/index.html"><i>icon-tags icon-white</i> 标签</a>
 
 </li>
 <li><a href="./archives.html"><i>icon-list icon-white</i> 归档</a>
@@ -683,7 +579,7 @@ Copyright &#169; 2012 nTest.
 	    <nav id="archives" class="span3">
 	      <h1><a href="./archives.html">归档</a></h1>
 	      <ul>
-		<li><a href="./highlight_test.html">语法高亮测试</a></li> <li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+		<li><a href="./blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="./blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
 	      </ul>
 	    </nav>
 	    <nav class="tags span3">
