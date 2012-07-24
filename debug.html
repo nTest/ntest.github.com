@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>调试</title>
+    <link rel="stylesheet" type="text/less" href="./style/less/o-blog.less">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="o-blog version 1.2">
+    <script src="./style/js/less-1.3.0.min.js" type="text/javascript"></script>
+    <script src="./style/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="./style/bootstrap/js/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="./style/bootstrap/js/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="./style/bootstrap/js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="./style/bootstrap/js/bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="./style/js/prettify.js" type="text/javascript"></script>
+    <script src="./style/js/o-blog.linenumber.js" type="text/javascript"></script>
+    <script src="./style/js/o-blog-fix.js" type="text/javascript"></script>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+	  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+	  <a class="brand" href="./index.html">nTest</a>
+	  <div class="nav-collapse collapse">
+	    <ul>
+<li><a href="#"><i>icon-book icon-white</i> Blog</a>
+<ul>
+<li><a href="./test2.html">测试2</a>
+</li>
+<li><a href="./test3.html">测试3</a>
+</li>
+<li><a href="./test4.html">测试4</a>
+
+</li>
+</ul>
+
+</li>
+<li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
+<ul>
+<li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a>
+</li>
+<li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
+</li>
+<li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
+</li>
+<li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
+</li>
+<li><a href="Lisp error in nil: (error ob:post-htmlfile accessing a non-ob:post)">Lisp error in nil: (error ob:post-title accessing a non-ob:post)</a>
+
+</li>
+</ul>
+
+</li>
+<li><a href="./tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="./archives.html"><i>icon-list icon-white</i> 归档</a>
+
+</li>
+<li><a href="./index.xml">RSS</a>
+
+</li>
+<li><a href="./debug.html">(调试)</a>
+</li>
+</ul>
+
+
+
+	  </div>
+	</div>
+      </div>
+    </div>
+    <div class="subnav subnav-fixed visible-desktop">
+      <div class="container">
+	<ul class="breadcrumb">
+  <li><a href="./index.html">首页</a> <span class="divider">/</span></li>
+  <li>调试</li>
+  </ul>
+
+      </div>
+    </div>
+    <div id="page" class="container">
+
+ <div id="toc"></div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+  $("#toc").append('<p>Debug tree</p>')
+  $('.topbar').css('position', 'relative')
+  $("#debug h1, #debug h2, #debug h3, #debug h4, #debug h5, #debug h6").each(function(i) {
+  var current = $(this);
+  current.attr("id", "title" + i);
+  
+  $("#toc").append("<a id='link" + i + "' href='#title" + i + "' title='" + current[0].tagName + "'>" + current.html() + "</a>");
+  });
+  });
+</script>
+
+<style type="text/css">
+  #toc {
+  position: fixed;
+  top: 40px;
+  background: white;
+  left: 10px;
+  z-index: 50000;
+  }
+
+  #toc a {
+  display: block;
+  }
+
+  #toc a[title=H1] { font-size: 14pt; margin-left: 10px;}
+  #toc a[title=H2] { font-size: 13pt; margin-left: 20px;}
+  #toc a[title=H3] { font-size: 12pt; margin-left: 30px;}
+  #toc a[title=H4] { font-size: 11pt; margin-left: 40px;}
+  #toc a[title=H5] { font-size: 10pt; margin-left: 50px;}
+  #toc a[title=H6] { font-size: 9pt; margin-left: 60px;}
+  
+</style>
+
+<div id="debug">
+  <h1>博客</h1>
+  <div class="debug blog">
+  <table>
+    <caption>导出博客信息</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>file</code></td><td class="value"><pre>"f:/nTest/hello.org"</pre></td></tr>
+      <tr><td class="property"><code>buffer</code></td><td class="value"><pre>#&lt;buffer hello.org&gt;</pre></td></tr>
+      <tr><td class="property"><code>publish-dir</code></td><td class="value"><pre>"out"</pre></td></tr>
+      <tr><td class="property"><code>template-dir</code></td><td class="value"><pre>"E:/Emacs/emacs/site-lisp/templates"</pre></td></tr>
+      <tr><td class="property"><code>style-dir</code></td><td class="value"><pre>"style"</pre></td></tr>
+      <tr><td class="property"><code>posts-filter</code></td><td class="value"><pre>"+TODO=\"DONE\""</pre></td></tr>
+      <tr><td class="property"><code>static-filter</code></td><td class="value"><pre>"+PAGE={.+.html}"</pre></td></tr>
+      <tr><td class="property"><code>snippet-filter</code></td><td class="value"><pre>"+SNIPPET={.+}"</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"nTest"</pre></td></tr>
+      <tr><td class="property"><code>description</code></td><td class="value"><pre>"Description"</pre></td></tr>
+      <tr><td class="property"><code>post-build-shell</code></td><td class="value"><pre>nil</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <h1>博文</h1>
+  <div class="debug post">
+  <div class="debug post">
+  <h2>搭建o-blog</h2>
+  <table>
+    <caption>导出博文信息 搭建o-blog</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#25645;&#24314;o-blog"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 2576)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "o blog" "o-blog" nil nil] [cl-struct-ob:tags "github" "github" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"tips/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"o-blog"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"tips/2012/07/24_o-blog.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+  &#30003;&#35831;github
+  &#30003;&#35831;DISQUS (&#35780;&#35770;&#31995;&#32479;)
+  
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+  &#30003;&#35831;github
+  &#30003;&#35831;DISQUS (&#35780;&#35770;&#31995;&#32479;)
+&lt;/p&gt;
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+  <h1>固定页面</h1>
+  <div class="debug post">
+  <div class="debug post">
+  <h2>调试</h2>
+  <table>
+    <caption>导出博文信息 调试</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35843;&#35797;"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"debug.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"debug"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"debug.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>测试2</h2>
+  <table>
+    <caption>导出博文信息 测试2</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;2"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test" "test" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test2"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test2.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+   &#27979;&#35797;2&#20869;&#23481;
+#+begin_src ocaml
+Printf.printf \"Hello, caml\";;
+#+end_src
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+   &#27979;&#35797;2&#20869;&#23481;
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Hello, caml\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
+&lt;/pre&gt;
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>测试3</h2>
+  <table>
+    <caption>导出博文信息 测试3</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;3"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test3" "test3" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test3"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test3.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+  &#27979;&#35797;3&#20869;&#23481;
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+  &#27979;&#35797;3&#20869;&#23481;
+&lt;/p&gt;"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>测试4</h2>
+  <table>
+    <caption>导出博文信息 测试4</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;4"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test4" "test4" nil nil] [cl-struct-ob:tags "test8" "test8" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test4"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test4.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+  &#27979;&#35797;4&#20869;&#23481;
+  "</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+  &#27979;&#35797;4&#20869;&#23481;
+&lt;/p&gt;
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+  <h1></h1>
+  <div class="debug post">
+  <div class="debug post">
+  <h2>Copyright</h2>
+  <table>
+    <caption>导出博文信息 Copyright</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"Copyright"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"copyright"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_copyright.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+Copyright &#169; 2012 nTest. 
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+Copyright &#169; 2012 nTest. 
+&lt;/p&gt;"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>About</h2>
+  <table>
+    <caption>导出博文信息 About</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"About"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"about"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_about.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+  &#20351;&#29992;o-blog
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+  &#20351;&#29992;o-blog
+&lt;/p&gt;"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>Navigation</h2>
+  <table>
+    <caption>导出博文信息 Navigation</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"Navigation"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"navigation"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_navigation.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+- [[#][/icon-book icon-white/ Blog]]
+  - [[file:../../../test2.html][&#27979;&#35797;2]]
+  - [[file:../../../test3.html][&#27979;&#35797;3]]
+  - [[file:../../../test4.html][&#27979;&#35797;4]]
+
+- [[#][/icon-file icon-white/ &#36817;&#26399;&#21338;&#25991;]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
+  - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
+  - [[file:Lisp error in nil: (void-variable "%s/%s")][Lisp error in nil: (void-variable "Tips")]]
+  - [[file:Lisp error in nil: (void-variable "%s/%s")][Lisp error in nil: (void-variable "Tips")]]
+
+- [[file:../../../tags/index.html][/icon-tags icon-white/ &#26631;&#31614;]]
+
+- [[file:../../../archives.html][/icon-list icon-white/ &#24402;&#26723;]]
+
+- [[file:../../../index.xml][RSS]]
+
+- [[file:../../../debug.html][(&#35843;&#35797;)]]
+   "</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;ul&gt;
+&lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-book icon-white&lt;/i&gt; Blog&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=\"../../../test2.html\"&gt;&#27979;&#35797;2&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../test3.html\"&gt;&#27979;&#35797;3&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../test4.html\"&gt;&#27979;&#35797;4&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-file icon-white&lt;/i&gt; &#36817;&#26399;&#21338;&#25991;&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;Lisp error in nil: (void-variable "Tips")&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../tags/index.html\"&gt;&lt;i&gt;icon-tags icon-white&lt;/i&gt; &#26631;&#31614;&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../archives.html\"&gt;&lt;i&gt;icon-list icon-white&lt;/i&gt; &#24402;&#26723;&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../index.xml\"&gt;RSS&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../debug.html\"&gt;(&#35843;&#35797;)&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
+  <h2>Navigation Footer</h2>
+  <table>
+    <caption>导出博文信息 Navigation Footer</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"Navigation Footer"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"navigation-footer"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/24_navigation-footer.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+- [[file:../../../index.html][/icon-home icon-white/ 首页]]
+
+- [[file:Lisp error in nil: (void-variable "%s/%s")][/icon-file icon-white/ Tips]]
+
+- [[file:../../../tags/index.html][/icon-tags icon-white/ Tags]]
+
+- [[file:../../../archives.html][/icon-list
+  icon-white/ &#24402;&#26723;]]
+
+- [[file:../../../index.xml][RSS]]
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;ul&gt;
+&lt;li&gt;&lt;a href=\"../../../index.html\"&gt;&lt;i&gt;icon-home icon-white&lt;/i&gt; 首页&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"Lisp error in nil: (void-variable "%s/%s")\"&gt;&lt;i&gt;icon-file icon-white&lt;/i&gt; Tips&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../tags/index.html\"&gt;&lt;i&gt;icon-tags icon-white&lt;/i&gt; Tags&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../archives.html\"&gt;&lt;i&gt;icon-list icon-white&lt;/i&gt; &#24402;&#26723;&lt;/a&gt;
+
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=\"../../../index.xml\"&gt;RSS&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+  <h1>标签</h1>
+  <div class="debug tags">
+  <div class="debug tag">
+  <h2>github</h2>
+  <table>
+    <caption>导出标签信息 "github"</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>name</code></td><td class="value"><pre>"github"</pre></td></tr>
+      <tr><td class="property"><code>safe</code></td><td class="value"><pre>"github"</pre></td></tr>
+      <tr><td class="property"><code>count</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>size</code></td><td class="value"><pre>80.0</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug tag">
+  <h2>o blog</h2>
+  <table>
+    <caption>导出标签信息 "o blog"</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>name</code></td><td class="value"><pre>"o blog"</pre></td></tr>
+      <tr><td class="property"><code>safe</code></td><td class="value"><pre>"o-blog"</pre></td></tr>
+      <tr><td class="property"><code>count</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>size</code></td><td class="value"><pre>80.0</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+</div>
+      </div>
+      <div id="footer">
+	<div class="container">
+	  <div class="row">
+	    <section class="span3">
+	      <h1>关于</h1>
+	      <p>
+  使用o-blog
+</p>
+	    </section>
+	    <nav id="links" class="span3">
+	      <h1>链接</h1>
+	      <ul>
+		<ul>
+<li><a href="./index.html"><i>icon-home icon-white</i> 首页</a>
+
+</li>
+<li><a href="./tips/2012/07/24_o-blog.html"><i>icon-file icon-white</i> Tips</a>
+
+</li>
+<li><a href="./tags/index.html"><i>icon-tags icon-white</i> Tags</a>
+
+</li>
+<li><a href="./archives.html"><i>icon-list icon-white</i> 归档</a>
+
+</li>
+<li><a href="./index.xml">RSS</a>
+</li>
+</ul>
+
+
+	      </ul>
+	    </nav>
+	    <nav id="archives" class="span3">
+	      <h1><a href="./archives.html">归档</a></h1>
+	      <ul>
+		<li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+	      </ul>
+	    </nav>
+	    <nav class="tags span3">
+	      <h1><a href="./tags/index.html">标签</a></h1>
+	      <ul>
+  <li style="font-size: 80.00%;"><a href="./tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="./tags/o-blog.html">o blog</a></li> 
+</ul>
+
+	    </nav>
+	  </div>
+	</div>
+	<div class="copyright" style="text-align: center;">
+	  <p>
+Copyright © 2012 nTest. 
+</p>
+	  <p>功能取自 <a href="https://github.com/renard/o-blog">o-blog</a>.</p>
+	</div>
+      </div>
+</body>
+</html>
+

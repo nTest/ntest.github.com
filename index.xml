@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>nTest</title>
+  <link href="index.xml" rel="self" />
+  <link href=""/>
+  <updated>2012-07-24T10:41:34Z</updated>
+  <id>index.xml</id>
+  <entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="nil/tips/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>tips/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
+  &#30003;&#35831;github
+  &#30003;&#35831;DISQUS (&#35780;&#35770;&#31995;&#32479;)
+&lt;/p&gt;
+</content></entry>
+</feed>
