@@ -3,7 +3,7 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T14:49:54Z</updated>
+  <updated>2012-07-24T14:59:08Z</updated>
   <id>index.xml</id>
   <entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
 &lt;h3 id="sec-1"&gt;&#22522;&#26412;&#20351;&#29992;&lt;/h3&gt;
@@ -28,8 +28,10 @@
   &#32622;
 &lt;/p&gt;&lt;/div&gt;
 &lt;/div&gt;
-</content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">
-</content></entry><entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">&lt;p&gt;
+ nat&#35774;&#32622;&#21518;,&#34394;&#25311;&#26426;&#25163;&#21160;&#35774;&#32622;ip&#19981;&#33021;&#19978;&#32593;,&#20351;&#29992;dhcp&#21518;&#21487;&#20197;.
+ openbsd &#20351;&#29992;dhcp:sudo dhclient vic0
+&lt;/p&gt;</content></entry><entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
    c:
 &lt;/p&gt;
 
