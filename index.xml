@@ -3,9 +3,33 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T14:23:17Z</updated>
+  <updated>2012-07-24T14:49:54Z</updated>
   <id>index.xml</id>
-  <entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
+  <entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
+&lt;h3 id="sec-1"&gt;&#22522;&#26412;&#20351;&#29992;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-1"&gt;
+
+
+
+
+&lt;pre class="example"&gt;[[&#25991;&#20214;&#20301;&#32622;file:&#36335;&#24452;][&#25551;&#36848;]] &#21019;&#24314;&#38142;&#25509;
+&lt;/pre&gt;
+
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;div id="outline-container-2" class="outline-3"&gt;
+&lt;h3 id="sec-2"&gt;&#23548;&#20986;html&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-2"&gt;
+
+&lt;p&gt;  org-publish-project project&#21517;&#31216;&#22312;org-publish-project-alist&#21464;&#37327;&#20013;&#35774;
+  &#32622;
+&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;
+</content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">
+</content></entry><entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
    c:
 &lt;/p&gt;
 
@@ -34,7 +58,6 @@
 
 &lt;pre class="src src-ocaml"&gt;&lt;span style="color: #93e93f;"&gt;Printf&lt;/span&gt;.printf &lt;span style="color: #b643aa;"&gt;"Hello, caml"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;/pre&gt;
-
 
 </content></entry><entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>blog/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
   &#30003;&#35831;github
