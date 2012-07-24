@@ -27,16 +27,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-	  <a class="brand" href="./index.html">nTest</a>
+	  <a class="brand" href="./index.html">nTest blog</a>
 	  <div class="nav-collapse collapse">
 	    <ul>
 <li><a href="#"><i>icon-book icon-white</i> Blog</a>
 <ul>
-<li><a href="./test2.html">测试2</a>
-</li>
-<li><a href="./test3.html">测试3</a>
-</li>
-<li><a href="./test4.html">测试4</a>
+<li><a href="./highlight_test.html">语法高亮测试</a>
 
 </li>
 </ul>
@@ -140,7 +136,7 @@
       <tr><td class="property"><code>posts-filter</code></td><td class="value"><pre>"+TODO=\"DONE\""</pre></td></tr>
       <tr><td class="property"><code>static-filter</code></td><td class="value"><pre>"+PAGE={.+.html}"</pre></td></tr>
       <tr><td class="property"><code>snippet-filter</code></td><td class="value"><pre>"+SNIPPET={.+}"</pre></td></tr>
-      <tr><td class="property"><code>title</code></td><td class="value"><pre>"nTest"</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"nTest blog"</pre></td></tr>
       <tr><td class="property"><code>description</code></td><td class="value"><pre>"Description"</pre></td></tr>
       <tr><td class="property"><code>post-build-shell</code></td><td class="value"><pre>nil</pre></td></tr>
     </tbody>
@@ -150,12 +146,88 @@
   <h1>博文</h1>
   <div class="debug post">
   <div class="debug post">
+  <h2>语法高亮测试</h2>
+  <table>
+    <caption>导出博文信息 语法高亮测试</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 13436)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#23384;&#26723;" ""]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "highlight" "highlight" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"highlight_test"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"highlight_test.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+   c:
+#+begin_src c
+   #include &lt;stdio.h&gt;
+
+   int main () {
+      printf(\"hello, c\");
+   }
+#+end_src
+   
+   python:
+#+begin_src python
+   print \"Hello, python\"
+#+end_src
+
+   ocaml:
+#+begin_src ocaml
+Printf.printf \"Hello, caml\";;
+#+end_src
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+   c:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-c\"&gt;&lt;span style=\"color: #c87e5f;\"&gt;#include&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+
+&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;main&lt;/span&gt; () {
+   printf(&lt;span style=\"color: #b643aa;\"&gt;\"hello, c\"&lt;/span&gt;);
+}
+&lt;/pre&gt;
+
+
+&lt;p&gt;   
+   python:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-python\"&gt;&lt;span style=\"color: #6e9ac9;\"&gt;print&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"Hello, python\"&lt;/span&gt;
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   ocaml:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Hello, caml\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
+&lt;/pre&gt;
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
   <h2>搭建o-blog</h2>
   <table>
     <caption>导出博文信息 搭建o-blog</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#25645;&#24314;o-blog"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 2576)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -190,12 +262,88 @@
   <h1>固定页面</h1>
   <div class="debug post">
   <div class="debug post">
+  <h2>语法高亮测试</h2>
+  <table>
+    <caption>导出博文信息 语法高亮测试</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 13436)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#23384;&#26723;" ""]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "highlight" "highlight" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"highlight_test"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"highlight_test.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+   c:
+#+begin_src c
+   #include &lt;stdio.h&gt;
+
+   int main () {
+      printf(\"hello, c\");
+   }
+#+end_src
+   
+   python:
+#+begin_src python
+   print \"Hello, python\"
+#+end_src
+
+   ocaml:
+#+begin_src ocaml
+Printf.printf \"Hello, caml\";;
+#+end_src
+"</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+   c:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-c\"&gt;&lt;span style=\"color: #c87e5f;\"&gt;#include&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+
+&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;main&lt;/span&gt; () {
+   printf(&lt;span style=\"color: #b643aa;\"&gt;\"hello, c\"&lt;/span&gt;);
+}
+&lt;/pre&gt;
+
+
+&lt;p&gt;   
+   python:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-python\"&gt;&lt;span style=\"color: #6e9ac9;\"&gt;print&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"Hello, python\"&lt;/span&gt;
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   ocaml:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Hello, caml\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
+&lt;/pre&gt;
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
   <h2>首页</h2>
   <table>
     <caption>导出博文信息 首页</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#39318;&#39029;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -223,13 +371,13 @@
     <caption>导出博文信息 调试</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35843;&#35797;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
       <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
       <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#23384;&#26723;" ""]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"debug.html"</pre></td></tr>
       <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
@@ -241,109 +389,6 @@
 
 "</pre></td></tr>
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"
-"</pre></td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="debug post">
-  <h2>测试2</h2>
-  <table>
-    <caption>导出博文信息 测试2</caption>
-    <thead><tr><th>属性</th><th>值</th></tr></thead>
-    <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
-      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;2"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
-      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
-      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test" "test" nil nil])</pre></td></tr>
-      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test2"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test2.html"</pre></td></tr>
-      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
-      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
-
-
-   &#27979;&#35797;2&#20869;&#23481;
-#+begin_src ocaml
-Printf.printf \"Hello, caml\";;
-#+end_src
-"</pre></td></tr>
-      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
-   &#27979;&#35797;2&#20869;&#23481;
-&lt;/p&gt;
-
-
-&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Hello, caml\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
-&lt;/pre&gt;
-
-"</pre></td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="debug post">
-  <h2>测试3</h2>
-  <table>
-    <caption>导出博文信息 测试3</caption>
-    <thead><tr><th>属性</th><th>值</th></tr></thead>
-    <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
-      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;3"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
-      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
-      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test3" "test3" nil nil])</pre></td></tr>
-      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test3"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test3.html"</pre></td></tr>
-      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
-      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
-
-
-  &#27979;&#35797;3&#20869;&#23481;
-"</pre></td></tr>
-      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
-  &#27979;&#35797;3&#20869;&#23481;
-&lt;/p&gt;"</pre></td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="debug post">
-  <h2>测试4</h2>
-  <table>
-    <caption>导出博文信息 测试4</caption>
-    <thead><tr><th>属性</th><th>值</th></tr></thead>
-    <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>4</pre></td></tr>
-      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#27979;&#35797;4"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20493 29952)</pre></td></tr>
-      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>24</pre></td></tr>
-      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog" "blog"]</pre></td></tr>
-      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "test4" "test4" nil nil] [cl-struct-ob:tags "test8" "test8" nil nil])</pre></td></tr>
-      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"test4"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"test4.html"</pre></td></tr>
-      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"."</pre></td></tr>
-      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
-      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
-
-
-  &#27979;&#35797;4&#20869;&#23481;
-  "</pre></td></tr>
-      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
-  &#27979;&#35797;4&#20869;&#23481;
-&lt;/p&gt;
 "</pre></td></tr>
     </tbody>
   </table>
@@ -439,9 +484,7 @@ Copyright &#169; 2012 nTest.
 
 
 - [[#][/icon-book icon-white/ Blog]]
-  - [[file:../../../test2.html][&#27979;&#35797;2]]
-  - [[file:../../../test3.html][&#27979;&#35797;3]]
-  - [[file:../../../test4.html][&#27979;&#35797;4]]
+  - [[file:../../../highlight_test.html][&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;]]
 
 - [[#][/icon-file icon-white/ &#36817;&#26399;&#21338;&#25991;]]
   - [[file:Lisp error in nil: (void-function format%20"%25s/%25s"%20)][Lisp error in nil: (void-variable "Tips")]]
@@ -461,11 +504,7 @@ Copyright &#169; 2012 nTest.
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;ul&gt;
 &lt;li&gt;&lt;a href=\"#\"&gt;&lt;i&gt;icon-book icon-white&lt;/i&gt; Blog&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=\"../../../test2.html\"&gt;&#27979;&#35797;2&lt;/a&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=\"../../../test3.html\"&gt;&#27979;&#35797;3&lt;/a&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=\"../../../test4.html\"&gt;&#27979;&#35797;4&lt;/a&gt;
+&lt;li&gt;&lt;a href=\"../../../highlight_test.html\"&gt;&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;&lt;/a&gt;
 
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -579,6 +618,19 @@ Copyright &#169; 2012 nTest.
   </table>
 </div>
 <div class="debug tag">
+  <h2>highlight</h2>
+  <table>
+    <caption>导出标签信息 "highlight"</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>name</code></td><td class="value"><pre>"highlight"</pre></td></tr>
+      <tr><td class="property"><code>safe</code></td><td class="value"><pre>"highlight"</pre></td></tr>
+      <tr><td class="property"><code>count</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>size</code></td><td class="value"><pre>80.0</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug tag">
   <h2>o blog</h2>
   <table>
     <caption>导出标签信息 "o blog"</caption>
@@ -631,13 +683,13 @@ Copyright &#169; 2012 nTest.
 	    <nav id="archives" class="span3">
 	      <h1><a href="./archives.html">归档</a></h1>
 	      <ul>
-		<li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+		<li><a href="./highlight_test.html">语法高亮测试</a></li> <li><a href="./tips/2012/07/24_o-blog.html">搭建o-blog</a></li> 
 	      </ul>
 	    </nav>
 	    <nav class="tags span3">
 	      <h1><a href="./tags/index.html">标签</a></h1>
 	      <ul>
-  <li style="font-size: 80.00%;"><a href="./tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="./tags/o-blog.html">o blog</a></li> 
+  <li style="font-size: 80.00%;"><a href="./tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="./tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="./tags/o-blog.html">o blog</a></li> 
 </ul>
 
 	    </nav>
