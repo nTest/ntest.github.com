@@ -3,9 +3,29 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T15:54:04Z</updated>
+  <updated>2012-07-24T15:59:25Z</updated>
   <id>index.xml</id>
-  <entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
+  <entry><title type="html">一些emacs快捷键</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_emacs.html"/><updated>2012-07-24T15:57:00Z</updated><published>2012-07-24T15:57:00Z</published><id>blog/2012/07/24_emacs.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><content type="html">&lt;p&gt;
+  QuickURL &#24555;&#36895;&#25554;&#20837;url, &#20445;&#23384;url&#22320;&#22336;
+  &lt;code&gt;quickurl-ask&lt;/code&gt;
+  &lt;code&gt;quickurl-add&lt;/code&gt;
+  &lt;code&gt;quickurl-list&lt;/code&gt;
+  &lt;code&gt;quickurl-edit&lt;/code&gt;
+&lt;/p&gt;
+&lt;p&gt;
+  &lt;code&gt;M-x tetris&lt;/code&gt; &#20420;&#32599;&#26031;&#26041;&#22359;
+  &lt;code&gt;gomoku&lt;/code&gt; &#20116;&#23376;&#26827;
+  &lt;code&gt;zone&lt;/code&gt; &#23631;&#20445;
+  &lt;code&gt;dunnet&lt;/code&gt; mud&#28216;&#25103;
+&lt;/p&gt;
+
+&lt;p&gt;
+  &lt;code&gt;C-u C-space&lt;/code&gt; &#35774;&#23450;&#20301;&#32622;
+  &lt;code&gt;C-u C-@&lt;/code&gt; &#36339;&#36716;&#20301;&#32622;
+&lt;/p&gt;
+&lt;p&gt;
+  &lt;code&gt;M-x speedbar&lt;/code&gt; &#25171;&#24320;&#24555;&#36895;&#26597;&#30475;&#31383;&#21475;
+&lt;/p&gt;</content></entry><entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
 &lt;h3 id="sec-1"&gt;&#22522;&#26412;&#20351;&#29992;&lt;/h3&gt;
 &lt;div class="outline-text-3" id="text-1"&gt;
 
@@ -26,7 +46,8 @@
 
 &lt;p&gt;  org-publish-project project&#21517;&#31216;&#22312;org-publish-project-alist&#21464;&#37327;&#20013;&#35774;
   &#32622;
-&lt;/p&gt;&lt;/div&gt;
+&lt;/p&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 </content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">&lt;p&gt;
  nat&#35774;&#32622;&#21518;,&#34394;&#25311;&#26426;&#25163;&#21160;&#35774;&#32622;ip&#19981;&#33021;&#19978;&#32593;,&#20351;&#29992;dhcp&#21518;&#21487;&#20197;.
