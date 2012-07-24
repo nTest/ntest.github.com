@@ -1,2 +1,2 @@
 
-nTest的个人blog,基于org-mode
+nTest鐨勪釜浜篵log,鍩轰簬org-mode
