@@ -3,7 +3,7 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T13:41:54Z</updated>
+  <updated>2012-07-24T13:56:29Z</updated>
   <id>index.xml</id>
   <entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/highlight_test.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>highlight_test.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
    c:
