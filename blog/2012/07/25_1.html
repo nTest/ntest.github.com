@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>学习现代编译器实现(1)</title>
+    <link rel="stylesheet" type="text/less" href="../../../style/less/o-blog.less">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="o-blog version 1.2">
+    <script src="../../../style/js/less-1.3.0.min.js" type="text/javascript"></script>
+    <script src="../../../style/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="../../../style/js/prettify.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog.linenumber.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog-fix.js" type="text/javascript"></script>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+	  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+	  <a class="brand" href="../../../index.html">nTest blog</a>
+	  <div class="nav-collapse collapse">
+	    <ul>
+<li><a href="#"><i>icon-book icon-white</i> 文档</a>
+
+</li>
+<li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
+<ul>
+<li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a>
+</li>
+<li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a>
+</li>
+<li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a>
+</li>
+<li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a>
+
+</li>
+</ul>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档博文</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+	  </div>
+	</div>
+      </div>
+    </div>
+    <div class="subnav subnav-fixed visible-desktop">
+      <div class="container">
+	<ul class="breadcrumb">
+  <li><a href="../../../index.html">首页</a> <span class="divider">/</span></li>
+  <li><a href="../../../blog/index.html">blog</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/index.html">2012</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/07/index.html">07</a> <span class="divider">/</span></li><li>学习现代编译器实现(1)</li>
+  </ul>
+
+      </div>
+    </div>
+    <div id="page" class="container">
+
+  <header class="article-header">
+
+    <div class="well">
+      <div class="row">
+	<div class="date span1">
+	  <div class=" date-d">25</div>
+	  <div class=" date-m"><a href="../../../blog/2012/07/index.html">七月</a></div>
+	  <div class=" date-y"><a href="../../../blog/2012/index.html">2012</a>
+	  </div>
+	</div>
+	<div class="span1">
+	  <div class="qr-code">
+  <img src="http://chart.apis.google.com/chart?chs=50x50&cht=qr&chld=|0&chl=%2fblog%2f2012%2f07%2f25_1.html"
+       alt="qr-code" />
+</div>
+
+	</div>
+	<h1 class="offset2" style="font-size: 250%">学习现代编译器实现(1)</h1>
+      </div>
+      <nav>
+	<ul class="pager">
+	  <li class="previous"><a href="../../../blog/2012/07/24_emacs.html"><i class="icon-chevron-left"></i>&nbsp;一些emacs快捷键</a></li><li class="next">&nbsp;</li>
+	</ul>
+      </nav>
+    </div>
+
+  </header>
+  <div class="article-content">
+    <p>
+   现代编译器实现，就是虎书，有3个版本c, java, ML.我看的是ML的版本。
+   此书的网站地址，有代码提供:
+   <a href="http://www.cs.princeton.edu/~appel/modern/">Modern Compiler Implementation</a>
+</p>
+
+<p>   
+   不过ML版是以SML实现的，ocaml与它有点不同，不过相差不大。大多是关键字不
+   同。
+</p>
+<p>   
+   学习第一章：简单介绍。
+   程序练习的代码如下:
+</p>
+
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(* </span><span style="color: #a36238;">&#34920;&#31034;&#21333;&#34892;&#31243;&#24207; </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#35821;&#27861;&#65306;</span>
+<span style="color: #a36238;"> *   Stm -&gt; Stm; Stm  (&#22797;&#21512;&#35821;&#21477; CompoundStm)</span>
+<span style="color: #a36238;"> *   Stm -&gt; id := Exp (&#36171;&#20540;&#35821;&#21477; AssignStm)</span>
+<span style="color: #a36238;"> *   Stm -&gt; print (ExpList) (&#25171;&#21360;&#35821;&#21477; PrintStm)</span>
+<span style="color: #a36238;"> * </span>
+<span style="color: #a36238;"> *   Exp -&gt; id    (&#26631;&#35782;&#31526;&#34920;&#36798;&#24335; IdExp)</span>
+<span style="color: #a36238;"> *   Exp -&gt; num   (&#25968;&#23383;&#34920;&#36798;&#24335; NumExp)</span>
+<span style="color: #a36238;"> *   Exp -&gt; Exp Binop Exp (&#20108;&#20803;&#34920;&#36798;&#24335; OpExp)</span>
+<span style="color: #a36238;"> *   Exp -&gt; (Stm, Exp)    (&#39034;&#24207;&#34920;&#36798;&#24335; EseqExp)</span>
+<span style="color: #a36238;"> *</span>
+<span style="color: #a36238;"> *   ExpList -&gt; Exp, ExpList (&#34920;&#36798;&#24335;&#21015;&#34920; PairExpList)</span>
+<span style="color: #a36238;"> *   ExpList -&gt; Exp          (&#26368;&#21518;&#19968;&#20010;&#34920;&#36798;&#24335; LastExpList)</span>
+<span style="color: #a36238;"> *</span>
+<span style="color: #a36238;"> *   Binop -&gt; +   (Plus)</span>
+<span style="color: #a36238;"> *   Binop -&gt; -   (Minus)</span>
+<span style="color: #a36238;"> *   Binop -&gt; x   (Times)</span>
+<span style="color: #a36238;"> *   Binop -&gt; /   (Div)</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">id </span><span style="color: #a52a2a;">=</span> string
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">binop </span><span style="color: #a52a2a;">=</span> Plus <span style="color: #a52a2a;">|</span> Minus <span style="color: #a52a2a;">|</span> Times <span style="color: #a52a2a;">|</span> Div
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">stm </span><span style="color: #a52a2a;">=</span> CompoundStm <span style="color: #6e9ac9;">of</span> stm <span style="color: #a52a2a;">*</span> stm
+           <span style="color: #a52a2a;">|</span> AssignStm <span style="color: #6e9ac9;">of</span> id <span style="color: #a52a2a;">*</span> exp
+           <span style="color: #a52a2a;">|</span> PrintStm <span style="color: #6e9ac9;">of</span> exp list
+<span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #1fe0e5;">exp </span><span style="color: #a52a2a;">=</span> IdExp <span style="color: #6e9ac9;">of</span> id
+          <span style="color: #a52a2a;">|</span> NumExp <span style="color: #6e9ac9;">of</span> int
+          <span style="color: #a52a2a;">|</span> OpExp <span style="color: #6e9ac9;">of</span> exp <span style="color: #a52a2a;">*</span> binop <span style="color: #a52a2a;">*</span> exp
+          <span style="color: #a52a2a;">|</span> EseqExp <span style="color: #6e9ac9;">of</span> stm <span style="color: #a52a2a;">*</span> exp
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#36825;&#20010;&#32451;&#20064;&#20171;&#32461;&#20102; &#29615;&#22659;(&#21464;&#37327;&#30340;&#31526;&#21495;&#34920;);&#25277;&#35937;&#35821;&#27861;(&#34920;&#31034;&#31243;&#24207;&#35821;&#21477;&#30340;&#25968;&#25454;&#32467;&#26500;);</span>
+<span style="color: #a36238;"> * &#26641;&#24418;&#25968;&#25454;&#32467;&#26500;&#30340;&#36882;&#24402;(&#22312;&#32534;&#35793;&#22120;&#30340;&#22810;&#20010;&#37096;&#20998;&#37117;&#26377;&#29992;);&#21644;&#20989;&#25968;&#24335;&#32534;&#31243;&#39118;&#26684;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#25105;&#20204;&#19981;&#20851;&#24515;&#35299;&#26512;(parsing)&#35821;&#35328;&#65292;&#22240;&#27492;&#30452;&#25509;&#20351;&#29992;&#25968;&#25454;&#26500;&#36896;&#22120;&#32534;&#20889;&#31243;&#24207; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">a := 5 + 3; b := (print (a, a-1), 10*a); print (b) </span><span style="color: #a36238;">*)</span>              
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">prog </span><span style="color: #a52a2a;">=</span>
+  CompoundStm <span style="color: #a52a2a;">(</span>
+    AssignStm <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"a"</span><span style="color: #a52a2a;">,</span> OpExp <span style="color: #a52a2a;">(</span>NumExp 5<span style="color: #a52a2a;">,</span> Plus<span style="color: #a52a2a;">,</span> NumExp 3<span style="color: #a52a2a;">)),</span>
+    CompoundStm <span style="color: #a52a2a;">(</span>
+      AssignStm <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"b"</span><span style="color: #a52a2a;">,</span>
+                 EseqExp <span style="color: #a52a2a;">(</span>PrintStm <span style="color: #a52a2a;">[</span>IdExp <span style="color: #b643aa;">"a"</span><span style="color: #a52a2a;">;</span> OpExp <span style="color: #a52a2a;">(</span>IdExp <span style="color: #b643aa;">"a"</span><span style="color: #a52a2a;">,</span> Minus<span style="color: #a52a2a;">,</span> NumExp 1<span style="color: #a52a2a;">)],</span>
+                          OpExp <span style="color: #a52a2a;">(</span>NumExp 10<span style="color: #a52a2a;">,</span> Times<span style="color: #a52a2a;">,</span> IdExp <span style="color: #b643aa;">"a"</span><span style="color: #a52a2a;">))),</span>
+        PrintStm <span style="color: #a52a2a;">[</span>IdExp <span style="color: #b643aa;">"b"</span><span style="color: #a52a2a;">]))</span>
+
+<span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#32451;&#20064;&#31243;&#24207;</span>
+<span style="color: #a36238;"> * &#19981;&#20351;&#29992;&#24341;&#29992;&#21464;&#37327;&#65292;&#25968;&#32452;&#65292;&#25110;&#36171;&#20540;&#34920;&#36798;&#24335;&#31561;&#24341;&#29992;&#31867;&#22411;(&#24102;&#26377;&#21103;&#20316;&#29992;&#65292;&#20250;&#20462;&#25913;&#20869;&#37096;&#29366;&#24577;)&#30340;&#20540;&#26469;</span>
+<span style="color: #a36238;"> * &#23454;&#29616;&#20197;&#19979;&#31243;&#24207;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a36238;">(*******************************************************************************</span>
+<span style="color: #a36238;"> * 1.&#32534;&#20889;&#19968;&#20010;&#20989;&#25968;(maxargs : stm -&gt; int) &#36820;&#22238;stm&#35821;&#21477;&#20013;&#20219;&#24847;&#19968;&#20010;&#23376;&#34920;&#36798;&#24335;&#20013;&#30340;print&#35821;&#21477;&#30340;</span>
+<span style="color: #a36238;"> * &#26368;&#22823;&#21442;&#25968;&#20010;&#25968;&#12290; &#20363;&#22914;maxargs(prog)&#20026;2</span>
+<span style="color: #a36238;"> ******************************************************************************</span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">maxargs</span><span style="color: #1fe0e5;"> st </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#33719;&#24471;&#25152;&#26377;print&#20989;&#25968;&#30340;&#21442;&#25968;&#20010;&#25968; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #0000ff; font-weight: bold;">rec</span> <span style="color: #ffe829;">args_aux</span><span style="color: #1fe0e5;"> rs </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span> 
+   <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> CompoundStm <span style="color: #a52a2a;">(</span>stm1<span style="color: #a52a2a;">,</span> stm2<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+      <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_rs </span><span style="color: #a52a2a;">=</span> args_aux rs stm1 <span style="color: #0000ff; font-weight: bold;">in</span>
+      args_aux new_rs stm2
+    <span style="color: #a52a2a;">|</span> AssignStm <span style="color: #a52a2a;">(</span>_<span style="color: #a52a2a;">,</span> e<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+      <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #0000ff; font-weight: bold;">rec</span> <span style="color: #ffe829;">match_exp</span><span style="color: #1fe0e5;"> rs </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span>
+       <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> IdExp _
+        <span style="color: #a52a2a;">|</span> NumExp _ <span style="color: #a52a2a;">-&gt;</span> rs
+        <span style="color: #a52a2a;">|</span> OpExp <span style="color: #a52a2a;">(</span>e1<span style="color: #a52a2a;">,</span> _<span style="color: #a52a2a;">,</span> e2<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_rs </span><span style="color: #a52a2a;">=</span> match_exp rs e1 <span style="color: #0000ff; font-weight: bold;">in</span> match_exp new_rs e2
+        <span style="color: #a52a2a;">|</span> EseqExp <span style="color: #a52a2a;">(</span>s<span style="color: #a52a2a;">,</span> e<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_rs </span><span style="color: #a52a2a;">=</span> args_aux rs s <span style="color: #0000ff; font-weight: bold;">in</span> match_exp new_rs e 
+      <span style="color: #0000ff; font-weight: bold;">in</span>
+      match_exp rs e
+    <span style="color: #a52a2a;">|</span> PrintStm l <span style="color: #a52a2a;">-&gt;</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">List</span>.length l<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">::</span> rs
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">res </span><span style="color: #a52a2a;">=</span> args_aux <span style="color: #a52a2a;">[]</span> st <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">List</span>.fold_left max 0 res <span style="color: #a52a2a;">;;</span>
+
+maxargs prog<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">2 </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;&#22312;exp&#20013;&#20986;&#29616;print&#30340;&#24773;&#20917; </span><span style="color: #a36238;">*)</span>                                           
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">test </span><span style="color: #a52a2a;">=</span> AssignStm <span style="color: #a52a2a;">(</span>
+  <span style="color: #b643aa;">"test"</span><span style="color: #a52a2a;">,</span>
+  OpExp <span style="color: #a52a2a;">(</span>
+    EseqExp <span style="color: #a52a2a;">(</span>PrintStm <span style="color: #a52a2a;">[</span>NumExp 8<span style="color: #a52a2a;">],</span> NumExp 9<span style="color: #a52a2a;">),</span>
+    Plus<span style="color: #a52a2a;">,</span>
+    EseqExp <span style="color: #a52a2a;">(</span>PrintStm <span style="color: #a52a2a;">[</span>NumExp 1<span style="color: #a52a2a;">;</span> NumExp 2<span style="color: #a52a2a;">;</span> NumExp 3<span style="color: #a52a2a;">],</span> NumExp 10<span style="color: #a52a2a;">)));;</span>
+
+maxargs test<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">3 </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a36238;">(*******************************************************************************</span>
+<span style="color: #a36238;"> * 2.&#32534;&#20889;&#19968;&#20010;&#20989;&#25968; interp : stm -&gt; unit &#35299;&#37322;&#36825;&#20010;&#35821;&#35328;&#30340;&#31243;&#24207;&#12290;</span>
+<span style="color: #a36238;"> * &#20351;&#29992;&#20989;&#25968;&#24335;&#39118;&#26684;&#65292;&#32500;&#25252;&#19968;&#20010;(variable, integer)&#21015;&#34920;,&#24182;&#22312;AssignStm</span>
+<span style="color: #a36238;"> * &#22788;&#26356;&#26032;&#36825;&#20010;&#21015;&#34920;</span>
+<span style="color: #a36238;"> ******************************************************************************</span><span style="color: #a36238;">*)</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">print_assoc_lst</span><span style="color: #1fe0e5;"> lst </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.iter <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">fun</span> <span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">n</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> v</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"%s %d\n"</span> n v<span style="color: #a52a2a;">)</span> lst
+
+<span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#25918;&#22312;&#22806;&#36793;&#20026;&#20102;&#20351;&#29992;#trace</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #0000ff; font-weight: bold;">rec</span> <span style="color: #ffe829;">inter_stm</span><span style="color: #1fe0e5;"> tbl </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span>
+ <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> CompoundStm <span style="color: #a52a2a;">(</span>st1<span style="color: #a52a2a;">,</span> st2<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_tbl </span><span style="color: #a52a2a;">=</span> inter_stm tbl st1 <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #a36238;">(* </span><span style="color: #a36238;">print_assoc_lst new_tbl; </span><span style="color: #a36238;">*)</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_tbl </span><span style="color: #a52a2a;">=</span> inter_stm new_tbl st2 <span style="color: #0000ff; font-weight: bold;">in</span>
+    new_tbl
+  <span style="color: #a52a2a;">|</span> AssignStm <span style="color: #a52a2a;">(</span>id<span style="color: #a52a2a;">,</span> e<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">v </span><span style="color: #a52a2a;">=</span> inter_exp tbl e <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #a52a2a;">(</span>id<span style="color: #a52a2a;">,</span> v<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">::</span> tbl
+  <span style="color: #a52a2a;">|</span> PrintStm exps <span style="color: #a52a2a;">-&gt;</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">print_exp</span><span style="color: #1fe0e5;"> e </span><span style="color: #a52a2a;">=</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">v </span><span style="color: #a52a2a;">=</span> inter_exp tbl e <span style="color: #0000ff; font-weight: bold;">in</span>  print_int v<span style="color: #a52a2a;">;</span> print_string <span style="color: #b643aa;">" "</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #93e93f;">List</span>.iter print_exp exps<span style="color: #a52a2a;">;</span> print_newline <span style="color: #a52a2a;">();</span>
+    tbl
+<span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #ffe829;">inter_exp</span><span style="color: #1fe0e5;"> tbl </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span>
+ <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> IdExp id <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">List</span>.assoc id tbl
+  <span style="color: #a52a2a;">|</span> NumExp n <span style="color: #a52a2a;">-&gt;</span> n
+  <span style="color: #a52a2a;">|</span> OpExp <span style="color: #a52a2a;">(</span>e1<span style="color: #a52a2a;">,</span> op<span style="color: #a52a2a;">,</span> e2<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">v1 </span><span style="color: #a52a2a;">=</span> inter_exp tbl e1 <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">v2 </span><span style="color: #a52a2a;">=</span> inter_exp tbl e2 <span style="color: #0000ff; font-weight: bold;">in</span>
+    inter_op v1 v2 op
+  <span style="color: #a52a2a;">|</span> EseqExp <span style="color: #a52a2a;">(</span>st<span style="color: #a52a2a;">,</span> e<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">new_tbl </span><span style="color: #a52a2a;">=</span> inter_stm tbl st <span style="color: #0000ff; font-weight: bold;">in</span>
+    inter_exp new_tbl e
+<span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #ffe829;">inter_op</span><span style="color: #1fe0e5;"> v1 v2 </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span>
+ <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> Plus <span style="color: #a52a2a;">-&gt;</span> v1 <span style="color: #a52a2a;">+</span> v2
+  <span style="color: #a52a2a;">|</span> Minus <span style="color: #a52a2a;">-&gt;</span> v1 <span style="color: #a52a2a;">-</span> v2
+  <span style="color: #a52a2a;">|</span> Times <span style="color: #a52a2a;">-&gt;</span> v1 <span style="color: #a52a2a;">*</span> v2
+  <span style="color: #a52a2a;">|</span> Div <span style="color: #a52a2a;">-&gt;</span> v1 <span style="color: #a52a2a;">/</span> v2
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">interp</span><span style="color: #1fe0e5;"> st </span><span style="color: #a52a2a;">=</span>
+  ignore <span style="color: #a52a2a;">(</span>inter_stm <span style="color: #a52a2a;">[]</span> st<span style="color: #a52a2a;">);</span>
+  <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">;;</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797; </span><span style="color: #a36238;">*)</span>
+interp prog<span style="color: #a52a2a;">;;</span>
+
+interp test<span style="color: #a52a2a;">;;</span>   
+</pre>
+
+
+
+
+  </div>
+  
+  <footer class="well article-footer">
+    发布于 <time datetime=\"2012-07-25T23:53:00Z\"> 2012-07-25 23:53:00</time>.
+    <nav class="tag-cloud">
+      <h1><i class="icon-tags"></i> 相关标签</h1>
+      <ul>
+	<li class="label label-inverse small"><a href="../../../tags/ocaml.html">ocaml</a></li><li class="label label-inverse small"><a href="../../../tags/.html">编译器</a></li>
+      </ul>
+    </nav>
+  </footer>
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'ntest'; // required: replace example with your forum shortname
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+      </div>
+      <div id="footer">
+	<div class="container">
+	  <div class="row">
+	    <section class="span3">
+	      <h1>关于</h1>
+	      <p>
+  基于o-blog
+</p>
+	    </section>
+	    <nav id="links" class="span3">
+	      <h1>链接</h1>
+	      <ul>
+		<ul>
+<li><a href="../../../index.html"><i>icon-home icon-white</i> 首页</a>
+
+</li>
+<li><a href="../../../blog/2012/07/25_1.html"><i>icon-file icon-white</i> 文章</a>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+
+
+	      </ul>
+	    </nav>
+	    <nav id="archives" class="span3">
+	      <h1><a href="../../../archives.html">归档</a></h1>
+	      <ul>
+		<li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="../../../blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="../../../blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+	      </ul>
+	    </nav>
+	    <nav class="tags span3">
+	      <h1><a href="../../../tags/index.html">标签</a></h1>
+	      <ul>
+  <li style="font-size: 220.00%;"><a href="../../../tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/o-blog.html">o blog</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/vmware.html">vmware</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/.html">编译器</a></li> 
+</ul>
+
+	    </nav>
+	  </div>
+	</div>
+	<div class="copyright" style="text-align: center;">
+	  <p>
+Copyright © 2012 nTest. 
+</p>
+	  <p>功能取自 <a href="https://github.com/renard/o-blog">o-blog</a>.</p>
+	</div>
+      </div>
+</body>
+</html>
+

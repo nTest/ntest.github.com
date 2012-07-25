@@ -3,9 +3,168 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-24T15:59:25Z</updated>
+  <updated>2012-07-25T23:53:28Z</updated>
   <id>index.xml</id>
-  <entry><title type="html">一些emacs快捷键</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_emacs.html"/><updated>2012-07-24T15:57:00Z</updated><published>2012-07-24T15:57:00Z</published><id>blog/2012/07/24_emacs.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><content type="html">&lt;p&gt;
+  <entry><title type="html">学习现代编译器实现(1)</title><author><name>nil</name></author><link href="nil/blog/2012/07/25_1.html"/><updated>2012-07-25T23:53:00Z</updated><published>2012-07-25T23:53:00Z</published><id>blog/2012/07/25_1.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/.html" term="编译器" label="编译器"/><content type="html">&lt;p&gt;
+   &#29616;&#20195;&#32534;&#35793;&#22120;&#23454;&#29616;&#65292;&#23601;&#26159;&#34382;&#20070;&#65292;&#26377;3&#20010;&#29256;&#26412;c, java, ML.&#25105;&#30475;&#30340;&#26159;ML&#30340;&#29256;&#26412;&#12290;
+   &#27492;&#20070;&#30340;&#32593;&#31449;&#22320;&#22336;&#65292;&#26377;&#20195;&#30721;&#25552;&#20379;:
+   &lt;a href="http://www.cs.princeton.edu/~appel/modern/"&gt;Modern Compiler Implementation&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p&gt;   
+   &#19981;&#36807;ML&#29256;&#26159;&#20197;SML&#23454;&#29616;&#30340;&#65292;ocaml&#19982;&#23427;&#26377;&#28857;&#19981;&#21516;&#65292;&#19981;&#36807;&#30456;&#24046;&#19981;&#22823;&#12290;&#22823;&#22810;&#26159;&#20851;&#38190;&#23383;&#19981;
+   &#21516;&#12290;
+&lt;/p&gt;
+&lt;p&gt;   
+   &#23398;&#20064;&#31532;&#19968;&#31456;&#65306;&#31616;&#21333;&#20171;&#32461;&#12290;
+   &#31243;&#24207;&#32451;&#20064;&#30340;&#20195;&#30721;&#22914;&#19979;:
+&lt;/p&gt;
+
+
+
+&lt;pre class="src src-ocaml"&gt;&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#34920;&amp;#31034;&amp;#21333;&amp;#34892;&amp;#31243;&amp;#24207; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(*&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#35821;&amp;#27861;&amp;#65306;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Stm -&amp;gt; Stm; Stm  (&amp;#22797;&amp;#21512;&amp;#35821;&amp;#21477; CompoundStm)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Stm -&amp;gt; id := Exp (&amp;#36171;&amp;#20540;&amp;#35821;&amp;#21477; AssignStm)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Stm -&amp;gt; print (ExpList) (&amp;#25171;&amp;#21360;&amp;#35821;&amp;#21477; PrintStm)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Exp -&amp;gt; id    (&amp;#26631;&amp;#35782;&amp;#31526;&amp;#34920;&amp;#36798;&amp;#24335; IdExp)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Exp -&amp;gt; num   (&amp;#25968;&amp;#23383;&amp;#34920;&amp;#36798;&amp;#24335; NumExp)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Exp -&amp;gt; Exp Binop Exp (&amp;#20108;&amp;#20803;&amp;#34920;&amp;#36798;&amp;#24335; OpExp)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Exp -&amp;gt; (Stm, Exp)    (&amp;#39034;&amp;#24207;&amp;#34920;&amp;#36798;&amp;#24335; EseqExp)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   ExpList -&amp;gt; Exp, ExpList (&amp;#34920;&amp;#36798;&amp;#24335;&amp;#21015;&amp;#34920; PairExpList)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   ExpList -&amp;gt; Exp          (&amp;#26368;&amp;#21518;&amp;#19968;&amp;#20010;&amp;#34920;&amp;#36798;&amp;#24335; LastExpList)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Binop -&amp;gt; +   (Plus)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Binop -&amp;gt; -   (Minus)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Binop -&amp;gt; x   (Times)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; *   Binop -&amp;gt; /   (Div)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;type&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;id &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; string
+
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;type&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;binop &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; Plus &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Minus &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Times &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Div
+
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;type&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;stm &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; CompoundStm &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; stm &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; stm
+           &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; AssignStm &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; id &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; exp
+           &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; PrintStm &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; exp list
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;and&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;exp &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; IdExp &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; id
+          &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; NumExp &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; int
+          &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; OpExp &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; exp &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; binop &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; exp
+          &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; EseqExp &lt;span style="color: #6e9ac9;"&gt;of&lt;/span&gt; stm &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; exp
+
+&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#36825;&amp;#20010;&amp;#32451;&amp;#20064;&amp;#20171;&amp;#32461;&amp;#20102; &amp;#29615;&amp;#22659;(&amp;#21464;&amp;#37327;&amp;#30340;&amp;#31526;&amp;#21495;&amp;#34920;);&amp;#25277;&amp;#35937;&amp;#35821;&amp;#27861;(&amp;#34920;&amp;#31034;&amp;#31243;&amp;#24207;&amp;#35821;&amp;#21477;&amp;#30340;&amp;#25968;&amp;#25454;&amp;#32467;&amp;#26500;);&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#26641;&amp;#24418;&amp;#25968;&amp;#25454;&amp;#32467;&amp;#26500;&amp;#30340;&amp;#36882;&amp;#24402;(&amp;#22312;&amp;#32534;&amp;#35793;&amp;#22120;&amp;#30340;&amp;#22810;&amp;#20010;&amp;#37096;&amp;#20998;&amp;#37117;&amp;#26377;&amp;#29992;);&amp;#21644;&amp;#20989;&amp;#25968;&amp;#24335;&amp;#32534;&amp;#31243;&amp;#39118;&amp;#26684;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#25105;&amp;#20204;&amp;#19981;&amp;#20851;&amp;#24515;&amp;#35299;&amp;#26512;(parsing)&amp;#35821;&amp;#35328;&amp;#65292;&amp;#22240;&amp;#27492;&amp;#30452;&amp;#25509;&amp;#20351;&amp;#29992;&amp;#25968;&amp;#25454;&amp;#26500;&amp;#36896;&amp;#22120;&amp;#32534;&amp;#20889;&amp;#31243;&amp;#24207; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;a := 5 + 3; b := (print (a, a-1), 10*a); print (b) &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;              
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;prog &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt;
+  CompoundStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;
+    AssignStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;&lt;span style="color: #b643aa;"&gt;"a"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;NumExp 5&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; Plus&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; NumExp 3&lt;span style="color: #a52a2a;"&gt;)),&lt;/span&gt;
+    CompoundStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;
+      AssignStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;&lt;span style="color: #b643aa;"&gt;"b"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt;
+                 EseqExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;PrintStm &lt;span style="color: #a52a2a;"&gt;[&lt;/span&gt;IdExp &lt;span style="color: #b643aa;"&gt;"a"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;;&lt;/span&gt; OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;IdExp &lt;span style="color: #b643aa;"&gt;"a"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; Minus&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; NumExp 1&lt;span style="color: #a52a2a;"&gt;)],&lt;/span&gt;
+                          OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;NumExp 10&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; Times&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; IdExp &lt;span style="color: #b643aa;"&gt;"a"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;))),&lt;/span&gt;
+        PrintStm &lt;span style="color: #a52a2a;"&gt;[&lt;/span&gt;IdExp &lt;span style="color: #b643aa;"&gt;"b"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;]))&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(*&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#32451;&amp;#20064;&amp;#31243;&amp;#24207;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#19981;&amp;#20351;&amp;#29992;&amp;#24341;&amp;#29992;&amp;#21464;&amp;#37327;&amp;#65292;&amp;#25968;&amp;#32452;&amp;#65292;&amp;#25110;&amp;#36171;&amp;#20540;&amp;#34920;&amp;#36798;&amp;#24335;&amp;#31561;&amp;#24341;&amp;#29992;&amp;#31867;&amp;#22411;(&amp;#24102;&amp;#26377;&amp;#21103;&amp;#20316;&amp;#29992;&amp;#65292;&amp;#20250;&amp;#20462;&amp;#25913;&amp;#20869;&amp;#37096;&amp;#29366;&amp;#24577;)&amp;#30340;&amp;#20540;&amp;#26469;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#23454;&amp;#29616;&amp;#20197;&amp;#19979;&amp;#31243;&amp;#24207;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(*******************************************************************************&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * 1.&amp;#32534;&amp;#20889;&amp;#19968;&amp;#20010;&amp;#20989;&amp;#25968;(maxargs : stm -&amp;gt; int) &amp;#36820;&amp;#22238;stm&amp;#35821;&amp;#21477;&amp;#20013;&amp;#20219;&amp;#24847;&amp;#19968;&amp;#20010;&amp;#23376;&amp;#34920;&amp;#36798;&amp;#24335;&amp;#20013;&amp;#30340;print&amp;#35821;&amp;#21477;&amp;#30340;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#26368;&amp;#22823;&amp;#21442;&amp;#25968;&amp;#20010;&amp;#25968;&amp;#12290; &amp;#20363;&amp;#22914;maxargs(prog)&amp;#20026;2&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; ******************************************************************************&lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;maxargs&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; st &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt;
+  &lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#33719;&amp;#24471;&amp;#25152;&amp;#26377;print&amp;#20989;&amp;#25968;&amp;#30340;&amp;#21442;&amp;#25968;&amp;#20010;&amp;#25968; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+  &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;rec&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;args_aux&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; rs &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #6e9ac9;"&gt;function&lt;/span&gt; 
+   &lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; CompoundStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;stm1&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; stm2&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+      &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_rs &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; args_aux rs stm1 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+      args_aux new_rs stm2
+    &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; AssignStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;_&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+      &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;rec&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;match_exp&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; rs &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #6e9ac9;"&gt;function&lt;/span&gt;
+       &lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; IdExp _
+        &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; NumExp _ &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; rs
+        &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;e1&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; _&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e2&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_rs &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; match_exp rs e1 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt; match_exp new_rs e2
+        &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; EseqExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;s&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_rs &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; args_aux rs s &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt; match_exp new_rs e 
+      &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+      match_exp rs e
+    &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; PrintStm l &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;&lt;span style="color: #93e93f;"&gt;List&lt;/span&gt;.length l&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;::&lt;/span&gt; rs
+  &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+  &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;res &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; args_aux &lt;span style="color: #a52a2a;"&gt;[]&lt;/span&gt; st &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+  &lt;span style="color: #93e93f;"&gt;List&lt;/span&gt;.fold_left max 0 res &lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
+
+maxargs prog&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt; &lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;2 &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#27979;&amp;#35797;&amp;#22312;exp&amp;#20013;&amp;#20986;&amp;#29616;print&amp;#30340;&amp;#24773;&amp;#20917; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;                                           
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;test &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; AssignStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;
+  &lt;span style="color: #b643aa;"&gt;"test"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt;
+  OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;
+    EseqExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;PrintStm &lt;span style="color: #a52a2a;"&gt;[&lt;/span&gt;NumExp 8&lt;span style="color: #a52a2a;"&gt;],&lt;/span&gt; NumExp 9&lt;span style="color: #a52a2a;"&gt;),&lt;/span&gt;
+    Plus&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt;
+    EseqExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;PrintStm &lt;span style="color: #a52a2a;"&gt;[&lt;/span&gt;NumExp 1&lt;span style="color: #a52a2a;"&gt;;&lt;/span&gt; NumExp 2&lt;span style="color: #a52a2a;"&gt;;&lt;/span&gt; NumExp 3&lt;span style="color: #a52a2a;"&gt;],&lt;/span&gt; NumExp 10&lt;span style="color: #a52a2a;"&gt;)));;&lt;/span&gt;
+
+maxargs test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt; &lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;3 &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(*******************************************************************************&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * 2.&amp;#32534;&amp;#20889;&amp;#19968;&amp;#20010;&amp;#20989;&amp;#25968; interp : stm -&amp;gt; unit &amp;#35299;&amp;#37322;&amp;#36825;&amp;#20010;&amp;#35821;&amp;#35328;&amp;#30340;&amp;#31243;&amp;#24207;&amp;#12290;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#20351;&amp;#29992;&amp;#20989;&amp;#25968;&amp;#24335;&amp;#39118;&amp;#26684;&amp;#65292;&amp;#32500;&amp;#25252;&amp;#19968;&amp;#20010;(variable, integer)&amp;#21015;&amp;#34920;,&amp;#24182;&amp;#22312;AssignStm&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#22788;&amp;#26356;&amp;#26032;&amp;#36825;&amp;#20010;&amp;#21015;&amp;#34920;&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; ******************************************************************************&lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;print_assoc_lst&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; lst &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;List&lt;/span&gt;.iter &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;&lt;span style="color: #6e9ac9;"&gt;fun&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt;n&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; v&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;Printf&lt;/span&gt;.printf &lt;span style="color: #b643aa;"&gt;"%s %d\n"&lt;/span&gt; n v&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; lst
+
+&lt;span style="color: #a36238;"&gt;(*&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; * &amp;#25918;&amp;#22312;&amp;#22806;&amp;#36793;&amp;#20026;&amp;#20102;&amp;#20351;&amp;#29992;#trace&lt;/span&gt;
+&lt;span style="color: #a36238;"&gt; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;  
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;rec&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;inter_stm&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; tbl &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #6e9ac9;"&gt;function&lt;/span&gt;
+ &lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; CompoundStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;st1&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; st2&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_tbl &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_stm tbl st1 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    &lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;print_assoc_lst new_tbl; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_tbl &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_stm new_tbl st2 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    new_tbl
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; AssignStm &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;id&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;v &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_exp tbl e &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;id&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; v&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;::&lt;/span&gt; tbl
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; PrintStm exps &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;print_exp&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; e &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;v &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_exp tbl e &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;  print_int v&lt;span style="color: #a52a2a;"&gt;;&lt;/span&gt; print_string &lt;span style="color: #b643aa;"&gt;" "&lt;/span&gt; &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    &lt;span style="color: #93e93f;"&gt;List&lt;/span&gt;.iter print_exp exps&lt;span style="color: #a52a2a;"&gt;;&lt;/span&gt; print_newline &lt;span style="color: #a52a2a;"&gt;();&lt;/span&gt;
+    tbl
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;and&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;inter_exp&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; tbl &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #6e9ac9;"&gt;function&lt;/span&gt;
+ &lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; IdExp id &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; &lt;span style="color: #93e93f;"&gt;List&lt;/span&gt;.assoc id tbl
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; NumExp n &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; n
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; OpExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;e1&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; op&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e2&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;v1 &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_exp tbl e1 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;v2 &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_exp tbl e2 &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    inter_op v1 v2 op
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; EseqExp &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;st&lt;span style="color: #a52a2a;"&gt;,&lt;/span&gt; e&lt;span style="color: #a52a2a;"&gt;)&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #1fe0e5;"&gt;new_tbl &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; inter_stm tbl st &lt;span style="color: #0000ff; font-weight: bold;"&gt;in&lt;/span&gt;
+    inter_exp new_tbl e
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;and&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;inter_op&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; v1 v2 &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt; &lt;span style="color: #6e9ac9;"&gt;function&lt;/span&gt;
+ &lt;span style="color: #1fe0e5;"&gt; &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Plus &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; v1 &lt;span style="color: #a52a2a;"&gt;+&lt;/span&gt; v2
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Minus &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; v1 &lt;span style="color: #a52a2a;"&gt;-&lt;/span&gt; v2
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Times &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; v1 &lt;span style="color: #a52a2a;"&gt;*&lt;/span&gt; v2
+  &lt;span style="color: #a52a2a;"&gt;|&lt;/span&gt; Div &lt;span style="color: #a52a2a;"&gt;-&amp;gt;&lt;/span&gt; v1 &lt;span style="color: #a52a2a;"&gt;/&lt;/span&gt; v2
+
+&lt;span style="color: #0000ff; font-weight: bold;"&gt;let&lt;/span&gt; &lt;span style="color: #ffe829;"&gt;interp&lt;/span&gt;&lt;span style="color: #1fe0e5;"&gt; st &lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;=&lt;/span&gt;
+  ignore &lt;span style="color: #a52a2a;"&gt;(&lt;/span&gt;inter_stm &lt;span style="color: #a52a2a;"&gt;[]&lt;/span&gt; st&lt;span style="color: #a52a2a;"&gt;);&lt;/span&gt;
+  &lt;span style="color: #a52a2a;"&gt;()&lt;/span&gt; &lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
+
+&lt;span style="color: #a36238;"&gt;(* &lt;/span&gt;&lt;span style="color: #a36238;"&gt;&amp;#27979;&amp;#35797; &lt;/span&gt;&lt;span style="color: #a36238;"&gt;*)&lt;/span&gt;
+interp prog&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
+
+interp test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;   
+&lt;/pre&gt;
+
+
+
+</content></entry><entry><title type="html">一些emacs快捷键</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_emacs.html"/><updated>2012-07-24T15:57:00Z</updated><published>2012-07-24T15:57:00Z</published><id>blog/2012/07/24_emacs.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><content type="html">&lt;p&gt;
   QuickURL &#24555;&#36895;&#25554;&#20837;url, &#20445;&#23384;url&#22320;&#22336;
   &lt;code&gt;quickurl-ask&lt;/code&gt;
   &lt;code&gt;quickurl-add&lt;/code&gt;
@@ -25,7 +184,8 @@
 &lt;/p&gt;
 &lt;p&gt;
   &lt;code&gt;M-x speedbar&lt;/code&gt; &#25171;&#24320;&#24555;&#36895;&#26597;&#30475;&#31383;&#21475;
-&lt;/p&gt;</content></entry><entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
+&lt;/p&gt;
+</content></entry><entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
 &lt;h3 id="sec-1"&gt;&#22522;&#26412;&#20351;&#29992;&lt;/h3&gt;
 &lt;div class="outline-text-3" id="text-1"&gt;
 
