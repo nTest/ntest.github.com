@@ -116,9 +116,9 @@
   <a href="#sec-7">完整示例:Win32下的kill</a>
 </p>
 
-<div id="outline-container-1" class="outline-3">
-<h3 id="sec-1"><a name="ocaml-call-c" id="ocaml-call-c"></a>OCaml中调用C函数示例</h3>
-<div class="outline-text-3" id="text-1">
+<div id="outline-container-ocaml_call_c_id" class="outline-3">
+<h3 id="ocaml_call_c_id"><a name="sec-1" id="sec-1"></a>OCaml中调用C函数示例</h3>
+<div class="outline-text-3" id="text-ocaml_call_c_id">
 
 
 <p>     
@@ -334,13 +334,13 @@ CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;
 
 </div>
 
-<div id="outline-container-2" class="outline-3">
-<h3 id="sec-2"><a name="value-type" id="value-type"></a>value类型</h3>
-<div class="outline-text-3" id="text-2">
+<div id="outline-container-value_type_id" class="outline-3">
+<h3 id="value_type_id"><a name="sec-2" id="sec-2"></a>value类型</h3>
+<div class="outline-text-3" id="text-value_type_id">
 
 
-<p>    
-    一个value类型的对象可以是：
+<p>   
+   一个value类型的对象可以是：
 </p><ul>
 <li>一个整数
 </li>
@@ -603,13 +603,13 @@ inspector.exe
 
 </div>
 
-<div id="outline-container-3" class="outline-3">
-<h3 id="sec-3"><a name="ocaml-type-in-c" id="ocaml-type-in-c"></a>C中表示OCaml数据类型</h3>
-<div class="outline-text-3" id="text-3">
+<div id="outline-container-ocaml_type_in_c_id" class="outline-3">
+<h3 id="ocaml_type_in_c_id"><a name="sec-3" id="sec-3"></a>C中表示OCaml数据类型</h3>
+<div class="outline-text-3" id="text-ocaml_type_in_c_id">
 
 
-<p>     
-    下面讲解OCaml数据类型如何编码为value类型.
+<p>    
+   下面讲解OCaml数据类型如何编码为value类型.
 </p>
 
 </div>
@@ -722,9 +722,9 @@ inspector.exe
 
 </div>
 
-<div id="outline-container-4" class="outline-3">
-<h3 id="sec-4"><a name="c-opt-ocaml-value" id="c-opt-ocaml-value"></a>C中操作Ocaml values</h3>
-<div class="outline-text-3" id="text-4">
+<div id="outline-container-c_opt_ocaml_value_id" class="outline-3">
+<h3 id="c_opt_ocaml_value_id"><a name="sec-4" id="sec-4"></a>C中操作Ocaml values</h3>
+<div class="outline-text-3" id="text-c_opt_ocaml_value_id">
 
 
 
@@ -935,17 +935,17 @@ inspector.exe
 
 </div>
 
-<div id="outline-container-5" class="outline-3">
-<h3 id="sec-5"><a name="c-and-gc" id="c-and-gc"></a>与垃圾收集器和谐相处</h3>
-<div class="outline-text-3" id="text-5">
+<div id="outline-container-c_and_ocaml_gc_id" class="outline-3">
+<h3 id="c_and_ocaml_gc_id"><a name="sec-5" id="sec-5"></a>与垃圾收集器和谐相处</h3>
+<div class="outline-text-3" id="text-c_and_ocaml_gc_id">
 
 
-<p>     
-    关于OCaml GC的详细信息,参考<a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora082.html">ocaml-ora ch.9 Garbage Collection</a>。
+<p>    
+   关于OCaml GC的详细信息,参考<a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora082.html">ocaml-ora ch.9 Garbage Collection</a>。
 </p>
 <p>
-    堆中不使用的块被垃圾收集器自动清理.这就需要C代码在操作堆上分配的块时,
-    进行一些合作.
+   堆中不使用的块被垃圾收集器自动清理.这就需要C代码在操作堆上分配的块时,
+   进行一些合作.
 </p>
 
 </div>
@@ -1177,14 +1177,14 @@ inspector.exe
 
 </div>
 
-<div id="outline-container-6" class="outline-3">
-<h3 id="sec-6"><a name="c-callback-ocaml" id="c-callback-ocaml"></a>从C到OCaml的回调</h3>
-<div class="outline-text-3" id="text-6">
+<div id="outline-container-c_callback_ocaml_id" class="outline-3">
+<h3 id="c_callback_ocaml_id"><a name="sec-6" id="sec-6"></a>从C到OCaml的回调</h3>
+<div class="outline-text-3" id="text-c_callback_ocaml_id">
 
 
-<p>    
-    至此,我们讲解了如何从OCaml中调用C函数.这一节,我们展示C函数如何调用
-    OCaml函数,包括回调(OCaml调用C,C又调用OCaml)和C作为主程序.
+<p>   
+   至此,我们讲解了如何从OCaml中调用C函数.这一节,我们展示C函数如何调用
+   OCaml函数,包括回调(OCaml调用C,C又调用OCaml)和C作为主程序.
 </p>
 
 </div>
@@ -1426,9 +1426,9 @@ cc -o myprog (C对象文件或库) camlcode.o -L/usr/local/lib/ocaml -lunix -las
 
 </div>
 
-<div id="outline-container-7" class="outline-3">
-<h3 id="sec-7"><a name="win32-kill" id="win32-kill"></a>完整示例:Win32下的kill</h3>
-<div class="outline-text-3" id="text-7">
+<div id="outline-container-win32_kill_id" class="outline-3">
+<h3 id="win32_kill_id"><a name="sec-7" id="sec-7"></a>完整示例:Win32下的kill</h3>
+<div class="outline-text-3" id="text-win32_kill_id">
 
 
 <p>    

@@ -3,7 +3,7 @@
   <title>nTest blog</title>
   <link href="index.xml" rel="self" />
   <link href=""/>
-  <updated>2012-07-31T10:42:32Z</updated>
+  <updated>2012-07-31T11:24:23Z</updated>
   <id>index.xml</id>
   <entry><title type="html">OCaml与C的互操作</title><author><name>nil</name></author><link href="nil/blog/2012/07/31_ocamlc.html"/><updated>2012-07-31T10:02:00Z</updated><published>2012-07-31T10:02:00Z</published><id>blog/2012/07/31_ocamlc.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/c.html" term="c" label="c"/><content type="html">&lt;p&gt;
   &#26412;&#25991;&#24635;&#32467;OCaml&#19982;C&#30340;&#20132;&#20114;&#65306;&#22312;C&#20013;&#22914;&#20309;&#20998;&#37197;&#21644;&#20462;&#25913;ocaml value&#65292;&#22914;&#20309;&#23558;ocaml
@@ -20,9 +20,9 @@
   &lt;a href="#sec-7"&gt;&#23436;&#25972;&#31034;&#20363;:Win32&#19979;&#30340;kill&lt;/a&gt;
 &lt;/p&gt;
 
-&lt;div id="outline-container-1" class="outline-3"&gt;
-&lt;h3 id="sec-1"&gt;&lt;a name="ocaml-call-c" id="ocaml-call-c"&gt;&lt;/a&gt;OCaml&#20013;&#35843;&#29992;C&#20989;&#25968;&#31034;&#20363;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-1"&gt;
+&lt;div id="outline-container-ocaml_call_c_id" class="outline-3"&gt;
+&lt;h3 id="ocaml_call_c_id"&gt;&lt;a name="sec-1" id="sec-1"&gt;&lt;/a&gt;OCaml&#20013;&#35843;&#29992;C&#20989;&#25968;&#31034;&#20363;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-ocaml_call_c_id"&gt;
 
 
 &lt;p&gt;     
@@ -238,13 +238,13 @@ CAMLprim &lt;span style="color: #93e93f;"&gt;value&lt;/span&gt; &lt;span style="
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-2" class="outline-3"&gt;
-&lt;h3 id="sec-2"&gt;&lt;a name="value-type" id="value-type"&gt;&lt;/a&gt;value&#31867;&#22411;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-2"&gt;
+&lt;div id="outline-container-value_type_id" class="outline-3"&gt;
+&lt;h3 id="value_type_id"&gt;&lt;a name="sec-2" id="sec-2"&gt;&lt;/a&gt;value&#31867;&#22411;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-value_type_id"&gt;
 
 
-&lt;p&gt;    
-    &#19968;&#20010;value&#31867;&#22411;&#30340;&#23545;&#35937;&#21487;&#20197;&#26159;&#65306;
+&lt;p&gt;   
+   &#19968;&#20010;value&#31867;&#22411;&#30340;&#23545;&#35937;&#21487;&#20197;&#26159;&#65306;
 &lt;/p&gt;&lt;ul&gt;
 &lt;li&gt;&#19968;&#20010;&#25972;&#25968;
 &lt;/li&gt;
@@ -507,13 +507,13 @@ inspector.exe
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-3" class="outline-3"&gt;
-&lt;h3 id="sec-3"&gt;&lt;a name="ocaml-type-in-c" id="ocaml-type-in-c"&gt;&lt;/a&gt;C&#20013;&#34920;&#31034;OCaml&#25968;&#25454;&#31867;&#22411;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-3"&gt;
+&lt;div id="outline-container-ocaml_type_in_c_id" class="outline-3"&gt;
+&lt;h3 id="ocaml_type_in_c_id"&gt;&lt;a name="sec-3" id="sec-3"&gt;&lt;/a&gt;C&#20013;&#34920;&#31034;OCaml&#25968;&#25454;&#31867;&#22411;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-ocaml_type_in_c_id"&gt;
 
 
-&lt;p&gt;     
-    &#19979;&#38754;&#35762;&#35299;OCaml&#25968;&#25454;&#31867;&#22411;&#22914;&#20309;&#32534;&#30721;&#20026;value&#31867;&#22411;.
+&lt;p&gt;    
+   &#19979;&#38754;&#35762;&#35299;OCaml&#25968;&#25454;&#31867;&#22411;&#22914;&#20309;&#32534;&#30721;&#20026;value&#31867;&#22411;.
 &lt;/p&gt;
 
 &lt;/div&gt;
@@ -626,9 +626,9 @@ inspector.exe
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-4" class="outline-3"&gt;
-&lt;h3 id="sec-4"&gt;&lt;a name="c-opt-ocaml-value" id="c-opt-ocaml-value"&gt;&lt;/a&gt;C&#20013;&#25805;&#20316;Ocaml values&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-4"&gt;
+&lt;div id="outline-container-c_opt_ocaml_value_id" class="outline-3"&gt;
+&lt;h3 id="c_opt_ocaml_value_id"&gt;&lt;a name="sec-4" id="sec-4"&gt;&lt;/a&gt;C&#20013;&#25805;&#20316;Ocaml values&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-c_opt_ocaml_value_id"&gt;
 
 
 
@@ -839,17 +839,17 @@ inspector.exe
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-5" class="outline-3"&gt;
-&lt;h3 id="sec-5"&gt;&lt;a name="c-and-gc" id="c-and-gc"&gt;&lt;/a&gt;&#19982;&#22403;&#22334;&#25910;&#38598;&#22120;&#21644;&#35856;&#30456;&#22788;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-5"&gt;
+&lt;div id="outline-container-c_and_ocaml_gc_id" class="outline-3"&gt;
+&lt;h3 id="c_and_ocaml_gc_id"&gt;&lt;a name="sec-5" id="sec-5"&gt;&lt;/a&gt;&#19982;&#22403;&#22334;&#25910;&#38598;&#22120;&#21644;&#35856;&#30456;&#22788;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-c_and_ocaml_gc_id"&gt;
 
 
-&lt;p&gt;     
-    &#20851;&#20110;OCaml GC&#30340;&#35814;&#32454;&#20449;&#24687;,&#21442;&#32771;&lt;a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora082.html"&gt;ocaml-ora ch.9 Garbage Collection&lt;/a&gt;&#12290;
+&lt;p&gt;    
+   &#20851;&#20110;OCaml GC&#30340;&#35814;&#32454;&#20449;&#24687;,&#21442;&#32771;&lt;a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora082.html"&gt;ocaml-ora ch.9 Garbage Collection&lt;/a&gt;&#12290;
 &lt;/p&gt;
 &lt;p&gt;
-    &#22534;&#20013;&#19981;&#20351;&#29992;&#30340;&#22359;&#34987;&#22403;&#22334;&#25910;&#38598;&#22120;&#33258;&#21160;&#28165;&#29702;.&#36825;&#23601;&#38656;&#35201;C&#20195;&#30721;&#22312;&#25805;&#20316;&#22534;&#19978;&#20998;&#37197;&#30340;&#22359;&#26102;,
-    &#36827;&#34892;&#19968;&#20123;&#21512;&#20316;.
+   &#22534;&#20013;&#19981;&#20351;&#29992;&#30340;&#22359;&#34987;&#22403;&#22334;&#25910;&#38598;&#22120;&#33258;&#21160;&#28165;&#29702;.&#36825;&#23601;&#38656;&#35201;C&#20195;&#30721;&#22312;&#25805;&#20316;&#22534;&#19978;&#20998;&#37197;&#30340;&#22359;&#26102;,
+   &#36827;&#34892;&#19968;&#20123;&#21512;&#20316;.
 &lt;/p&gt;
 
 &lt;/div&gt;
@@ -1081,14 +1081,14 @@ inspector.exe
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-6" class="outline-3"&gt;
-&lt;h3 id="sec-6"&gt;&lt;a name="c-callback-ocaml" id="c-callback-ocaml"&gt;&lt;/a&gt;&#20174;C&#21040;OCaml&#30340;&#22238;&#35843;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-6"&gt;
+&lt;div id="outline-container-c_callback_ocaml_id" class="outline-3"&gt;
+&lt;h3 id="c_callback_ocaml_id"&gt;&lt;a name="sec-6" id="sec-6"&gt;&lt;/a&gt;&#20174;C&#21040;OCaml&#30340;&#22238;&#35843;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-c_callback_ocaml_id"&gt;
 
 
-&lt;p&gt;    
-    &#33267;&#27492;,&#25105;&#20204;&#35762;&#35299;&#20102;&#22914;&#20309;&#20174;OCaml&#20013;&#35843;&#29992;C&#20989;&#25968;.&#36825;&#19968;&#33410;,&#25105;&#20204;&#23637;&#31034;C&#20989;&#25968;&#22914;&#20309;&#35843;&#29992;
-    OCaml&#20989;&#25968;,&#21253;&#25324;&#22238;&#35843;(OCaml&#35843;&#29992;C,C&#21448;&#35843;&#29992;OCaml)&#21644;C&#20316;&#20026;&#20027;&#31243;&#24207;.
+&lt;p&gt;   
+   &#33267;&#27492;,&#25105;&#20204;&#35762;&#35299;&#20102;&#22914;&#20309;&#20174;OCaml&#20013;&#35843;&#29992;C&#20989;&#25968;.&#36825;&#19968;&#33410;,&#25105;&#20204;&#23637;&#31034;C&#20989;&#25968;&#22914;&#20309;&#35843;&#29992;
+   OCaml&#20989;&#25968;,&#21253;&#25324;&#22238;&#35843;(OCaml&#35843;&#29992;C,C&#21448;&#35843;&#29992;OCaml)&#21644;C&#20316;&#20026;&#20027;&#31243;&#24207;.
 &lt;/p&gt;
 
 &lt;/div&gt;
@@ -1330,9 +1330,9 @@ cc -o myprog (C&#23545;&#35937;&#25991;&#20214;&#25110;&#24211;) camlcode.o -L/u
 
 &lt;/div&gt;
 
-&lt;div id="outline-container-7" class="outline-3"&gt;
-&lt;h3 id="sec-7"&gt;&lt;a name="win32-kill" id="win32-kill"&gt;&lt;/a&gt;&#23436;&#25972;&#31034;&#20363;:Win32&#19979;&#30340;kill&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-7"&gt;
+&lt;div id="outline-container-win32_kill_id" class="outline-3"&gt;
+&lt;h3 id="win32_kill_id"&gt;&lt;a name="sec-7" id="sec-7"&gt;&lt;/a&gt;&#23436;&#25972;&#31034;&#20363;:Win32&#19979;&#30340;kill&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-win32_kill_id"&gt;
 
 
 &lt;p&gt;    
