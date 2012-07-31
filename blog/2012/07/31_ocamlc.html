@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>OCaml与C的互操作</title>
+    <link rel="stylesheet" type="text/less" href="../../../style/less/o-blog.less">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="o-blog version 1.2">
+    <script src="../../../style/js/less-1.3.0.min.js" type="text/javascript"></script>
+    <script src="../../../style/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="../../../style/js/prettify.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog.linenumber.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog-fix.js" type="text/javascript"></script>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+	  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+	  <a class="brand" href="../../../index.html">nTest blog</a>
+	  <div class="nav-collapse collapse">
+	    <ul>
+<li><a href="#"><i>icon-book icon-white</i> 文档</a>
+
+</li>
+<li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
+<ul>
+<li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a>
+</li>
+<li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a>
+</li>
+<li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a>
+</li>
+<li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a>
+
+</li>
+</ul>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档博文</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+	  </div>
+	</div>
+      </div>
+    </div>
+    <div class="subnav subnav-fixed visible-desktop">
+      <div class="container">
+	<ul class="breadcrumb">
+  <li><a href="../../../index.html">首页</a> <span class="divider">/</span></li>
+  <li><a href="../../../blog/index.html">blog</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/index.html">2012</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/07/index.html">07</a> <span class="divider">/</span></li><li>OCaml与C的互操作</li>
+  </ul>
+
+      </div>
+    </div>
+    <div id="page" class="container">
+
+  <header class="article-header">
+
+    <div class="well">
+      <div class="row">
+	<div class="date span1">
+	  <div class=" date-d">31</div>
+	  <div class=" date-m"><a href="../../../blog/2012/07/index.html">七月</a></div>
+	  <div class=" date-y"><a href="../../../blog/2012/index.html">2012</a>
+	  </div>
+	</div>
+	<div class="span1">
+	  <div class="qr-code">
+  <img src="http://chart.apis.google.com/chart?chs=50x50&cht=qr&chld=|0&chl=%2fblog%2f2012%2f07%2f31_ocamlc.html"
+       alt="qr-code" />
+</div>
+
+	</div>
+	<h1 class="offset2" style="font-size: 250%">OCaml与C的互操作</h1>
+      </div>
+      <nav>
+	<ul class="pager">
+	  <li class="previous"><a href="../../../blog/2012/07/25_1.html"><i class="icon-chevron-left"></i>&nbsp;学习现代编译器实现(1)</a></li><li class="next">&nbsp;</li>
+	</ul>
+      </nav>
+    </div>
+
+  </header>
+  <div class="article-content">
+    <p>
+  本文总结OCaml与C的交互：在C中如何分配和修改ocaml value，如何将ocaml
+  value转换为C struct， 以及异常处理。
+</p>
+<p>
+  章节目录<br/>
+  <a href="#sec-1">OCaml中调用C函数示例</a><br/>
+  <a href="#sec-2">value类型</a><br/>
+  <a href="#sec-3">C中表示OCaml数据类型</a><br/>
+  <a href="#sec-4">C中操作Ocaml values</a><br/>
+  <a href="#sec-5">与垃圾收集器和谐相处</a><br/>
+  <a href="#sec-6">从C到OCaml的回调</a><br/>
+  <a href="#sec-7">完整示例:Win32下的kill</a>
+</p>
+
+<div id="outline-container-1" class="outline-3">
+<h3 id="sec-1"><a name="ocaml-call-c" id="ocaml-call-c"></a>OCaml中调用C函数示例</h3>
+<div class="outline-text-3" id="text-1">
+
+
+<p>     
+    先以最简单的hello world开始:
+</p>
+<p>
+    hello.ml
+</p>
+
+
+<pre class="src src-ocaml"><span class="linenr">1:  </span><span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">print_hello</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">unit </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> unit </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"caml_print_hello"</span>
+<span class="linenr">2:  </span>
+<span class="linenr">3:  </span><span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span> print_hello <span style="color: #a52a2a;">();;</span>
+<span class="linenr">4:  </span>
+<span class="linenr">5:  </span>
+</pre>
+
+
+<p>
+    hello_stubs.c
+</p>
+
+
+<pre class="src src-c"><span class="linenr"> 1:  </span><span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;stdio.h&gt;</span>
+<span class="linenr"> 2:  </span><span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/mlvalues.h&gt;</span>
+<span class="linenr"> 3:  </span><span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/memory.h&gt;</span>
+<span class="linenr"> 4:  </span>
+<span class="linenr"> 5:  </span>CAMLprim <span style="color: #93e93f;">value</span>
+<span class="linenr"> 6:  </span><span style="color: #ffe829;">caml_print_hello</span> (<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">unit</span>)
+<span class="linenr"> 7:  </span>{
+<span class="linenr"> 8:  </span>    CAMLparam1(unit);
+<span class="linenr"> 9:  </span>
+<span class="linenr">10:  </span>    printf(<span style="color: #b643aa;">"Hello world!\n"</span>);
+<span class="linenr">11:  </span>    fflush(stdout);
+<span class="linenr">12:  </span>
+<span class="linenr">13:  </span>    CAMLreturn (Val_unit);
+<span class="linenr">14:  </span>}
+</pre>
+
+
+<p>
+    编译并运行:
+</p>
+
+
+<pre class="example">字节码：
+ocamlc -custom -o hello.exe hello.ml hello_stubs.c
+
+本地代码:
+ocamlopt -o hello.exe hello.ml hello_stubs.c
+
+执行：
+hello.exe
+Hello world!
+</pre>
+
+
+<p>
+    或者在toplevel中使用:
+</p>
+
+
+<pre class="example">生成自定义的toplevel:
+ocamlmktop -o hellotop.exe -custom  hello_stubs.c hello.ml
+
+执行：
+hellotop.exe
+
+输入 Hello.print_hello();;
+
+Hello world!
+- : unit = ()
+</pre>
+
+
+
+</div>
+
+<div id="outline-container-1-1" class="outline-4">
+<h4 id="sec-1-1">OCaml中声明函数</h4>
+<div class="outline-text-4" id="text-1-1">
+
+
+<p>   
+   在OCaml中使用 <b>external</b> 关键字声明C函数:
+</p>
+<p>   
+   <b>external</b> <i>name</i> : <i>type</i> = <i>C-function-name</i>
+</p>
+<p>   
+   C函数名不需要与OCaml的函数名相同。
+</p>
+<p>
+   外部函数在接口文件.mli中可以作为一般val声明:
+</p>
+<p>   
+   <b>val</b> <i>name</i> : <i>type</i>
+</p>
+<p>   
+   这隐藏了使用C函数进行实现的细节,当然也可以显式声明为外部函数:
+</p>
+<p>   
+   <b>external</b> <i>name</i> : <i>type</i> = <i>C-function-name</i>
+</p>
+<p>   
+   后面的方法更高效，因为它允许模块的使用者直接调用C函数，而不是先调
+   用相应的Caml函数。
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1-2" class="outline-4">
+<h4 id="sec-1-2">C中实现函数</h4>
+<div class="outline-text-4" id="text-1-2">
+
+
+<p>     
+     如果函数参数小于等于5个，则C函数接受指定个数的value类型参数，并返
+     回一个value类型的结果。value类型用来表示Caml values。它编码了几种
+     基本类型(整数，浮点数，字符串，&hellip;),还有Caml数据结构。 后面会介绍
+     value类型相关的转换函数和宏。
+</p>
+<p>
+     超过5个参数的函数需要实现两个C函数。第一个用于字节码编译器ocamlc,
+     接受2个参数:指向Caml values数组的指针和表示参数个数的整数。
+     另一个用于本地代码编译器ocamlopt,直接接受所有参数。例如,下面这个
+     接受7个参数的函数add_nat：
+</p>
+
+
+<pre class="src src-c">CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">add_nat_native</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">nat1</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">ofs1</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">len1</span>,
+                              <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">nat2</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">ofs2</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">len2</span>,
+                              <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">carry_in</span>)
+{
+  ...
+}
+
+CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">add_nat_bytecode</span>(<span style="color: #93e93f;">value</span> *<span style="color: #1fe0e5;">argv</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">argn</span>)
+{
+  <span style="color: #6e9ac9;">return</span> add_nat_native(argv[0], argv[1], argv[2], argv[3],
+                        argv[4], argv[5], argv[6]);
+}
+</pre>
+
+<p>
+     在OCaml中必须指明这两个函数：
+</p>
+<p>     
+     <b>external</b> <i>name</i> : <i>type</i> = <i>bytecode-C-function-name</i>
+     <i>native-code-C-function-name</i>
+</p>
+<p>     
+     例如，add_nat声明如下:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">add_nat</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">nat </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> nat </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int</span>
+                <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"add_nat_bytecode"</span> <span style="color: #b643aa;">"add_nat_native"</span>
+</pre>
+
+
+<p>
+     实现一个函数实际上有两个步骤：<br/>
+     1，解码指定的Caml value参数到C value, 编码返回值到一个Caml value；<br/>
+     2，从参数计算出结果。
+</p>
+
+<p>     
+     除了非常简单的函数，最好采用两个分离的C函数来实现这两个步骤。
+     第一个函数完成实际的运算，接受C值作为参数并返回一个C值。
+     第二个函数，也叫做"stub code"，通过转换Caml values参数到C values,
+     调用第一个函数，转换返回的C value到Caml value，来对第一个函数进行简
+     单地包装。例如，以下的stub code:
+</p>
+
+
+<pre class="src src-c">CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">input</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">channel</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">buffer</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">offset</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">length</span>)
+{
+  <span style="color: #6e9ac9;">return</span> Val_long(getblock((<span style="color: #6e9ac9;">struct</span> <span style="color: #93e93f;">channel</span>*) channel,
+                          &amp;Byte(buffer, Long_val(offset)),
+                          Long_val(length)));
+}
+</pre>
+
+<p>
+     (这里的Val_long,Long_val是value类型的转换宏，后面将会讨论。
+     CAMLprim宏用来保证这个函数是导出的，并且可以被Caml访问).主要工作
+     都有getblock来完成。
+</p>
+<p>
+     使用C代码操作OCaml values,可以使用以下头文件：
+</p><table  border="2" cellspacing="0" cellpadding="6" rules="groups" frame="border">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" />
+</colgroup>
+<tbody>
+<tr><td class="left">头文件</td><td class="left">提供功能</td></tr>
+<tr><td class="left">caml/mlvalues.h</td><td class="left">定义value类型和转换宏</td></tr>
+<tr><td class="left">caml/alloc.h</td><td class="left">分配函数(用于创建结构化的Caml对象)</td></tr>
+<tr><td class="left">caml/memory.h</td><td class="left">各种内存相关的函数和宏(主要是GC接口)</td></tr>
+<tr><td class="left">caml/fail.h</td><td class="left">引发异常的函数</td></tr>
+<tr><td class="left">caml/callback.h</td><td class="left">从C到Caml的回调</td></tr>
+<tr><td class="left">caml/custom.h</td><td class="left">自定义块的操作</td></tr>
+<tr><td class="left">caml/intext.h</td><td class="left">对自定义块进行用户定义的序列化和反序列化操作</td></tr>
+<tr><td class="left">caml/threads.h</td><td class="left">多线程操作</td></tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-3">
+<h3 id="sec-2"><a name="value-type" id="value-type"></a>value类型</h3>
+<div class="outline-text-3" id="text-2">
+
+
+<p>    
+    一个value类型的对象可以是：
+</p><ul>
+<li>一个整数
+</li>
+<li>一个指向堆中内存块的指针 (比如caml_alloc_*分配的内存块) 
+</li>
+<li>一个指向堆外的对象的指针 (比如malloc分配的内存块，或者一个C变量)。
+</li>
+</ul>
+
+
+
+</div>
+
+<div id="outline-container-2-1" class="outline-4">
+<h4 id="sec-2-1">整型value</h4>
+<div class="outline-text-4" id="text-2-1">
+
+<p>    整型values使用31-bit有符号整数(64位架构上使用63-bit)。它们属于
+    unboxed(unallocated，不进行内存分配，也就是直接存放在cpu寄存器中)。
+    ocaml中char, bool, int都用整型表示。
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-2" class="outline-4">
+<h4 id="sec-2-2">块</h4>
+<div class="outline-text-4" id="text-2-2">
+
+<p>    堆(ocaml中存放数据的堆，除了整型value都在此堆上分配、释放)上
+    的块被垃圾收集器管理，因此有一些严格的限制。每个块都有一个头包含
+    这个块的大小(以word为单位)和这个块的tag。 tag表示块的内容如何组织。
+    一个小于 <b>No_scan_tag</b> 的tag表示一个结构化的块，包含了结构良好的value，
+    它会被垃圾收集器循环遍历扫描每个字段。一个大于等于 <b>No_scan_tag</b>
+    的tag是一个原始块，它的内容不会被垃圾收集器扫描。
+</p><table  border="2" cellspacing="0" cellpadding="6" rules="groups" frame="border">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" />
+</colgroup>
+<tbody>
+<tr><td class="left">Tag</td><td class="left">块的内容</td></tr>
+<tr><td class="left">0 to No_scan_tag - 1</td><td class="left">结构化的块(Caml对象的数组)。每个字段为一个value</td></tr>
+<tr><td class="left">Closure_tag</td><td class="left">一个函数闭包。第一个字段为指向代码的指针，后面的字段为环境中的value</td></tr>
+<tr><td class="left">String_tag</td><td class="left">一个字符串</td></tr>
+<tr><td class="left">Double_tag</td><td class="left">一个双精度浮点数</td></tr>
+<tr><td class="left">Double_array_tag</td><td class="left">一个双精度浮点数组</td></tr>
+<tr><td class="left">Abstract_tag</td><td class="left">一个抽象数据类型</td></tr>
+<tr><td class="left">Custom_tag</td><td class="left">一个抽象数据类型，包含了用户定义的析构，比较，哈希，序列化和反序列化相关函数。</td></tr>
+</tbody>
+</table>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2-3" class="outline-4">
+<h4 id="sec-2-3">堆外的指针</h4>
+<div class="outline-text-4" id="text-2-3">
+
+<p>    任何在堆外以字对齐的指针都可以安全地和value类型相互转换。这包括
+    malloc返回的指针，使用&amp;操作符获得的C变量指针(最小为一个字)。
+</p>
+<p>
+    注意：如果malloc返回的指针转换为value类型并返回到Caml，使用free进
+    行显式内存回收是很危险的，因为这个指针在Caml中可能仍然有效。更糟
+    的是，使用free回收内存可以比Caml堆重分配晚，原先指向Caml堆外面的指针
+    现在指向了Caml堆内部，造成垃圾收集器混乱。为了避免这些问题，推荐把
+    指针封装为一个Caml块，可以用Abstract_tag或Custom_tag。
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-4" class="outline-4">
+<h4 id="sec-2-4">示例:inspector</h4>
+<div class="outline-text-4" id="text-2-4">
+
+<p>     知道了OCaml value在C中的表示方式,就可以在C中编写函数查看这些底层
+     表示.
+     此示例实现读取value并输出value的类型.
+</p>
+<p>     
+     inspect_stubs.c
+</p>
+
+
+<pre class="src src-c"><span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;stdio.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/mlvalues.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/memory.h&gt;</span>
+
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#32553;&#36827;&#26174;&#31034; </span><span style="color: #a36238;">*/</span>
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">margin</span>(<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">n</span>)
+{
+    <span style="color: #6e9ac9;">while</span> (n-- &gt; 0)  printf(<span style="color: #b643aa;">"."</span>);
+    <span style="color: #6e9ac9;">return</span>;
+}
+
+<span style="color: #a36238;">/*</span>
+<span style="color: #a36238;"> * &#36755;&#20986;OCaml value&#30340;&#31867;&#22411;                                </span>
+<span style="color: #a36238;"> * v, OCaml value                                   </span>
+<span style="color: #a36238;"> * m, &#32553;&#36827;&#23485;&#24230;                                      </span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*/</span>
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">print_block</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">m</span>)
+{
+    <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">size</span>, <span style="color: #1fe0e5;">i</span>;
+    margin(m);
+    <span style="color: #6e9ac9;">if</span> (Is_long(v)) {
+        printf(<span style="color: #b643aa;">"&#30452;&#25509;&#37327; (%d)\n"</span>, Long_val(v));
+        <span style="color: #6e9ac9;">return</span>;
+    }
+
+    printf (<span style="color: #b643aa;">"&#20869;&#23384;&#22359;: &#22823;&#23567;=%d  -  "</span>, size = Wosize_val(v));
+    <span style="color: #6e9ac9;">switch</span> (Tag_val(v)) {
+    <span style="color: #6e9ac9;">case</span> Closure_tag:
+        printf (<span style="color: #b643aa;">"&#38381;&#21253;:&#21253;&#21547; %d &#20010;&#33258;&#30001;&#21464;&#37327;\n"</span>, size - 1);
+        margin(m+4);
+        printf(<span style="color: #b643aa;">"&#20195;&#30721;&#25351;&#38024;: %p\n"</span>, Code_val(v));
+        <span style="color: #6e9ac9;">for</span> (i = 1; i &lt; size; i++) print_block(Field(v,i), m+4);
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">case</span> String_tag:
+        printf (<span style="color: #b643aa;">"&#23383;&#31526;&#20018;: %s (%s)\n"</span>, String_val(v), (<span style="color: #93e93f;">char</span> *) v);
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">case</span> Double_tag:
+        printf (<span style="color: #b643aa;">"&#28014;&#28857;&#25968;: %g\n"</span>, Double_val(v));
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">case</span> Double_array_tag:
+        printf (<span style="color: #b643aa;">"&#28014;&#28857;&#25968;&#32452;: "</span>);
+        <span style="color: #6e9ac9;">for</span> (i = 0; i &lt; size / Double_wosize; i ++ )
+            printf(<span style="color: #b643aa;">"  %g"</span>, Double_field(v, i));
+        printf(<span style="color: #b643aa;">"\n"</span>);
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">case</span> Abstract_tag:
+        printf (<span style="color: #b643aa;">"&#25277;&#35937;&#31867;&#22411;\n"</span>);
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">case</span> Custom_tag:
+        printf (<span style="color: #b643aa;">"&#25277;&#35937;&#31867;&#22411;,&#21253;&#21547;&#29992;&#25143;&#33258;&#23450;&#20041;&#30340;&#26512;&#26500;&#20989;&#25968;...\n"</span>);
+        <span style="color: #6e9ac9;">break</span>;
+    <span style="color: #6e9ac9;">default</span>:
+        <span style="color: #6e9ac9;">if</span> (Tag_val(v) &gt;= No_scan_tag) {
+            printf (<span style="color: #b643aa;">"&#26410;&#30693;tag"</span>);
+            <span style="color: #6e9ac9;">break</span>;
+        }
+        printf (<span style="color: #b643aa;">"structured block (tag = %d):\n"</span>, Tag_val(v));
+        <span style="color: #6e9ac9;">for</span> (i = 0; i &lt; size; i++)
+            print_block(Field(v, i), m+4);
+    }
+    <span style="color: #6e9ac9;">return</span>;
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#21253;&#35013;&#20989;&#25968; </span><span style="color: #a36238;">*/</span>
+CAMLprim <span style="color: #93e93f;">value</span>
+<span style="color: #ffe829;">inspect_block</span> (<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v</span>)
+{
+    CAMLparam1(v);
+
+    print_block (v, 4);
+    fflush(stdout);
+
+    CAMLreturn (v);
+}
+
+</pre>
+
+<p>
+     inspector.ml
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">inspect </span><span style="color: #a52a2a;">:</span> <span style="color: #a52a2a;">'</span><span style="color: #93e93f;">a </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> </span><span style="color: #a52a2a;">'</span><span style="color: #93e93f;">a </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"inspect_block"</span><span style="color: #a52a2a;">;;</span>
+
+print_endline <span style="color: #b643aa;">"&#20351;&#29992;Inspector.inspect&#26597;&#30475;OCaml value\n"</span>
+</pre>
+
+<p>
+     注意这两个文件都用cp936编码保存(虽然ocaml要求源文件都用utf-8编码),否
+     则cmd会显示乱码.编译并执行:
+</p>
+
+
+
+<pre class="example">ocamlmktop -custom -o inspector.exe inspector.ml inspect_stubs.c
+inspector.exe
+</pre>
+
+<p>
+     进行测试:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect 5<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;&#25972;&#25968; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>5<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">=</span> 5
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #b643aa;">"string"</span><span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#23383;&#31526;&#20018; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#23383;&#31526;&#20018;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">string </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">string</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">string </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"string"</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #008b8b;">false</span><span style="color: #a52a2a;">;;</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">bool </span><span style="color: #a52a2a;">=</span> <span style="color: #008b8b;">false</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">[</span>1<span style="color: #a52a2a;">;</span> 2<span style="color: #a52a2a;">;</span> 3<span style="color: #a52a2a;">];;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#21015;&#34920; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">........</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">1</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">........</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">............</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">2</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">............</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">................</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">3</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">................</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int list </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[</span>1<span style="color: #a52a2a;">;</span> 2<span style="color: #a52a2a;">;</span> 3<span style="color: #a52a2a;">]</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">[|</span>1<span style="color: #a52a2a;">;</span> 2<span style="color: #a52a2a;">;</span> 3<span style="color: #a52a2a;">|];;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#25968;&#32452; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>3  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">........</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">1</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">........</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>2<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">........</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>3<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int array </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[|</span>1<span style="color: #a52a2a;">;</span> 2<span style="color: #a52a2a;">;</span> 3<span style="color: #a52a2a;">|]</span>
+
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect 3.14<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#28014;&#28857;&#25968; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#28014;&#28857;&#25968;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">3.14</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">float </span><span style="color: #a52a2a;">=</span> 3.14
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">[|</span> 1.11<span style="color: #a52a2a;">;</span> 2.22<span style="color: #a52a2a;">;</span> 3.33 <span style="color: #a52a2a;">|];;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#28014;&#28857;&#25968;&#32452; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>6  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#28014;&#28857;&#25968;&#32452;</span><span style="color: #a52a2a;">:</span>   <span style="color: #93e93f;">1.11  2.22  3.33</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">float array </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[|</span>1.11<span style="color: #a52a2a;">;</span> 2.22<span style="color: #a52a2a;">;</span> 3.33<span style="color: #a52a2a;">|]</span>
+
+<span style="color: #a52a2a;">#</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">add</span><span style="color: #1fe0e5;"> x y </span><span style="color: #a52a2a;">=</span> x <span style="color: #a52a2a;">+</span> y<span style="color: #a52a2a;">;;</span> 
+<span style="color: #0000ff; font-weight: bold;">val</span> <span style="color: #1fe0e5;">add </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">&lt;</span><span style="color: #6e9ac9;">fun</span><span style="color: #a52a2a;">&gt;</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect add<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#20989;&#25968; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>1  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#38381;&#21253;</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">&#21253;&#21547; 0 &#20010;&#33258;&#30001;&#21464;&#37327;</span>
+<span style="color: #a52a2a;">........</span><span style="color: #1fe0e5;">&#20195;&#30721;&#25351;&#38024;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">002EC9A8</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">&lt;</span><span style="color: #6e9ac9;">fun</span><span style="color: #a52a2a;">&gt;</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">add1 </span><span style="color: #a52a2a;">=</span> add 5<span style="color: #a52a2a;">;;</span>
+<span style="color: #0000ff; font-weight: bold;">val</span> <span style="color: #1fe0e5;">add1 </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">&lt;</span><span style="color: #6e9ac9;">fun</span><span style="color: #a52a2a;">&gt;</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect add1<span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#26607;&#37324;&#21270;&#20989;&#25968; </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>3  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#38381;&#21253;</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">&#21253;&#21547; 2 &#20010;&#33258;&#30001;&#21464;&#37327;</span>
+<span style="color: #a52a2a;">........</span><span style="color: #1fe0e5;">&#20195;&#30721;&#25351;&#38024;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">002EC9A4</span>
+<span style="color: #a52a2a;">........</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>1  <span style="color: #a52a2a;">-</span>  <span style="color: #1fe0e5;">&#38381;&#21253;</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">&#21253;&#21547; 0 &#20010;&#33258;&#30001;&#21464;&#37327;</span>
+<span style="color: #a52a2a;">............</span><span style="color: #1fe0e5;">&#20195;&#30721;&#25351;&#38024;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">002EC9A8</span>
+<span style="color: #a52a2a;">........</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>5<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> int </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">&lt;</span><span style="color: #6e9ac9;">fun</span><span style="color: #a52a2a;">&gt;</span>
+
+<span style="color: #a52a2a;">#</span> <span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">point </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">{</span>  <span style="color: #1fe0e5;">x</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int</span><span style="color: #a52a2a;">;</span> <span style="color: #1fe0e5;">y</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int</span><span style="color: #a52a2a;">};;</span>
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">point </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">{</span> <span style="color: #1fe0e5;">x</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int</span><span style="color: #a52a2a;">;</span> <span style="color: #1fe0e5;">y</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int</span><span style="color: #a52a2a;">;</span> <span style="color: #a52a2a;">}</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">{</span> x <span style="color: #a52a2a;">=</span> 600<span style="color: #a52a2a;">;</span> y <span style="color: #a52a2a;">=</span> 480 <span style="color: #a52a2a;">}</span> <span style="color: #a52a2a;">;;</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;record </span><span style="color: #a36238;">*)</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">........</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">600</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">........</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>480<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">point </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">{</span>x <span style="color: #a52a2a;">=</span> 600<span style="color: #a52a2a;">;</span> y <span style="color: #a52a2a;">=</span> 480<span style="color: #a52a2a;">}</span>
+</pre>
+
+
+<p>
+     这就是所有的OCaml数据类型了,与C做一下比较:
+     char, bool, int都作为int直接量,与C的char, bool, int相似;Tag为0的
+     块与C的数组相似; OCaml中的浮点数使用块来实现,不过专门提供了Double_tag作
+     优化.string也有一个专门的Tag表示,函数也是数据类型的一种,    
+     OCaml中的用户自定义类型(record)是使用array实现的. Abstract类型用
+     来表示只知道这个类型,但不知道其具体实现,用于在接口中隐藏类型的实现.
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-3">
+<h3 id="sec-3"><a name="ocaml-type-in-c" id="ocaml-type-in-c"></a>C中表示OCaml数据类型</h3>
+<div class="outline-text-3" id="text-3">
+
+
+<p>     
+    下面讲解OCaml数据类型如何编码为value类型.
+</p>
+
+</div>
+
+<div id="outline-container-3-1" class="outline-4">
+<h4 id="sec-3-1">原子(Atomic)类型</h4>
+<div class="outline-text-4" id="text-3-1">
+
+<table  border="2" cellspacing="0" cellpadding="6" rules="groups" frame="border">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" />
+</colgroup>
+<tbody>
+<tr><td class="left">Caml类型</td><td class="left">编码方式</td></tr>
+<tr><td class="left">int</td><td class="left">Unboxed整数</td></tr>
+<tr><td class="left">char</td><td class="left">Unboxed整数(ASCII码)</td></tr>
+<tr><td class="left">float</td><td class="left">tag为Double_tag的块</td></tr>
+<tr><td class="left">string</td><td class="left">tag为String_tag的块</td></tr>
+<tr><td class="left">int32</td><td class="left">tag为Custom_tag的块</td></tr>
+<tr><td class="left">int64</td><td class="left">tag为Custom_tag的块</td></tr>
+<tr><td class="left">nativeint</td><td class="left">tag为Custom_tag的块</td></tr>
+</tbody>
+</table>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3-2" class="outline-4">
+<h4 id="sec-3-2">Tuples和records</h4>
+<div class="outline-text-4" id="text-3-2">
+
+<p>    tuples为指向块的指针,使用tag 0.
+    records也是tag为0的块.record类型中字段的顺序决定了record的布局:第
+    一个声明的字段存储在块中的字段0处,与字段关联的值存放在字段1中.
+</p>
+<p>
+    为了优化,所有字段都为float类型的record作为一个浮点数数组表示,使用
+    <b>Double_array_tag</b>.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-3" class="outline-4">
+<h4 id="sec-3-3">数组(arrays)</h4>
+<div class="outline-text-4" id="text-3-3">
+
+<p>    整数或指针数组表示为tuples,一个指向tag为0的块的指针. 它们使用
+    Field宏进行访问,caml_modify函数修改.
+</p>
+<p>
+    浮点数数组(<b>float array</b> 类型)有一个特殊的,未封装的,更有效率的表
+    示.这些数组表示为指向tag为 <b>Double_array_tag</b> 的块的指针.通过
+    <b>Double_field</b> 和 <b>Store_double_field</b> 进行访问和修改.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-4" class="outline-4">
+<h4 id="sec-3-4">具体(Concrete)数据类型</h4>
+<div class="outline-text-4" id="text-3-4">
+
+<table  border="2" cellspacing="0" cellpadding="6" rules="groups" frame="border">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" />
+</colgroup>
+<tbody>
+<tr><td class="left">具体项</td><td class="left">表示</td></tr>
+<tr><td class="left">()</td><td class="left">Val_int(0)</td></tr>
+<tr><td class="left">false</td><td class="left">Val_int(0)</td></tr>
+<tr><td class="left">true</td><td class="left">Val_int(1)</td></tr>
+<tr><td class="left">[]</td><td class="left">Val_int(0)</td></tr>
+<tr><td class="left">h::t</td><td class="left">tag=0,size=2的块;第一个字段包含h,第二个字段为t</td></tr>
+</tbody>
+</table>
+
+     caml/mlvalues.h定义了宏 <b>Val_unit</b>, <b>Val_false</b>, <b>Val_true</b>
+     表示(), false和true.
+
+<p>
+可以使用inspector查看这些值:     
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">();;</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">unit </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">()</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #008b8b;">false</span><span style="color: #a52a2a;">;;</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">bool </span><span style="color: #a52a2a;">=</span> <span style="color: #008b8b;">false</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #008b8b;">true</span><span style="color: #a52a2a;">;;</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>1<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">bool </span><span style="color: #a52a2a;">=</span> <span style="color: #008b8b;">true</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">[];;</span>
+<span style="color: #a52a2a;">....</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #a52a2a;">'</span><span style="color: #93e93f;">a list </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[]</span>
+<span style="color: #a52a2a;">#</span> <span style="color: #93e93f;">Inspector</span>.inspect <span style="color: #a52a2a;">(</span>1<span style="color: #a52a2a;">::[]);;</span>
+<span style="color: #a52a2a;">....</span><span style="color: #1fe0e5;">&#20869;&#23384;&#22359;</span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">&#22823;&#23567;</span><span style="color: #a52a2a;">=</span>2  <span style="color: #a52a2a;">-</span>  structured block <span style="color: #a52a2a;">(</span>tag <span style="color: #a52a2a;">=</span> 0<span style="color: #a52a2a;">):</span>
+<span style="color: #a52a2a;">........</span><span style="color: #93e93f;">&#30452;&#25509;&#37327; </span><span style="color: #a52a2a;">(</span><span style="color: #93e93f;">1</span><span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">........</span>&#30452;&#25509;&#37327; <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #a52a2a;">-</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int list </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[</span>1<span style="color: #a52a2a;">]</span>
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-3">
+<h3 id="sec-4"><a name="c-opt-ocaml-value" id="c-opt-ocaml-value"></a>C中操作Ocaml values</h3>
+<div class="outline-text-3" id="text-4">
+
+
+
+</div>
+
+<div id="outline-container-4-1" class="outline-4">
+<h4 id="sec-4-1">类型测试</h4>
+<div class="outline-text-4" id="text-4-1">
+
+<ul>
+<li>Is_long(v) 如果v是整数直接量返回true,否则为false
+</li>
+<li>Is_block(v) 如果v指向一个块则返回true,否则返回false
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4-2" class="outline-4">
+<h4 id="sec-4-2">操作整数</h4>
+<div class="outline-text-4" id="text-4-2">
+
+<ul>
+<li>Val_long(l) 转换C <b>long int</b> l到OCaml value
+</li>
+<li>Val_int(i) 转换 C <b>int</b> i到OCaml value
+</li>
+<li>Val_bool(x) 转换C整数x到OCaml bool value
+</li>
+<li>Long_val(v) 转换OCaml v到C <b>long int</b>
+</li>
+<li>Int_Val(v) 转换OCaml v到C <b>int</b>
+</li>
+<li>Bool_Val(v) 如果OCaml bool v的值为false返回0, true返回1
+</li>
+<li>Value_true, Value_false表示OCaml bool true和false
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4-3" class="outline-4">
+<h4 id="sec-4-3">访问块</h4>
+<div class="outline-text-4" id="text-4-3">
+
+<ul>
+<li>Wosize_val(v) 返回块v的size(以word为单位),不包含header.
+</li>
+<li>Tag_val(v) 返回块v的tag
+</li>
+<li>Field(v, n) 返回结构化块v第n个字段的value.字段的序号从0到
+      Wosize_val(v)-1
+</li>
+<li>Store_field(b, n, v) 存储value v到value  b的第n个字段中,b必须为
+      结构化块.
+</li>
+<li>Code_val(v) 返回闭包v的代码部分
+</li>
+<li>caml_string_length(v) 返回string v的长度
+</li>
+<li>Byte(v, n) 返回string v的第n个字符,类型为 <b>char</b>.
+</li>
+<li>Byte_u(v, n) 返回string v的第n个字符,类型为 <b>unsigend char</b>.
+</li>
+<li>String_val(v) 返回指向string v的第一个字符的指针,类型为
+      <b>char*</b>. 这个指针是一个有效的C字符串:字符串的最后一个字符为空字
+      符null.但是OCaml字符串中可以包含空字符,这会让大多数操作字符串的
+      C函数失败.
+</li>
+<li>Double_val(v) 返回一个浮点数,类型为 <b>double</b>
+</li>
+<li>Double_field(v, n) 返回浮点数组v(tag为Double_array_tag的块)的第
+      n个元素.
+</li>
+<li>Store_double_field(v, n, d) 存储双精度浮点数d到浮点数组v的第n个
+      元素中.
+</li>
+<li>Data_custom_val(v) 返回一个指向自定义块v的数据部分的指针.指针的
+      类型为 <b>void *</b>,需要转换为自定义块包含的类型.
+</li>
+<li>Int32_val(v) 返回 <b>int32 v</b> 包含的32位整数
+</li>
+<li>Int64_val(v) 返回 <b>int64 v</b> 包含的64位整数
+</li>
+<li>Nativeint_val(v) 返回 <b>nativeint v</b> 包含的长整型
+</li>
+</ul>
+
+
+<p>   
+    表达式Field(v, n), Byte(v, n)和Byte_u(v, n)是一个有效的左值.因此
+    它们可以通过赋值修改value v中的值. 赋值给Field(v, n)时要注意避免垃圾
+    收集器产生问题.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4-4" class="outline-4">
+<h4 id="sec-4-4">分配OCaml块</h4>
+<div class="outline-text-4" id="text-4-4">
+
+<p>    以下函数在OCaml堆上分配内存.
+</p>
+<p>    
+    <b>简单接口</b>
+</p>
+<ul>
+<li>Atom(t) 返回一个tag为t的"atom"(大小为0的块).
+</li>
+<li>caml_alloc(n, t) 返回一个tag为t,大小为n的块.如果t小于
+      No_scan_tag,为了满足GC的约束,块中的字段被初始化为有效的value.
+</li>
+<li>caml_alloc_tuple(n) 返回一个n个字的块,tag为0
+</li>
+<li>caml_alloc_string(n) 返回一个长度为n的字符串value.字符串初始化
+      为垃圾数据.
+</li>
+<li>caml_copy_string(s) 返回一个null结束的C字符串(<b>char *</b>)的拷贝
+</li>
+<li>caml_copy_double(d) 返回一个值为 <b>double</b> d的浮点value
+</li>
+<li>caml_copy_int32(i), copy_int64(i)和caml_copy_nativeint(i)返回一
+      个OCaml类型为 <b>int32</b>, <b>int64</b> 和 <b>nativeint</b> 的value,分别使用
+      整数i初始化.
+</li>
+<li>caml_alloc_array(f, a) 分配一个value数组,在输入数组a的每个元素
+      上调用函数f生成的value(类似OCaml中的map). 数组a是一个以空指针
+      结尾的指针数组. (不要使用这个函数构造浮点数组)
+</li>
+<li>caml_copy_string_array(p) 分配一个字符串数组,从字符串数组指针
+      p(<b>char **</b>)复制.p必须以NULL结尾.
+</li>
+</ul>
+
+
+<p>
+    <b>底层接口</b>
+</p>
+<p>    
+    以下函数比caml_alloc更有效率,但更难使用.
+</p>
+<p>    
+    从分配函数的观点来看,块可以按照大小分为:大小为0的块,小块(size小于等于
+    <b>Max_young_wosize</b>),大块(size大于 <b>Max_young_wosize</b>).
+</p><ul>
+<li>caml_alloc_small(n, t) 返回一个大小为n(单位为word,n &lt;=
+      <b>Max_young_wosize</b>),tag为t的小块.如果这个块是一个结构化块
+      (t &lt; <b>No_scan_tag</b>),那么这个块的字段(分配后包含的是垃圾)
+      必须在下次分配前初始化(在块的字段上直接赋值)为合法的value.
+</li>
+<li>caml_alloc_shr(n, t) 返回一个大小为n, tag为t的块.大小可以大于
+      <b>Max_young_wosize</b>.(也可以小于它,但是它没有caml_alloc_small有效
+      率.) 如果是一个结构化块,必须在下次分配前使用合法的value进行初始化
+      (使用caml_initialize函数).
+</li>
+</ul>
+
+
+<p>      
+   为什么结构化的块需要在下次分配前初始化呢?前面已经讲过,结构化的块会被
+   垃圾收集器遍历每个字段.当进行分配内存的时候,有可能触发GC,如果没有
+   初始化,GC就会访问垃圾数据,造成错误.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4-5" class="outline-4">
+<h4 id="sec-4-5">引发异常</h4>
+<div class="outline-text-4" id="text-4-5">
+
+
+<p>    
+    两个引发标准异常的函数: 
+</p><ul>
+<li>caml_failwith(s) 参数s是一个空字符结尾的C字符串(类型为char*),
+      引发 <b>Failure</b> s异常.
+</li>
+<li>caml_invalid_argument(s) 引发 <b>Invalid_argument</b> s异常
+</li>
+</ul>
+
+
+<p>   
+    在C中引发任意异常要复杂一点:异常标识符在OCaml中动态分配,然后注册
+    给C进行通信,C中获得此异常标识符后,就可以使用下面的函数引发异常:
+</p><ul>
+<li>caml_raise_constant(id) 引发没有参数的异常id
+</li>
+<li>caml_raise_with_arg(id, v) 引发带有参数value v的异常id
+</li>
+<li>caml_raise_with_args(id, n, v) 引发带有参数value v[ 0 ],&hellip;,v[n-1]的异常id
+</li>
+<li>caml_raise_with_string(id, s) s是一个空字符结尾的C字符串,引发带有参数s的拷贝的异常id.
+</li>
+</ul>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-3">
+<h3 id="sec-5"><a name="c-and-gc" id="c-and-gc"></a>与垃圾收集器和谐相处</h3>
+<div class="outline-text-3" id="text-5">
+
+
+<p>     
+    关于OCaml GC的详细信息,参考<a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora082.html">ocaml-ora ch.9 Garbage Collection</a>。
+</p>
+<p>
+    堆中不使用的块被垃圾收集器自动清理.这就需要C代码在操作堆上分配的块时,
+    进行一些合作.
+</p>
+
+</div>
+
+<div id="outline-container-5-1" class="outline-4">
+<h4 id="sec-5-1">简单接口</h4>
+<div class="outline-text-4" id="text-5-1">
+
+
+<p>     
+     本节描述的所有宏都在 <b>memory.h</b> 中声明.
+</p>
+<p>
+     <b>规则1</b> <i>一个参数类型或本地变量类型为value的函数必须调用CAMLparam       宏并使用CAMLreturn, CAMLreturn0 或 CAMLreturnT.</i>
+</p>
+<p>
+      有6个 <b>CAMLparam</b> 宏: <b>CAMLparam0</b> 至 <b>CAMLparam5</b>,
+      分别接受0-5个参数.如果 <b>value</b> 类型的函数参数小于等于5个,
+      直接在这些参数上使用相应的宏.如果超过5个,在前5个参数上使用
+      <b>CAMLparam5</b>,在剩下的参数上使用 <b>CAMLxparam</b> 宏.
+</p>
+<p>
+      <b>CAMLreturn</b> 宏用来代替C关键字return.所有x类型为 <b>value</b>
+      的 <b>return x</b> 必须使用 <b>CAMLreturn (x)</b> 代替, 或者用
+      <b>CAMLreturnT (t, x)</b> (t是x的类型);所有不带参数的 <b>return</b>
+      使用 <b>CAMLreturn0</b> 代替. 如果你的C函数返回void,必须使用
+      <b>CAMLreturn0</b> . 示例:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">void</span> <span style="color: #ffe829;">foo</span> (<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v1</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v2</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v3</span>)
+{
+  CAMLparam3 (v1, v2, v3);
+  ...
+  CAMLreturn0;
+}
+</pre>
+
+
+<p>
+      <b>规则2</b> <i>类型为value的局部变量必须使用CAMLlocal宏声明.values数组        使用CAMLlocalN声明.这些宏必须在函数开头使用,不能在嵌套块中.</i>
+</p>
+<p>
+       <b>CAMLlocal1</b>  至 <b>CAMLlocal5</b> 声明和初始化1-5个类型为 <b>value</b>
+       的局部变量. <b>CAMLlocalN(x, n)</b> 声明和初始化一个类型为 <b>value</b>
+       [n]的局部变量. 如果需要超过5个局部变量,可以多次调用这些宏. 示
+       例:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">value</span> <span style="color: #ffe829;">bar</span> (<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v1</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v2</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v3</span>)
+{
+  CAMLparam3 (v1, v2, v3);
+  CAMLlocal1(result);
+  result = caml_alloc (3, 0);
+  ...
+  CAMLreturn(result);
+}
+</pre>
+
+
+<p>       
+       <b>规则3</b> <i>给结构化块的字段赋值必须使用Store_field宏(一般块)或Store_double_field宏(包含浮点数的数组或records).其它类型的赋值不要使用Store_field和Store_double_field.</i>
+</p>
+<p>
+        <b>Store_field (b, n, v)</b> 存储value v到value b的第n个字段,b
+        必须为块(<b>Is_block</b> (b)必须为true).
+</p>
+<p>
+        示例:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">value</span> <span style="color: #ffe829;">bar</span> (<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v1</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v2</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v3</span>)
+{
+  CAMLparam3 (v1, v2, v3);
+  CAMLlocal1 (result);
+
+  result = caml_alloc (3, 0);
+  Store_field (result, 0, v1);
+  Store_field (result, 1, v2);
+  Store_field (result, 2, v3);
+
+  CAMLreturn (result);
+}
+</pre>
+
+
+<p>
+        <b>规则4</b> <i>包含values的全局变量必须使用函数          caml_register_global_root注册到垃圾收集器</i>
+</p>
+<p>
+         使用 <b>caml_register_global_root(&amp;v)</b> 注册全局变量v时,要在一个
+         有效值第一次存储到v之前或之后调用. 在注册和存储value之间不要
+         调用任何OCaml runtime函数或宏.
+</p>
+<p>
+         一个注册过的全局变量v可以调用
+         <b>caml_remove_global_root(&amp;v)</b> 反注
+         册.
+</p>
+<p>
+         如果全局变量v的内容注册之后不会修改,可以使用性能更好的
+         <b>caml_register_generational_global_root(&amp;v)</b> 和
+         <b>caml_remove_generational_global_root(&amp;v)</b> 进行注册和反注册.
+         如果需要这册许多全局变量,这能改善性能.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-5-2" class="outline-4">
+<h4 id="sec-5-2">底层接口</h4>
+<div class="outline-text-4" id="text-5-2">
+
+<p>     现在讲解底层分配函数caml_alloc_small和caml_alloc_shr的相关规则.如
+     果你只使用caml_alloc则可以忽略这部分.
+</p>
+<p>
+     <b>规则5</b> <i>在使用底层函数分配一个结构化块(块的tag小于No_scan_tag)之后,这个块的所有字段在下次分配操作之前必须包含有效值.如果这个块使       用caml_alloc_small分配,可以对块的字段进行直接赋值:</i>
+</p>
+<p>      
+      Field(v, n) = v<sub>n</sub>;
+</p>
+<p>      
+      <i>如果使用caml_alloc_shr分配块,使用caml_initialize函数填充:</i>
+</p>
+<p>      
+      caml_initialize(&amp;Field(v, n), v<sub>n</sub>);
+</p>
+<p>
+      下一次分配可能会触发垃圾收集器.垃圾收集器假定所有的结构化块包含
+      有效的value.新创建的块包含随机数据,一般不能表示为有效value.
+</p>
+<p>
+      如果你需要在字段获得它们的值之前进行分配操作,首先使用一个常量
+      value进行初始化(如 <b>Val_unit</b>),然后分配,然后修改字段为正确的
+      value.
+</p>
+<p>
+      <b>规则6</b> <i>对块的字段进行赋值,例如</i>
+</p>
+<p>      
+      Field(v, n) = w;
+</p>
+<p>
+      <i>只有在块v是最后一个使用 caml_alloc_small 分配的时候才安全;也就是说在分配v和对v的字段进行赋值之间没有其它的分配操作.其它情况下,不要直接赋值.如果一个块使用caml_alloc_shr分配,用caml_initialize进行第一次赋值.</i>
+</p>
+
+<p>
+      <i>其它情况下,你是更新一个已经包含有效值的字段;这时,使用       caml_modify 函数:</i>
+</p>
+<p>
+      caml_modify(&amp;Field(v, n), w);
+</p>
+<p>
+      为了展示以上规则,这个C函数构造并返回一个列表,包含参数指定的两个
+      整数.首先,我们使用简单分配函数:
+</p>
+
+
+<pre class="src src-c"><span style="color: #a36238;">//</span><span style="color: #a36238;">&#27880;&#24847;OCaml&#20013;&#21015;&#34920;&#30340;&#20869;&#23384;&#34920;&#31034;,&#21487;&#20197;&#20351;&#29992;&#21069;&#38754;&#30340;inspector&#31243;&#24207;&#26597;&#30475;</span>
+<span style="color: #93e93f;">value</span> <span style="color: #ffe829;">alloc_list_int</span> (<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i1</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i2</span>)
+{
+   CAMLparam0 ();
+   CAMLlocal2 (result, r);
+
+   r = caml_alloc(2, 0);
+   Store_field(r, 0, Val_int(i2));
+   Store_field(r, 1, Val_int(0));
+   result = caml_alloc(2, 0);
+   Store_field(result, 0, Val_int(i1));
+   Store_field(result, 1, r);
+
+   CAMLreturn (result);
+}
+</pre>
+
+
+<p>
+      下面使用底层分配函数 <b>caml_alloc_small</b> :
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">value</span> <span style="color: #ffe829;">alloc_list_int</span> (<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i1</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i2</span>)
+{
+   CAMLparam0 ();
+   CAMLlocal2 (result, r);
+
+   r = caml_alloc_small(2, 0);
+   Field(r, 0) = Val_int(i2);
+   Field(r, 1) = Val_int(0);
+   result = caml_alloc_small(2, 0);
+   Field(result, 0) = Val_int(i1);
+   Field(result, 1) = r
+
+   CAMLreturn (result);
+}
+</pre>
+
+
+<p>
+      前两个例子中,列表自底向上构造.这里使用另一种方法,自顶向下.
+      它的效率比较低,但是展示了 <b>caml_modify</b> 的用法.
+</p>
+
+
+
+<pre class="src src-c"><span style="color: #93e93f;">value</span> <span style="color: #ffe829;">alloc_list_int</span> (<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i1</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i2</span>)
+{
+   CAMLparam0 ();
+   CAMLlocal2 (tail, r);
+
+   r = caml_alloc_small(2, 0);
+   Field(r, 0) = Val_int(i1);
+   Field(r, 1) = Val_int(0);
+   tail = caml_alloc_small(2, 0);
+   Field(tail, 0) = Val_int(i2);
+   Field(tail, 1) = Val_int(0);
+   caml_modify(&amp;Field(r, 1), tail);
+
+   CAMLreturn (result);
+}
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-3">
+<h3 id="sec-6"><a name="c-callback-ocaml" id="c-callback-ocaml"></a>从C到OCaml的回调</h3>
+<div class="outline-text-3" id="text-6">
+
+
+<p>    
+    至此,我们讲解了如何从OCaml中调用C函数.这一节,我们展示C函数如何调用
+    OCaml函数,包括回调(OCaml调用C,C又调用OCaml)和C作为主程序.
+</p>
+
+</div>
+
+<div id="outline-container-6-1" class="outline-4">
+<h4 id="sec-6-1">从C中调用OCaml闭包</h4>
+<div class="outline-text-4" id="text-6-1">
+
+<p>    OCaml中调用函数称为应用,因为函数就是表达式,调用函数,就是把表达式
+    应用到参数上.  比如计算一个数的平方用数学方式来描述:一个数字
+    x的平方就是x * x,提供x的值,套用这个公式就能计算出结果. 用
+    OCaml描述: <code>let square x = x * x</code> ,这个表达式叫做let binding.
+    square只是x * x的别名(调用square 2也可以用(fun x -&gt; x * x) 2),
+    square 2就是把x * x应用到2上.
+</p>
+<p>    
+    C函数可以应用OCaml函数式value(闭包)到OCaml values.以下函数提供
+    调用方法:
+</p><ul>
+<li>caml_callback(f, a) 应用函数式value f到value a, 返回f返回的value.
+</li>
+<li>caml_callback2(f, a, b) 应用函数式value f到a和b
+</li>
+<li>caml_callback3(f, a, b, c) 应用函数式value f到a, b, c
+</li>
+<li>caml_callbackN(f, n, args) 应用函数式value f到包含n个参数的
+      value数组args
+</li>
+</ul>
+
+
+<p>      
+   如果函数f没有返回,而引发了一个异常,这个异常会传播到下个OCaml代码,
+   跳过C代码.也就是说,如果一个OCaml函数f调用C函数g,回调一个OCaml函数
+   h,h引发一个异常,这时g的执行中断,异常被传递回f.
+</p>
+<p>
+   如果C代码希望捕获异常,它可以调用caml_callback_exn,
+   caml_callback2_exn,caml_callback3_exn,caml_callbackN_exn.
+   这些函数接受的参数与不带_exn的函数相同,但会捕获异常并返回到C代
+   码.caml_callback*_exn函数返回的value v必须使用
+   <b>Is_exception_result(v)</b> 测试.返回"false"则没有异常,value v
+   是OCaml函数返回的结果.如果返回"true",则有异常,它(异常描述符)的value可以使用
+   <b>Extract_exception(v)</b> 获得.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-2" class="outline-4">
+<h4 id="sec-6-2">注册OCaml闭包给C函数</h4>
+<div class="outline-text-4" id="text-6-2">
+
+<p>     <b>callback</b> 函数的主要问题在于获得一个要调用的OCaml函数的闭包.
+     为此,OCaml提供了一个简单的注册机制,OCaml代码可以注册OCaml函数到一
+     个全局名字,然后C代码可以通过这个全局名字获得相应的闭包.
+</p>
+<p>
+     在OCaml中,通过使用 <b>Callback.register</b> n v注册.n是一个全局名字(任
+     意字符串),v是一个OCaml value.例如:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">f</span><span style="color: #1fe0e5;"> x </span><span style="color: #a52a2a;">=</span> print_string <span style="color: #b643aa;">" f is applied to "</span><span style="color: #a52a2a;">;</span> print_int x<span style="color: #a52a2a;">;</span> print_newline<span style="color: #a52a2a;">()</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Callback</span>.register <span style="color: #b643aa;">"test function"</span> f
+</pre>
+
+
+<p>
+     在C中,使用 <b>caml_named_value</b> (n)获得对应value的指针. 如果名字n
+     没有对应的value,返回一个空指针. 例如:下面的C包装器调用了上面的
+     OCaml函数f:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">void</span> <span style="color: #ffe829;">call_caml_f</span>(<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">arg</span>)
+{
+  caml_callback(*caml_named_value(<span style="color: #b643aa;">"test function"</span>), Val_int(arg));
+}
+</pre>
+
+
+<p>
+     <b>caml_named_value</b> 返回的指针是固定的,因此可以安全地使用C变量进行
+      缓存,避免重复的名字查找.另一方面,指针指向的value可以在垃圾收集时
+      修改,因此在使用指针时必须重新计算. 下面是一个更有效率的包装方式:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">void</span> <span style="color: #ffe829;">call_caml_f</span>(<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">arg</span>)
+{
+  <span style="color: #6e9ac9;">static</span> <span style="color: #93e93f;">value</span> *<span style="color: #1fe0e5;">closure_f</span> = <span style="color: #008b8b;">NULL</span>;
+  <span style="color: #6e9ac9;">if</span> (closure_f == <span style="color: #008b8b;">NULL</span>) {
+    closure_f = caml_named_value(<span style="color: #b643aa;">"test function"</span>);
+  }
+  caml_callback(*closure_f, Value_int(arg));
+}
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-3" class="outline-4">
+<h4 id="sec-6-3">注册OCaml异常给C函数</h4>
+<div class="outline-text-4" id="text-6-3">
+
+
+<p>     
+     上面的注册机制也可以用来实现从OCaml到C中的异常标识符通信.
+     OCaml代码使用 <b>Callback.register_exception</b> n exn,注册异常.
+     例如:
+</p>
+
+
+
+<pre class="src src-ocaml"><span style="color: #6e9ac9;">exception</span> <span style="color: #1fe0e5;">Error</span> <span style="color: #6e9ac9;">of</span> string
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Callback</span>.register_exception <span style="color: #b643aa;">"test exception"</span> <span style="color: #a52a2a;">(</span>Error <span style="color: #b643aa;">"any string"</span><span style="color: #a52a2a;">)</span>
+</pre>
+
+
+<p>
+     C代码使用 <b>caml_named_value</b> 获得异常标识符, 然后将它作为
+     <b>raise_constant</b>, <b>raise_with_arg</b>, 和 <b>raise_with_string</b>
+     的参数引发异常. 例如,下面的C函数使用给定的参数引发 <b>Error</b> 异常:
+</p>
+
+
+<pre class="src src-c"><span style="color: #93e93f;">void</span> <span style="color: #ffe829;">raise_error</span>(<span style="color: #93e93f;">char</span> *<span style="color: #1fe0e5;">msg</span>)
+{
+  caml_raise_with_string(*caml_named_value(<span style="color: #b643aa;">"test exception"</span>, msg);
+}
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-4" class="outline-4">
+<h4 id="sec-6-4">C作为主程序</h4>
+<div class="outline-text-4" id="text-6-4">
+
+<p>    一般情况下,混合OCaml和C的程序依靠执行OCaml的初始化代码启动.然后可
+    能会调用C代码.我们说主程序为OCaml代码.在一些程序中,需要使用C代码
+    来完成主程序的角色,当需要时调用OCaml函数. 这可以通过以下步骤完
+    成:
+</p><ul>
+<li>程序的C部分必须提供一个 <b>main</b> 函数,它将覆盖OCaml运行时提供的
+      <b>main</b> 函数.将和一般的C程序一样从用户定义的 <b>main</b> 函数执行.
+</li>
+<li>在某个地方,C代码必须调用 <b>caml_main(argv)</b> 来初始化OCaml代码.
+      <b>argv</b> 参数是一个以NULL结尾的C字符串数组(类型 <b>char **</b>),它表示
+      命令行参数,和传递给 <b>main</b> 的第二个参数一样.OCaml数组
+      <b>Sys.argv</b> 将从这个参数初始化. 在字节码编译器中, <b>argv[ 0]</b> 和
+      <b>argv[ 1]</b> 也用来查找包含字节码的文件.
+</li>
+<li>调用 <b>caml_main</b> 初始化OCaml运行时系统,加载字节码(在字节码编
+        译的情况下),并执行OCaml程序的初始化代码.一般来说,这些初始化代
+        码使用 <b>Camlback.register</b> 注册回调函数.一旦OCaml初始化代码完
+        成,将返回到调用 <b>caml_main</b> 的C代码中继续执行.
+</li>
+<li>这时C代码可以通过回调机制调用OCaml函数.
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-5" class="outline-4">
+<h4 id="sec-6-5">嵌入OCaml代码到C代码中</h4>
+<div class="outline-text-4" id="text-6-5">
+
+<p>     字节码编译器在自定义运行时(custom runtime)模式中(ocamlc -custom)只是添加字节码到
+     包含自定义运行时的可执行文件中. 这有两个步骤.首先,最终链接必须通
+     过 <b>ocamlc</b> 完成. 第二,OCaml运行时必须能通过命令行参数找到可执行
+     文件的名字.当使用 <b>caml_main(argv)</b> 时, <b>argv[ 0]</b> 和 <b>argv[ 1]</b>
+     必须包含可执行文件的名字.
+</p>
+<p>
+     另一个嵌入字节码到C代码的方法是使用 <b>ocamlc</b> 的 <b>-output-obj</b> 选
+     项.它告诉 <b>ocamlc</b> 编译器输出一个包含OCaml字节码的C对象文件 (.o
+     文件, windows下为.obj), 和 <b>caml_startup</b> 函数. 这个C对象文件可
+     以使用标准C编译器链接,或存储进一个C library中.
+</p>
+<p>
+     <b>caml_startup</b> 函数必须从主C程序中调用,为了初始化OCaml运行时和执
+      行OCaml初始化代码. 和 <b>caml_main</b> 一样,它接受一个包含命令行参数
+      的 <b>argv</b> 参数.与 <b>caml_main</b> 不同的是, 这个argv参数只是用来
+      初始化 <b>Sys.argv</b>,不会用来查找可执行文件的名字.
+</p>
+<p>
+      <b>-output-obj</b> 选项也可以用来获得C源代码文件. 另外,它还能直接产生
+      一个包含OCaml代码、OCaml运行时系统和其它传递给 <b>ocamlc</b> 的静态C
+      代码(.o, .a,或者 .obj, .lib) 的共享库(.so文件, Windows下为.dll)。
+      这种方式和一个普通的链接步骤很类似，只不过它产生一个共享库，可
+      以在需要的时候运行OCaml代码。 <b>-output-obj</b> 这三种行为通过
+      输出文件的扩展名来选择(使用 <b>-o</b>)。
+</p>
+<p>
+      本地编译器 <b>ocamlopt</b> 也支持 <b>-output-obj</b> 选项， 可以输出一个C
+      对象文件或一个包含命令行上指定的所有OCaml模块的本地代码的共享库
+      和OCaml起始代码。和字节码编译器一样调用 <b>caml_startup</b>
+      进行初始化。
+</p>
+<p>
+      在最终的链接阶段，除了所有 <b>-output-obj</b> 产生的文件外，你还需要
+      提供OCaml的运行时库(字节码用 <b>libcamlrun.a</b>, 本地代码用
+      <b>libasmrun.a</b>, vc编译器为.lib)，和所有依赖的OCaml库所对应的的C库。例如，
+      假设你的程序的OCaml部分使用了Unix库，使用 <b>ocamlc</b>, 你需要：
+</p>
+
+
+<pre class="example">ocamlc -output-obj -o camlcode.o unix.cma (其它 .cmo 和 .cma 文件)
+cc -o myproj (C对象文件或库) camlcode.o -L/usr/local/lib/ocaml -lunix -lcamlrun   
+</pre>
+
+
+<p>
+      使用 <b>ocamlopt</b> ,你需要:
+</p>
+
+
+<pre class="example">ocamlopt -output-obj -o camlcode.o unix.cmxa (其它 .cmx 和 .cmxa 文件)
+cc -o myprog (C对象文件或库) camlcode.o -L/usr/local/lib/ocaml -lunix -lasmrun    
+</pre>
+
+
+<p>      
+      注意: 在Windows NT下,OCaml产生的对象文件使用/MD选项编译,因此所有
+      其它需要链接的对象文件都要使用/MD选项编译. (参见
+      config/Makefile.vc中的 <b>BYTECCCOMPOPTS</b> 和 <b>NATIVECCCOMPOPTS</b> )
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-7" class="outline-3">
+<h3 id="sec-7"><a name="win32-kill" id="win32-kill"></a>完整示例:Win32下的kill</h3>
+<div class="outline-text-3" id="text-7">
+
+
+<p>    
+    本示例通过包装win32的API来实现Windows中结束进程的功能.
+    通过 kill &lt;pid&gt; 或 kill -n &lt;process name&gt; 来调用.
+</p>
+<p>
+    在Windows下,结束进程要用的函数有 <b>OpenProcess</b> 和
+    <b>TerminateProcess</b>,我们把这两个函数包装给OCaml.
+</p>
+<p>
+    win32_process_stubs.c,包装Win32 API给OCaml:
+</p>
+
+
+<pre class="src src-c"><span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;Windows.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;stdio.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;tchar.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;psapi.h&gt;</span>
+
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/mlvalues.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/memory.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/callback.h&gt;</span>
+<span style="color: #c87e5f;">#include</span> <span style="color: #b643aa;">&lt;caml/fail.h&gt;</span>
+
+<span style="color: #6e9ac9;">static</span> <span style="color: #6e9ac9;">const</span> <span style="color: #93e93f;">desired_access_table</span>[] = {
+    DELETE,
+    READ_CONTROL,
+    SYNCHRONIZE,
+    WRITE_DAC,
+    WRITE_OWNER,
+    PROCESS_ALL_ACCESS,
+    PROCESS_CREATE_PROCESS,
+    PROCESS_CREATE_THREAD,
+    PROCESS_DUP_HANDLE,
+    PROCESS_QUERY_INFORMATION,
+    PROCESS_QUERY_LIMITED_INFORMATION,
+    PROCESS_SET_INFORMATION,
+    PROCESS_SET_QUOTA,
+    PROCESS_SUSPEND_RESUME,
+    PROCESS_TERMINATE,
+    PROCESS_VM_OPERATION,
+    PROCESS_VM_READ,
+    PROCESS_VM_WRITE,
+};
+
+<span style="color: #93e93f;">DWORD</span> <span style="color: #ffe829;">get_desired_access</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">da_list</span>)
+{
+    <span style="color: #93e93f;">DWORD</span> <span style="color: #1fe0e5;">desired_access</span> = 0;
+    <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v</span>;
+
+    <span style="color: #6e9ac9;">while</span> (da_list != Val_emptylist){
+        v = Field(da_list, 0);
+        desired_access |= desired_access_table[Long_val(v)];
+        da_list = Field(da_list, 1);
+    }
+
+    <span style="color: #6e9ac9;">return</span> desired_access;
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">Handle &#31867;&#22411;  </span><span style="color: #a36238;">*/</span>
+
+<span style="color: #c87e5f;">#define</span> <span style="color: #ffe829;">Handle_val</span>(<span style="color: #1fe0e5;">v</span>) (*((<span style="color: #93e93f;">HANDLE</span>*)(v)))
+
+<span style="color: #93e93f;">value</span> <span style="color: #ffe829;">alloc_handle</span> (<span style="color: #93e93f;">HANDLE</span> <span style="color: #1fe0e5;">h</span>)
+{
+    <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">val</span>;
+
+    val = alloc_small(<span style="color: #6e9ac9;">sizeof</span>(HANDLE)/<span style="color: #6e9ac9;">sizeof</span>(value), Abstract_tag);
+    Handle_val(val) = h;
+    <span style="color: #6e9ac9;">return</span> val;
+}
+
+CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">is_null_handle</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">handle</span>)
+{
+    <span style="color: #6e9ac9;">return</span> Val_bool(Handle_val(handle) == <span style="color: #008b8b;">NULL</span>);
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#25243;&#20986;OCaml Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*/</span>
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">raise_win32_error</span>(<span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">id</span>)
+{
+    <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">systemLocal</span> = MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL);
+    <span style="color: #93e93f;">LPVOID</span> <span style="color: #1fe0e5;">lpMsgBuf</span> = <span style="color: #008b8b;">NULL</span>;
+    <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">error_result</span>[2];
+
+    <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">ret</span> = FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
+        FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        <span style="color: #008b8b;">NULL</span>,id,systemLocal,
+        (LPTSTR)&amp;lpMsgBuf, 0, <span style="color: #008b8b;">NULL</span>);
+
+    <span style="color: #6e9ac9;">if</span>(!ret) {
+        <span style="color: #a36238;">//</span><span style="color: #a36238;">Is it a network-related error?</span>
+        <span style="color: #93e93f;">HMODULE</span> <span style="color: #1fe0e5;">hDll</span>=LoadLibraryEx(TEXT(<span style="color: #b643aa;">"newmsg.dll"</span>),<span style="color: #008b8b;">NULL</span>,
+                           DONT_RESOLVE_DLL_REFERENCES);
+        <span style="color: #6e9ac9;">if</span>(hDll!=<span style="color: #008b8b;">NULL</span>) {
+            ret=FormatMessage(
+                FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS|
+                FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                <span style="color: #008b8b;">NULL</span>,id,systemLocal,
+                (LPTSTR)&amp;lpMsgBuf,0,<span style="color: #008b8b;">NULL</span>);
+
+            FreeLibrary(hDll);
+        }
+    }
+
+    error_result[0] = Val_long(id);
+    <span style="color: #6e9ac9;">if</span> (lpMsgBuf) {
+        error_result[1] = caml_copy_string(lpMsgBuf);
+        LocalFree(lpMsgBuf);
+    } <span style="color: #6e9ac9;">else</span> {
+        error_result[1] = caml_copy_string(<span style="color: #b643aa;">"\r\n"</span>); <span style="color: #a36238;">//</span><span style="color: #a36238;">&#25214;&#19981;&#21040;&#38169;&#35823;&#28040;&#24687;&#21017;&#20026;&#31354;&#23383;&#31526;&#20018;</span>
+    }
+
+    caml_raise_with_args(*caml_named_value(<span style="color: #b643aa;">"win32 exception"</span>), 2, error_result);
+}
+
+__inline <span style="color: #93e93f;">void</span> <span style="color: #ffe829;">raise_last_win32_error</span>()
+{
+    raise_win32_error(GetLastError());
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#36827;&#31243;&#30456;&#20851;&#20989;&#25968; </span><span style="color: #a36238;">*/</span>
+
+CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">open_process</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">da</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">inherit</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">pid</span>)
+{
+    CAMLparam3(da, inherit, pid);
+    CAMLlocal1(result);
+
+    <span style="color: #93e93f;">HANDLE</span> <span style="color: #1fe0e5;">hproc</span> = OpenProcess(get_desired_access(da),
+                               Bool_val(inherit),
+                               Long_val(pid));
+    <span style="color: #6e9ac9;">if</span> (<span style="color: #008b8b;">NULL</span> == hproc) {
+        raise_last_win32_error();
+    } 
+    result = alloc_handle(hproc);
+
+    CAMLreturn(result);
+}
+
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">terminate_process</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">handle</span>, <span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">exit_code</span>)
+{
+    <span style="color: #6e9ac9;">if</span> (!(TerminateProcess(Handle_val(handle), Long_val(exit_code)))) {
+        raise_last_win32_error();
+    }
+}
+
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">close_handle</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">handle</span>)
+{
+    <span style="color: #6e9ac9;">if</span> (!CloseHandle(Handle_val(handle))) {
+        raise_last_win32_error();
+    }
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#26522;&#20030;&#25152;&#26377;&#36827;&#31243; </span><span style="color: #a36238;">*/</span>
+
+<span style="color: #a36238;">/*</span>
+<span style="color: #a36238;">  pid, &#36827;&#31243;id</span>
+<span style="color: #a36238;">  proc_name, &#20445;&#23384;&#36827;&#31243;&#21517;&#30340;&#23383;&#31526;&#20018;</span>
+<span style="color: #a36238;">  size, proc_name&#30340;&#32531;&#20914;&#21306;&#22823;&#23567;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*/</span>  
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">get_proc_name</span>(<span style="color: #93e93f;">DWORD</span> <span style="color: #1fe0e5;">pid</span>, <span style="color: #93e93f;">char</span> *<span style="color: #1fe0e5;">proc_name</span>, <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">size</span>)
+{
+    <span style="color: #93e93f;">HANDLE</span> <span style="color: #1fe0e5;">hProcess</span> ;
+
+    <span style="color: #6e9ac9;">if</span> (pid == 0) {
+        strncpy(proc_name, <span style="color: #b643aa;">"System Idle Process"</span>, size);
+        <span style="color: #6e9ac9;">return</span>;
+    }
+    <span style="color: #6e9ac9;">else</span> <span style="color: #6e9ac9;">if</span> (pid == 4) {
+        strncpy(proc_name, <span style="color: #b643aa;">"System"</span>, size);
+        <span style="color: #6e9ac9;">return</span>;
+    }
+    strncpy(proc_name, <span style="color: #b643aa;">"&lt;unknown&gt;"</span>, size);
+
+    hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
+                                   PROCESS_VM_READ,
+                                   FALSE, pid );
+    <span style="color: #a36238;">// </span><span style="color: #a36238;">Get the process name.</span>
+    <span style="color: #6e9ac9;">if</span> (<span style="color: #008b8b;">NULL</span> != hProcess )
+    {
+        <span style="color: #93e93f;">HMODULE</span> <span style="color: #1fe0e5;">hMod</span>;
+        <span style="color: #93e93f;">DWORD</span> <span style="color: #1fe0e5;">cbNeeded</span>;
+
+        <span style="color: #6e9ac9;">if</span> ( EnumProcessModules( hProcess, &amp;hMod, <span style="color: #6e9ac9;">sizeof</span>(hMod), 
+             &amp;cbNeeded) )
+        {
+            GetModuleBaseName( hProcess, hMod, proc_name, size );
+        }
+    }
+
+    CloseHandle( hProcess );
+}
+
+<span style="color: #a36238;">/*</span>
+<span style="color: #a36238;">  &#26522;&#20030;&#25152;&#26377;&#36827;&#31243;,&#36820;&#22238;&#31867;&#22411;&#20026;(pid, pname) array;</span>
+<span style="color: #a36238;">  pid&#20026;&#36827;&#31243;id, pname&#20026;&#36827;&#31243;&#26144;&#20687;&#21517;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*/</span>
+CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;">enum_all_proc</span> ()
+{
+<span style="color: #c87e5f;">#define</span> <span style="color: #1fe0e5;">MAX_PROC</span> 1024  
+    <span style="color: #93e93f;">DWORD</span> <span style="color: #1fe0e5;">all_proc_id</span>[MAX_PROC], <span style="color: #1fe0e5;">cbNeeded</span>, <span style="color: #1fe0e5;">cProcesses</span>, <span style="color: #1fe0e5;">pid</span>;
+    <span style="color: #93e93f;">unsigned</span> <span style="color: #93e93f;">int</span> <span style="color: #1fe0e5;">i</span>;
+    <span style="color: #93e93f;">char</span> <span style="color: #1fe0e5;">proc_name</span>[MAX_PATH];
+
+    CAMLparam0 ();
+    CAMLlocal2 (result, proc_info);
+
+    <span style="color: #6e9ac9;">if</span> (!EnumProcesses(all_proc_id, <span style="color: #6e9ac9;">sizeof</span>(all_proc_id), &amp;cbNeeded)){
+        raise_last_win32_error();
+    }
+
+    cProcesses = cbNeeded / <span style="color: #6e9ac9;">sizeof</span>(DWORD);
+
+    <span style="color: #a36238;">/* </span><span style="color: #a36238;">&#29983;&#25104;(int, string) array&#30340;&#36827;&#31243;&#21015;&#34920; </span><span style="color: #a36238;">*/</span>
+    result = caml_alloc(cProcesses, 0);
+    <span style="color: #a36238;">//</span><span style="color: #a36238;">result&#35201;&#29992;Store_field&#21021;&#22987;&#21270;?&#25105;&#30475;&#20102;alloc.c&#20013;caml_alloc_array&#30340;&#20195;&#30721;,</span>
+    <span style="color: #a36238;">//</span><span style="color: #a36238;">&#23427;&#20063;&#27809;&#26377;&#29992;Store_field&#36827;&#34892;&#21021;&#22987;&#21270;,&#25925;&#25105;&#36825;&#37324;&#20063;&#27809;&#26377;&#21021;&#22987;&#21270;.</span>
+    <span style="color: #a36238;">//</span><span style="color: #a36238;">&#21518;&#38754;&#30452;&#25509;&#29992;caml_modify</span>
+    <span style="color: #6e9ac9;">for</span> (i = 0; i &lt; cProcesses; i++) {
+        pid = all_proc_id[i];
+        get_proc_name(pid, proc_name, MAX_PATH);
+
+        proc_info = caml_alloc(2, 0);
+        Store_field(proc_info, 0, Val_long(pid));
+        Store_field(proc_info, 1, caml_copy_string(proc_name));
+
+        caml_modify(&amp;Field(result, i), proc_info);
+    }
+
+    CAMLreturn (result);
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#25171;&#24320;&#29305;&#26435; </span><span style="color: #a36238;">*/</span>
+
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">EnablePrivilege</span>(<span style="color: #93e93f;">LPSTR</span> <span style="color: #1fe0e5;">name</span>)
+{
+    <span style="color: #93e93f;">HANDLE</span> <span style="color: #1fe0e5;">hToken</span>;
+    <span style="color: #93e93f;">BOOL</span> <span style="color: #1fe0e5;">rv</span>;
+    <span style="color: #93e93f;">TOKEN_PRIVILEGES</span> <span style="color: #1fe0e5;">priv</span> = {1,{0,0,SE_PRIVILEGE_ENABLED}};
+
+    LookupPrivilegeValue(0,name,&amp;priv.Privileges[0].Luid);
+    OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&amp;hToken);
+
+    <span style="color: #6e9ac9;">if</span> (!AdjustTokenPrivileges(hToken,FALSE,&amp;priv,<span style="color: #6e9ac9;">sizeof</span> priv,0,0)){
+        CloseHandle(hToken);
+        raise_last_win32_error();
+    }
+
+    CloseHandle(hToken);
+}
+
+<span style="color: #a36238;">/* </span><span style="color: #a36238;">&#21253;&#35013;&#32473;OCaml </span><span style="color: #a36238;">*/</span>
+<span style="color: #93e93f;">void</span> <span style="color: #ffe829;">enable_privilege</span>(<span style="color: #93e93f;">value</span> <span style="color: #1fe0e5;">v</span>)
+{
+    EnablePrivilege(String_val(v));
+}
+</pre>
+
+
+<p>
+    process.ml, 包装函数的接口:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(* </span><span style="color: #a36238;">&#36827;&#31243;&#35775;&#38382;&#26435;&#38480; </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">process_desired_access </span><span style="color: #a52a2a;">=</span>
+<span style="color: #a52a2a;">|</span> DELETE
+<span style="color: #a52a2a;">|</span> READ_CONTROL
+<span style="color: #a52a2a;">|</span> SYNCHRONIZE
+<span style="color: #a52a2a;">|</span> WRITE_DAC
+<span style="color: #a52a2a;">|</span> WRITE_OWNER
+<span style="color: #a52a2a;">|</span> PROCESS_ALL_ACCESS
+<span style="color: #a52a2a;">|</span> PROCESS_CREATE_PROCESS
+<span style="color: #a52a2a;">|</span> PROCESS_CREATE_THREAD
+<span style="color: #a52a2a;">|</span> PROCESS_DUP_HANDLE
+<span style="color: #a52a2a;">|</span> PROCESS_QUERY_INFORMATION
+<span style="color: #a52a2a;">|</span> PROCESS_QUERY_LIMITED_INFORMATION
+<span style="color: #a52a2a;">|</span> PROCESS_SET_INFORMATION
+<span style="color: #a52a2a;">|</span> PROCESS_SET_QUOTA
+<span style="color: #a52a2a;">|</span> PROCESS_SUSPEND_RESUME
+<span style="color: #a52a2a;">|</span> PROCESS_TERMINATE
+<span style="color: #a52a2a;">|</span> PROCESS_VM_OPERATION
+<span style="color: #a52a2a;">|</span> PROCESS_VM_READ
+<span style="color: #a52a2a;">|</span> PROCESS_VM_WRITE
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">privilege_constants  </span><span style="color: #a52a2a;">=</span>
+<span style="color: #a52a2a;">|</span> SE_CREATE_TOKEN   
+<span style="color: #a52a2a;">|</span> SE_ASSIGNPRIMARYTOKEN 
+<span style="color: #a52a2a;">|</span> SE_LOCK_MEMORY    
+<span style="color: #a52a2a;">|</span> SE_INCREASE_QUOTA 
+<span style="color: #a52a2a;">|</span> SE_UNSOLICITED_INPUT  
+<span style="color: #a52a2a;">|</span> SE_MACHINE_ACCOUNT 
+<span style="color: #a52a2a;">|</span> SE_TCB    
+<span style="color: #a52a2a;">|</span> SE_SECURITY   
+<span style="color: #a52a2a;">|</span> SE_TAKE_OWNERSHIP 
+<span style="color: #a52a2a;">|</span> SE_LOAD_DRIVER    
+<span style="color: #a52a2a;">|</span> SE_SYSTEM_PROFILE 
+<span style="color: #a52a2a;">|</span> SE_SYSTEMTIME 
+<span style="color: #a52a2a;">|</span> SE_PROF_SINGLE_PROCESS    
+<span style="color: #a52a2a;">|</span> SE_INC_BASE_PRIORITY  
+<span style="color: #a52a2a;">|</span> SE_CREATE_PAGEFILE 
+<span style="color: #a52a2a;">|</span> SE_CREATE_PERMANENT   
+<span style="color: #a52a2a;">|</span> SE_BACKUP 
+<span style="color: #a52a2a;">|</span> SE_RESTORE    
+<span style="color: #a52a2a;">|</span> SE_SHUTDOWN   
+<span style="color: #a52a2a;">|</span> SE_DEBUG  
+<span style="color: #a52a2a;">|</span> SE_AUDIT  
+<span style="color: #a52a2a;">|</span> SE_SYSTEM_ENVIRONMENT 
+<span style="color: #a52a2a;">|</span> SE_CHANGE_NOTIFY  
+<span style="color: #a52a2a;">|</span> SE_REMOTE_SHUTDOWN    
+<span style="color: #a52a2a;">|</span> SE_CREATE_GLOBAL 
+<span style="color: #a52a2a;">|</span> SE_UNDOCK 
+<span style="color: #a52a2a;">|</span> SE_MANAGE_VOLUME 
+<span style="color: #a52a2a;">|</span> SE_IMPERSONATE 
+<span style="color: #a52a2a;">|</span> SE_ENABLE_DELEGATION 
+<span style="color: #a52a2a;">|</span> SE_SYNC_AGENT 
+<span style="color: #a52a2a;">|</span> SE_TRUSTED_CREDMAN_ACCESS 
+<span style="color: #a52a2a;">|</span> SE_RELABEL 
+<span style="color: #a52a2a;">|</span> SE_INCREASE_WORKING_SET 
+<span style="color: #a52a2a;">|</span> SE_TIME_ZONE 
+<span style="color: #a52a2a;">|</span> SE_CREATE_SYMBOLIC_LINK 
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">string_of_privilege</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">function</span>
+ <span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">|</span> SE_CREATE_TOKEN <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeCreateTokenPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_ASSIGNPRIMARYTOKEN <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeAssignPrimaryTokenPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_LOCK_MEMORY <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeLockMemoryPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_INCREASE_QUOTA <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeIncreaseQuotaPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_UNSOLICITED_INPUT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeUnsolicitedInputPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_MACHINE_ACCOUNT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeMachineAccountPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_TCB <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeTcbPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SECURITY <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeSecurityPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_TAKE_OWNERSHIP <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeTakeOwnershipPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_LOAD_DRIVER <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeLoadDriverPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SYSTEM_PROFILE <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeSystemProfilePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SYSTEMTIME <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeSystemtimePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_PROF_SINGLE_PROCESS <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeProfileSingleProcessPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_INC_BASE_PRIORITY <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeIncreaseBasePriorityPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_CREATE_PAGEFILE <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeCreatePagefilePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_CREATE_PERMANENT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeCreatePermanentPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_BACKUP <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeBackupPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_RESTORE <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeRestorePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SHUTDOWN <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeShutdownPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_DEBUG <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeDebugPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_AUDIT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeAuditPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SYSTEM_ENVIRONMENT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeSystemEnvironmentPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_CHANGE_NOTIFY <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeChangeNotifyPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_REMOTE_SHUTDOWN <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeRemoteShutdownPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_CREATE_GLOBAL <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeCreateGlobalPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_UNDOCK <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeUndockPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_MANAGE_VOLUME <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeManageVolumePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_IMPERSONATE <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeImpersonatePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_ENABLE_DELEGATION <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeEnableDelegationPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_SYNC_AGENT <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeSyncAgentPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_TRUSTED_CREDMAN_ACCESS <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeTrustedCredManAccessPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_RELABEL <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeRelabelPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_INCREASE_WORKING_SET <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeIncreaseWorkingSetPrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_TIME_ZONE <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeTimeZonePrivilege"</span>
+  <span style="color: #a52a2a;">|</span> SE_CREATE_SYMBOLIC_LINK <span style="color: #a52a2a;">-&gt;</span> <span style="color: #b643aa;">"SeCreateSymbolicLinkPrivilege"</span>
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">handle</span>
+
+<span style="color: #6e9ac9;">exception</span> <span style="color: #1fe0e5;">Win32Error</span> <span style="color: #6e9ac9;">of</span> int <span style="color: #a52a2a;">*</span> string
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Callback</span>.register_exception <span style="color: #b643aa;">"win32 exception"</span> <span style="color: #a52a2a;">(</span>Win32Error <span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">,</span><span style="color: #b643aa;">"win32 error"</span><span style="color: #a52a2a;">))</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#26159;&#21542;&#20026;&#31354;&#21477;&#26564; </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">is_null_handle </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">handle</span><span style="color: #a52a2a;">:</span>handle <span style="color: #a52a2a;">-&gt;</span> bool <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"is_null_handle"</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#20851;&#38381;&#21477;&#26564;,&#22833;&#36133;&#21017;&#25243;&#20986;Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">close_handle </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">handle</span><span style="color: #a52a2a;">:</span>handle <span style="color: #a52a2a;">-&gt;</span> unit <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"close_handle"</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#25171;&#24320;&#36827;&#31243;,&#25171;&#24320;&#22833;&#36133;&#25243;&#20986;Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">open_process </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">da </span><span style="color: #a52a2a;">:</span> process_desired_access list <span style="color: #a52a2a;">-&gt;</span> <span style="color: #1fe0e5;">inherit_handle</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">bool </span><span style="color: #a52a2a;">-&gt;</span>
+  <span style="color: #1fe0e5;">proc_id</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> handle  </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"open_process"</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#32467;&#26463;&#36827;&#31243;,&#22833;&#36133;&#25243;&#20986;Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">terminate_process </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">handle</span><span style="color: #a52a2a;">:</span>handle <span style="color: #a52a2a;">-&gt;</span> <span style="color: #1fe0e5;">exit_code</span> <span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">int </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> unit </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #b643aa;">"terminate_process"</span>
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">proc_info </span><span style="color: #a52a2a;">=</span> int <span style="color: #a52a2a;">*</span> string
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#26522;&#20030;&#25152;&#26377;&#36827;&#31243; </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">enum_processes </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">unit </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> proc_info array </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"enum_all_proc"</span>
+
+<span style="color: #0000ff; font-weight: bold;">external</span> <span style="color: #1fe0e5;">enable_privilege_s </span><span style="color: #a52a2a;">:</span> <span style="color: #93e93f;">string </span><span style="color: #a52a2a;">-&gt;</span><span style="color: #93e93f;"> unit </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"enable_privilege"</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#25552;&#21319;&#24403;&#21069;&#36827;&#31243;&#30340;&#25351;&#23450;&#26435;&#38480;,&#22833;&#36133;&#25243;&#20986;Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*)</span>  
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">enable_privilege</span><span style="color: #1fe0e5;"> priv </span><span style="color: #a52a2a;">=</span>
+  enable_privilege_s <span style="color: #a52a2a;">(</span>string_of_privilege priv<span style="color: #a52a2a;">)</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#26432;&#27515;&#25351;&#23450;&#30340;&#36827;&#31243;,&#22833;&#36133;&#21017;&#25243;&#20986;Win32Error&#24322;&#24120; </span><span style="color: #a36238;">*)</span>   
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">kill</span><span style="color: #1fe0e5;"> pid </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">hproc </span><span style="color: #a52a2a;">=</span> open_process <span style="color: #a52a2a;">[</span> PROCESS_TERMINATE <span style="color: #a52a2a;">]</span> <span style="color: #008b8b;">false</span> pid <span style="color: #0000ff; font-weight: bold;">in</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#22914;&#26524;terminate_process&#25243;&#20986;&#24322;&#24120;,&#21017;&#20851;&#38381;&#21477;&#26564;,&#24182;&#37325;&#26032;&#25243;&#20986;&#24322;&#24120; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #6e9ac9;">try</span> <span style="color: #a52a2a;">(</span>
+    terminate_process hproc 1<span style="color: #a52a2a;">;</span>
+    close_handle hproc
+  <span style="color: #a52a2a;">)</span>
+  <span style="color: #6e9ac9;">with</span> exn <span style="color: #a52a2a;">-&gt;</span> close_handle hproc<span style="color: #a52a2a;">;</span> <span style="color: #6e9ac9;">raise</span> exn
+
+
+</pre>
+
+
+<p>
+    kill.ml,主程序,注意这个文件要以cp936编码保存，否则cmd输出乱码:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#36827;&#31243;&#32467;&#26463;&#24037;&#20855;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">main</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pname </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> None <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">kill_all </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #008b8b;">false</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">usage </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"&#36827;&#31243;&#32467;&#26463;&#24037;&#20855;\n&#20351;&#29992;&#26041;&#27861;:  kill [-a] [-n &lt;process name&gt;] [pid ...] "</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">args </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Arg</span>.align <span style="color: #a52a2a;">[</span>
+    <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"-n"</span><span style="color: #a52a2a;">,</span> <span style="color: #93e93f;">Arg</span>.String <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">fun</span> <span style="color: #1fe0e5;">s </span><span style="color: #a52a2a;">-&gt;</span> pname <span style="color: #a52a2a;">:=</span> Some s<span style="color: #a52a2a;">),</span> <span style="color: #b643aa;">" &#35201;&#32467;&#26463;&#30340;&#36827;&#31243;&#21517;"</span><span style="color: #a52a2a;">);</span>
+    <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"-a"</span><span style="color: #a52a2a;">,</span> <span style="color: #93e93f;">Arg</span>.Set kill_all<span style="color: #a52a2a;">,</span> <span style="color: #b643aa;">" &#32467;&#26463;&#25152;&#26377;&#36827;&#31243;&#21517;&#21305;&#37197;&#30340;&#36827;&#31243;"</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">]</span>
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #6e9ac9;">if</span> <span style="color: #93e93f;">Array</span>.length <span style="color: #93e93f;">Sys</span>.argv <span style="color: #a52a2a;">=</span> 1 <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Arg</span>.usage args usage<span style="color: #a52a2a;">;</span> <span style="color: #6e9ac9;">exit</span> 1<span style="color: #a52a2a;">);</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#28155;&#21152;&#21629;&#20196;&#34892;&#21442;&#25968;&#19978;&#30340;pid </span><span style="color: #a36238;">*)</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pids </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #a52a2a;">[]</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">append_pids</span><span style="color: #1fe0e5;"> s </span><span style="color: #a52a2a;">=</span>
+    <span style="color: #6e9ac9;">try</span>
+      <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">id </span><span style="color: #a52a2a;">=</span> int_of_string s <span style="color: #0000ff; font-weight: bold;">in</span>
+      pids <span style="color: #a52a2a;">:=</span> id <span style="color: #a52a2a;">::</span> <span style="color: #a52a2a;">!</span>pids
+    <span style="color: #6e9ac9;">with</span> _ <span style="color: #a52a2a;">-&gt;</span> <span style="color: #6e9ac9;">failwith</span> <span style="color: #b643aa;">"&#36827;&#31243;id&#24517;&#39035;&#20026;&#25968;&#23383;"</span>
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">Arg</span>.parse args append_pids usage<span style="color: #a52a2a;">;</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#35774;&#32622;&#35843;&#35797;&#26435;&#38480; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #93e93f;">Process</span>.enable_privilege <span style="color: #93e93f;">Process</span>.SE_DEBUG<span style="color: #a52a2a;">;</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#26522;&#20030;&#25152;&#26377;&#36827;&#31243; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">all_proc </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Array</span>.to_list <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Process</span>.enum_processes <span style="color: #a52a2a;">())</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#32467;&#26463;&#36827;&#31243;,pids&#20026;&#36827;&#31243;id&#21015;&#34920; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">kill_procs</span><span style="color: #1fe0e5;"> pids </span><span style="color: #a52a2a;">=</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">kill_proc</span><span style="color: #1fe0e5;"> pid </span><span style="color: #a52a2a;">=</span>
+        <span style="color: #6e9ac9;">try</span> 
+          <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">name </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.assoc pid all_proc <span style="color: #0000ff; font-weight: bold;">in</span>
+          <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"&#32467;&#26463;&#36827;&#31243; %-6d: %s\n"</span> pid name<span style="color: #a52a2a;">;</span>
+          <span style="color: #93e93f;">Process</span>.kill pid
+        <span style="color: #6e9ac9;">with</span>
+        <span style="color: #a52a2a;">|</span> Not_found <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"&#25214;&#19981;&#21040;&#36827;&#31243;id:%d\n"</span> pid
+        <span style="color: #a52a2a;">|</span> <span style="color: #93e93f;">Process</span>.Win32Error <span style="color: #a52a2a;">(</span>id<span style="color: #a52a2a;">,</span> msg<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"[Win32 Error %d]: %s"</span> id msg
+    <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #93e93f;">List</span>.iter kill_proc pids
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#32467;&#26463;&#25152;&#26377;&#25351;&#23450;&#36827;&#31243;id&#30340;&#36827;&#31243; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #6e9ac9;">if</span> <span style="color: #a52a2a;">!</span>pids <span style="color: #a52a2a;">&lt;&gt;</span> <span style="color: #a52a2a;">[]</span> <span style="color: #6e9ac9;">then</span> kill_procs <span style="color: #a52a2a;">!</span>pids <span style="color: #a52a2a;">;</span>
+
+  <span style="color: #6e9ac9;">match</span> <span style="color: #a52a2a;">!</span>pname <span style="color: #6e9ac9;">with</span>
+  <span style="color: #a52a2a;">|</span> None <span style="color: #a52a2a;">-&gt;</span> <span style="color: #a52a2a;">()</span>
+  <span style="color: #a52a2a;">|</span> Some s <span style="color: #a52a2a;">-&gt;</span> <span style="color: #a52a2a;">(</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">is_proc_name</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">_</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> name</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span> name <span style="color: #a52a2a;">=</span> s <span style="color: #a52a2a;">||</span> name <span style="color: #a52a2a;">=</span> s <span style="color: #a52a2a;">^</span> <span style="color: #b643aa;">".exe"</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pids </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.filter is_proc_name all_proc <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #6e9ac9;">if</span> pids <span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[]</span> <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>
+      <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"&#25214;&#19981;&#21040;&#36827;&#31243;: %s\n"</span> s<span style="color: #a52a2a;">;</span>
+      <span style="color: #6e9ac9;">exit</span> 1
+    <span style="color: #a52a2a;">);</span>
+
+    <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#25226;(id, name)&#30340;&#21015;&#34920;&#21464;&#25104;id&#30340;&#21015;&#34920; </span><span style="color: #a36238;">*)</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pids </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.map <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">fun</span> <span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">id</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> name</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">-&gt;</span> id<span style="color: #a52a2a;">)</span> pids <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #6e9ac9;">if</span> <span style="color: #a52a2a;">!</span>kill_all <span style="color: #6e9ac9;">then</span> kill_procs pids
+    <span style="color: #6e9ac9;">else</span> kill_procs <span style="color: #a52a2a;">[</span><span style="color: #93e93f;">List</span>.hd pids<span style="color: #a52a2a;">]</span>
+  <span style="color: #a52a2a;">)</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span>  main <span style="color: #a52a2a;">()</span>
+
+</pre>
+
+
+<p>
+    编译方式:
+</p>
+
+
+<pre class="example">以下采用vc编译器,如果用gcc, 库的名字不同, 用-cclib -lpsapi 代替-cclib psapi.lib
+    
+字节码:
+ocamlc -custom -o kill.exe win32_process_stubs.c process.ml kill.ml -cclib psapi.lib
+
+本地代码:   
+ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -cclib psapi.lib
+    
+带.pdb调试符号文件的本地代码(仅限vc编译器,也可以加上-g选项去掉优化):
+ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -ccopt "psapi.lib -link /DEBUG"
+</pre>
+
+
+<p>
+    附带一个ps.ml，列出当前所有进程:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(*</span><span style="color: #a36238;">&#12288;&#21015;&#20986;&#31995;&#32479;&#30340;&#25152;&#26377;&#36827;&#31243;&#12288;</span><span style="color: #a36238;">*)</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">main</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">all_proc </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Process</span>.enum_processes <span style="color: #a52a2a;">()</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">Array</span>.iter <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">fun</span> <span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">id</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> name</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"%-30s %8d\n"</span> name id<span style="color: #a52a2a;">)</span> all_proc
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">_ </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">main (); (* &#27809;&#26377;&#25552;&#21319;debug&#26435;&#38480;&#26102;&#65292;&#26377;&#20123;&#36827;&#31243;&#21517;&#23383;&#33719;&#21462;&#19981;&#21040; *) </span><span style="color: #a36238;">*)</span>
+  <span style="color: #93e93f;">Process</span>.enable_privilege <span style="color: #93e93f;">Process</span>.SE_DEBUG<span style="color: #a52a2a;">;</span>
+  main <span style="color: #a52a2a;">()</span>
+
+</pre>
+
+<p>
+    编译方式与kill相同，只是把kill换成ps。
+</p>
+<p>
+    现在可以用ps列出当前进程，然后用kill进程id或进程名的方式结束
+    进程
+</p>
+<p>    
+   参考文章:
+</p>
+<p>   
+   <a href="http://www.linux-nantes.org/~fmonnier/OCaml/ocaml-wrapping-c.php">How to wrap C functions to OCaml</a>
+</p>
+<p>   
+   <a href="http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora112.html">ocaml-ora ch.12 Interoperability with C</a>
+</p>
+<p>   
+   <a href="http://caml.inria.fr/pub/docs/manual-ocaml/manual032.html">ocaml manual ch.18 Interfacing C with OCaml</a>
+</p>
+
+
+</div>
+</div>
+
+  </div>
+  
+  <footer class="well article-footer">
+    发布于 <time datetime=\"2012-07-31T10:02:00Z\"> 2012-07-31 10:02:00</time>.
+    <nav class="tag-cloud">
+      <h1><i class="icon-tags"></i> 相关标签</h1>
+      <ul>
+	<li class="label label-inverse small"><a href="../../../tags/ocaml.html">ocaml</a></li><li class="label label-inverse small"><a href="../../../tags/c.html">c</a></li>
+      </ul>
+    </nav>
+  </footer>
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'ntest'; // required: replace example with your forum shortname
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+      </div>
+      <div id="footer">
+	<div class="container">
+	  <div class="row">
+	    <section class="span3">
+	      <h1>关于</h1>
+	      <p>
+  基于o-blog
+</p>
+	    </section>
+	    <nav id="links" class="span3">
+	      <h1>链接</h1>
+	      <ul>
+		<ul>
+<li><a href="../../../index.html"><i>icon-home icon-white</i> 首页</a>
+
+</li>
+<li><a href="../../../blog/2012/07/31_ocamlc.html"><i>icon-file icon-white</i> 文章</a>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+
+
+	      </ul>
+	    </nav>
+	    <nav id="archives" class="span3">
+	      <h1><a href="../../../archives.html">归档</a></h1>
+	      <ul>
+		<li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="../../../blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="../../../blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+	      </ul>
+	    </nav>
+	    <nav class="tags span3">
+	      <h1><a href="../../../tags/index.html">标签</a></h1>
+	      <ul>
+  <li style="font-size: 80.00%;"><a href="../../../tags/c.html">c</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/vmware.html">vmware</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/.html">编译器</a></li> 
+</ul>
+
+	    </nav>
+	  </div>
+	</div>
+	<div class="copyright" style="text-align: center;">
+	  <p>
+Copyright © 2012 nTest. 
+</p>
+	  <p>功能取自 <a href="https://github.com/renard/o-blog">o-blog</a>.</p>
+	</div>
+      </div>
+</body>
+</html>
+
