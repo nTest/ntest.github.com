@@ -3,7 +3,7 @@
   <title>nTest blog</title>
   <link href="http://ntest.github.comindex.xml" rel="self" />
   <link href="http://ntest.github.com"/>
-  <updated>2012-07-31T14:52:26Z</updated>
+  <updated>2012-07-31T15:20:53Z</updated>
   <id>http://ntest.github.comindex.xml</id>
   <entry><title type="html">OCaml与C的互操作</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/31_ocamlc.html"/><updated>2012-07-31T10:02:00Z</updated><published>2012-07-31T10:02:00Z</published><id>blog/2012/07/31_ocamlc.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/c.html" term="c" label="c"/><content type="html">&lt;p&gt;
   &#26412;&#25991;&#24635;&#32467;OCaml&#19982;C&#30340;&#20132;&#20114;&#65306;&#22312;C&#20013;&#22914;&#20309;&#20998;&#37197;&#21644;&#20462;&#25913;ocaml value&#65292;&#22914;&#20309;&#23558;ocaml
