@@ -1923,6 +1923,13 @@ ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -cclib psapi.l
     
 带.pdb调试符号文件的本地代码(仅限vc编译器,也可以加上-g选项去掉优化):
 ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -ccopt "psapi.lib -link /DEBUG"
+
+生成自定义toplevel:
+ocamlmktop -custom -o processtop.exe process.ml win32_process_stubs.c -cclib psapi.lib win32_process_stubs.c
+    
+生成库文件:
+ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt "advapi32.lib psapi.lib"
+然后就可以在ocaml toplevel中使用#load "process.cma" 加载Process模块
 </pre>
 
 

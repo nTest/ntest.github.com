@@ -964,6 +964,13 @@ ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -cclib psapi.l
 	
 &#24102;.pdb&#35843;&#35797;&#31526;&#21495;&#25991;&#20214;&#30340;&#26412;&#22320;&#20195;&#30721;(&#20165;&#38480;vc&#32534;&#35793;&#22120;,&#20063;&#21487;&#20197;&#21152;&#19978;-g&#36873;&#39033;&#21435;&#25481;&#20248;&#21270;):
 ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -ccopt \"psapi.lib -link /DEBUG\"
+
+&#29983;&#25104;&#33258;&#23450;&#20041;toplevel:
+ocamlmktop -custom -o processtop.exe process.ml win32_process_stubs.c -cclib psapi.lib win32_process_stubs.c
+	
+&#29983;&#25104;&#24211;&#25991;&#20214;:
+ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt \"advapi32.lib psapi.lib\"
+&#28982;&#21518;&#23601;&#21487;&#20197;&#22312;ocaml toplevel&#20013;&#20351;&#29992;#load \"process.cma\" &#21152;&#36733;Process&#27169;&#22359;
 	#+end_example
 
 	&#38468;&#24102;&#19968;&#20010;ps.ml&#65292;&#21015;&#20986;&#24403;&#21069;&#25152;&#26377;&#36827;&#31243;:
@@ -2805,6 +2812,13 @@ ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -cclib psapi.l
     
 &#24102;.pdb&#35843;&#35797;&#31526;&#21495;&#25991;&#20214;&#30340;&#26412;&#22320;&#20195;&#30721;(&#20165;&#38480;vc&#32534;&#35793;&#22120;,&#20063;&#21487;&#20197;&#21152;&#19978;-g&#36873;&#39033;&#21435;&#25481;&#20248;&#21270;):
 ocamlopt -o kill.opt.exe win32_process_stubs.c process.ml kill.ml -ccopt \"psapi.lib -link /DEBUG\"
+
+&#29983;&#25104;&#33258;&#23450;&#20041;toplevel:
+ocamlmktop -custom -o processtop.exe process.ml win32_process_stubs.c -cclib psapi.lib win32_process_stubs.c
+    
+&#29983;&#25104;&#24211;&#25991;&#20214;:
+ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt \"advapi32.lib psapi.lib\"
+&#28982;&#21518;&#23601;&#21487;&#20197;&#22312;ocaml toplevel&#20013;&#20351;&#29992;#load \"process.cma\" &#21152;&#36733;Process&#27169;&#22359;
 &lt;/pre&gt;
 
 
