@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>nTest blog</title>
-  <link href="index.xml" rel="self" />
-  <link href=""/>
-  <updated>2012-07-31T12:24:10Z</updated>
-  <id>index.xml</id>
-  <entry><title type="html">OCaml与C的互操作</title><author><name>nil</name></author><link href="nil/blog/2012/07/31_ocamlc.html"/><updated>2012-07-31T10:02:00Z</updated><published>2012-07-31T10:02:00Z</published><id>blog/2012/07/31_ocamlc.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/c.html" term="c" label="c"/><content type="html">&lt;p&gt;
+  <link href="http://ntest.github.comindex.xml" rel="self" />
+  <link href="http://ntest.github.com"/>
+  <updated>2012-07-31T14:52:26Z</updated>
+  <id>http://ntest.github.comindex.xml</id>
+  <entry><title type="html">OCaml与C的互操作</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/31_ocamlc.html"/><updated>2012-07-31T10:02:00Z</updated><published>2012-07-31T10:02:00Z</published><id>blog/2012/07/31_ocamlc.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/c.html" term="c" label="c"/><content type="html">&lt;p&gt;
   &#26412;&#25991;&#24635;&#32467;OCaml&#19982;C&#30340;&#20132;&#20114;&#65306;&#22312;C&#20013;&#22914;&#20309;&#20998;&#37197;&#21644;&#20462;&#25913;ocaml value&#65292;&#22914;&#20309;&#23558;ocaml
   value&#36716;&#25442;&#20026;C struct&#65292; &#20197;&#21450;&#24322;&#24120;&#22788;&#29702;&#12290;
 &lt;/p&gt;
@@ -1878,7 +1878,7 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt "adv
 
 &lt;/div&gt;
 &lt;/div&gt;
-</content></entry><entry><title type="html">学习现代编译器实现(1)</title><author><name>nil</name></author><link href="nil/blog/2012/07/25_1.html"/><updated>2012-07-25T23:53:00Z</updated><published>2012-07-25T23:53:00Z</published><id>blog/2012/07/25_1.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/.html" term="编译器" label="编译器"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">学习现代编译器实现(1)</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/25_1.html"/><updated>2012-07-25T23:53:00Z</updated><published>2012-07-25T23:53:00Z</published><id>blog/2012/07/25_1.html</id><category scheme="/tags/ocaml.html" term="ocaml" label="ocaml"/><category scheme="/tags/.html" term="编译器" label="编译器"/><content type="html">&lt;p&gt;
    &#29616;&#20195;&#32534;&#35793;&#22120;&#23454;&#29616;&#65292;&#23601;&#26159;&#34382;&#20070;&#65292;&#26377;3&#20010;&#29256;&#26412;c, java, ML.&#25105;&#30475;&#30340;&#26159;ML&#30340;&#29256;&#26412;&#12290;
    &#27492;&#20070;&#30340;&#32593;&#31449;&#22320;&#22336;&#65292;&#26377;&#20195;&#30721;&#25552;&#20379;:
    &lt;a href="http://www.cs.princeton.edu/~appel/modern/"&gt;Modern Compiler Implementation&lt;/a&gt;
@@ -2036,7 +2036,7 @@ interp test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;/pre&gt;
 
 
-</content></entry><entry><title type="html">一些emacs快捷键</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_emacs.html"/><updated>2012-07-24T15:57:00Z</updated><published>2012-07-24T15:57:00Z</published><id>blog/2012/07/24_emacs.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">一些emacs快捷键</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/24_emacs.html"/><updated>2012-07-24T15:57:00Z</updated><published>2012-07-24T15:57:00Z</published><id>blog/2012/07/24_emacs.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><content type="html">&lt;p&gt;
   QuickURL &#24555;&#36895;&#25554;&#20837;url, &#20445;&#23384;url&#22320;&#22336;
   &lt;code&gt;quickurl-ask&lt;/code&gt;
   &lt;code&gt;quickurl-add&lt;/code&gt;
@@ -2057,7 +2057,7 @@ interp test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;p&gt;
   &lt;code&gt;M-x speedbar&lt;/code&gt; &#25171;&#24320;&#24555;&#36895;&#26597;&#30475;&#31383;&#21475;
 &lt;/p&gt;
-</content></entry><entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
+</content></entry><entry><title type="html">学习Org-mode</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/24_org-mode.html"/><updated>2012-07-24T14:47:00Z</updated><published>2012-07-24T14:47:00Z</published><id>blog/2012/07/24_org-mode.html</id><category scheme="/tags/emacs.html" term="emacs" label="emacs"/><category scheme="/tags/org-mode.html" term="org-mode" label="org-mode"/><content type="html">&lt;div id="outline-container-1" class="outline-3"&gt;
 &lt;h3 id="sec-1"&gt;&#22522;&#26412;&#20351;&#29992;&lt;/h3&gt;
 &lt;div class="outline-text-3" id="text-1"&gt;
 
@@ -2081,10 +2081,10 @@ interp test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">vmware NAT设置</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/24_vmware-nat.html"/><updated>2012-07-24T14:41:00Z</updated><published>2012-07-24T14:41:00Z</published><id>blog/2012/07/24_vmware-nat.html</id><category scheme="/tags/openbsd.html" term="openbsd" label="openbsd"/><category scheme="/tags/vmware.html" term="vmware" label="vmware"/><content type="html">&lt;p&gt;
  nat&#35774;&#32622;&#21518;,&#34394;&#25311;&#26426;&#25163;&#21160;&#35774;&#32622;ip&#19981;&#33021;&#19978;&#32593;,&#20351;&#29992;dhcp&#21518;&#21487;&#20197;.
  openbsd &#20351;&#29992;dhcp:sudo dhclient vic0
-&lt;/p&gt;</content></entry><entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
+&lt;/p&gt;</content></entry><entry><title type="html">语法高亮测试</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/24_.html"/><updated>2012-07-24T13:37:00Z</updated><published>2012-07-24T13:37:00Z</published><id>blog/2012/07/24_.html</id><category scheme="/tags/highlight.html" term="highlight" label="highlight"/><content type="html">&lt;p&gt;
    c:
 &lt;/p&gt;
 
@@ -2114,7 +2114,7 @@ interp test&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;pre class="src src-ocaml"&gt;&lt;span style="color: #93e93f;"&gt;Printf&lt;/span&gt;.printf &lt;span style="color: #b643aa;"&gt;"Hello, caml"&lt;/span&gt;&lt;span style="color: #a52a2a;"&gt;;;&lt;/span&gt;
 &lt;/pre&gt;
 
-</content></entry><entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="nil/blog/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>blog/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
+</content></entry><entry><title type="html">搭建o-blog</title><author><name>nil</name></author><link href="http://ntest.github.com/blog/2012/07/24_o-blog.html"/><updated>2012-07-24T10:36:00Z</updated><published>2012-07-24T10:36:00Z</published><id>blog/2012/07/24_o-blog.html</id><category scheme="/tags/o-blog.html" term="o blog" label="o blog"/><category scheme="/tags/github.html" term="github" label="github"/><content type="html">&lt;p&gt;
   &#30003;&#35831;github
   &#30003;&#35831;DISQUS (&#35780;&#35770;&#31995;&#32479;)
 &lt;/p&gt;</content></entry>
