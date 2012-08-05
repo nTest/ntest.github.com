@@ -50,13 +50,13 @@
 </li>
 <li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
 <ul>
+<li><a href="./blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a>
+</li>
 <li><a href="./blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a>
 </li>
 <li><a href="./blog/2012/07/25_1.html">学习现代编译器实现(1)</a>
 </li>
 <li><a href="./blog/2012/07/24_emacs.html">一些emacs快捷键</a>
-</li>
-<li><a href="./blog/2012/07/24_org-mode.html">学习Org-mode</a>
 
 </li>
 </ul>
@@ -150,12 +150,962 @@
   <h1>博文</h1>
   <div class="debug post">
   <div class="debug post">
+  <h2>学习现代编译器实现(2)--词法分析</h2>
+  <table>
+    <caption>导出博文信息 学习现代编译器实现(2)--词法分析</caption>
+    <thead><tr><th>属性</th><th>值</th></tr></thead>
+    <tbody>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#23398;&#20064;&#29616;&#20195;&#32534;&#35793;&#22120;&#23454;&#29616;(2)--&#35789;&#27861;&#20998;&#26512;"</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20510 33160)</pre></td></tr>
+      <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
+      <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "blog" "blog"]</pre></td></tr>
+      <tr><td class="property"><code>tags</code></td><td class="value"><pre>([cl-struct-ob:tags "ocaml" "ocaml" nil nil] [cl-struct-ob:tags "&#32534;&#35793;&#22120;" "" nil nil])</pre></td></tr>
+      <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/08"</pre></td></tr>
+      <tr><td class="property"><code>filename</code></td><td class="value"><pre>"2"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/08/05_2.html"</pre></td></tr>
+      <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
+      <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
+      <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
+
+
+   &#29616;&#20195;&#32534;&#35793;&#21407;&#29702;&#31532;2&#31456;&#35762;&#35299;&#35789;&#27861;&#20998;&#26512;,&#27491;&#21017;&#34920;&#36798;&#24335;&#26159;&#38745;&#24577;&#30340;&#21644;&#35828;&#26126;&#24615;&#30340;&#65292;&#33258;&#21160;&#26426;
+   &#26159;&#21160;&#24577;&#30340;&#21644;&#21629;&#20196;&#24335;&#30340;&#65307;&#20063;&#23601;&#26159;&#35828;&#65292;&#20320;&#19981;&#24517;&#29992;&#19968;&#20010;&#31639;&#27861;&#26469;&#27169;&#25311;&#23601;&#33021;&#30475;&#21040;&#27491;&#21017;&#34920;
+   &#36798;&#24335;&#30340;&#25104;&#20998;&#21644;&#32467;&#26500;&#65292;&#20294;&#26159;&#29702;&#35299;&#33258;&#21160;&#26426;&#24120;&#24120;&#38656;&#35201;&#20320;&#22312;&#33258;&#24049;&#30340;&#22836;&#33041;&#20013;&#26469;&#8220;&#25191;&#34892;&#8221;
+   &#23427;&#12290; &#22240;&#27492;&#65292;&#27491;&#21017;&#34920;&#36798;&#24335;&#19968;&#33324;&#26356;&#36866;&#21512;&#29992;&#26469;&#25351;&#26126;&#31243;&#24207;&#35774;&#35745;&#35821;&#35328;&#21333;&#35789;&#30340;&#35789;&#27861;&#32467;&#26500;&#12290;
+
+   &#35789;&#27861;&#20998;&#26512;&#22120;&#29983;&#25104;&#22120;&#23601;&#26159;&#25226;&#27491;&#21017;&#34920;&#36798;&#24335;&#36716;&#25442;&#20026;DFA&#26469;&#36827;&#34892;&#35789;&#27861;&#35299;&#26512;&#65292;&#27492;&#31867;&#24037;&#20855;&#26377;
+   C&#19979;&#30340;lex, flex. OCaml&#19979;&#30340;ocamllex&#12290;
+
+   &#31243;&#24207;&#32451;&#20064;&#20026;&#23454;&#29616;tiger&#35821;&#35328;&#30340;&#35789;&#27861;&#35299;&#26512;&#65292;&#20070;&#20013;&#37319;&#29992;SML&#31034;&#20363;&#65292;&#25105;&#29992;OCaml&#37325;&#20889;&#20102;&#65306;
+   
+   *tokens.ml* &#29992;&#20110;&#35789;&#27861;&#20998;&#26512;&#22120;&#26500;&#36896;token&#31867;&#22411;,&#23454;&#38469;&#19978;OCaml&#20013;&#29992;token&#31867;&#22411;&#36755;
+    &#20986;&#21644;&#20351;&#29992;&#40635;&#28902;&#65292;&#25105;&#22312;lexer&#20013;&#30452;&#25509;&#29992;string&#20195;&#26367;&#20102;:
+#+include \"f:/nTest/ocaml/tiger/chap2/tokens.ml\" src ocaml
+
+   *errorMsg.ml* &#36755;&#20986;&#24102;&#26377;&#25991;&#20214;&#21517;&#21644;&#34892;&#21495;&#30340;&#38169;&#35823;&#20449;&#24687;:
+#+include \"f:/nTest/ocaml/tiger/chap2/errorMsg.ml\" src ocaml   
+
+   *driver.ml* &#20027;&#31243;&#24207;&#65292;&#35843;&#29992;lexer:
+#+include \"f:/nTest/ocaml/tiger/chap2/driver.ml\" src ocaml
+
+   *tigerLexer.mll* tiger&#35821;&#35328;&#30340;&#35789;&#27861;&#35299;&#26512;:
+#+include \"f:/nTest/ocaml/tiger/chap2/tigerLexer.mll\" src ocaml
+
+   &#32534;&#35793;:
+#+begin_example
+    &#29983;&#25104;&#35789;&#27861;&#20998;&#26512;&#22120;&#20026;.ml
+	ocamllex tigerLexer.mll
+
+    &#32534;&#35793;&#20026;&#23383;&#33410;&#30721;:
+    ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+
+    &#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#36890;&#36807;
+    Driver.parse &lt;file name&gt;&#35843;&#29992;
+    ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+#+end_example
+
+   &#27979;&#35797;queens.tig,&#27880;&#24847;&#35201;&#29992;cp936&#32534;&#30721;&#20445;&#23384;&#65292;&#22914;&#26524;&#29992;utf-8&#20445;&#23384;&#65292;&#20013;&#25991;&#23383;&#31526;&#20250;&#35835;&#21462;&#38169;&#35823;:
+#+include \"f:/nTest/ocaml/tiger/chap2/queens.tig\" src ocaml
+#+begin_example
+tigerlex queens.tig
+
+LET   50
+VAR   58
+ID(N)     60
+ASSIGN   63
+INT(8)   65
+TYPE   75
+ID(intArray)     84
+EQ   86
+ARRAY   92
+OF   95
+ID(int)     99
+VAR   108
+ID(row)     112
+ASSIGN   115
+ID(intArray)     124
+LBRACK   126
+ID(N)     128
+RBRACK   130
+OF   133
+INT(0)   135
+VAR   143
+ID(col)     147
+ASSIGN   150
+ID(intArray)     159
+LBRACK   161
+ID(N)     163
+RBRACK   165
+OF   168
+INT(0)   170
+VAR   178
+ID(diag1)     184
+ASSIGN   187
+ID(intArray)     196
+LBRACK   198
+ID(N)     199
+PLUS   200
+ID(N)     201
+MINUS   202
+INT(1)   203
+RBRACK   204
+OF   207
+INT(0)   209
+VAR   217
+ID(diag2)     223
+ASSIGN   226
+ID(intArray)     235
+LBRACK   237
+ID(N)     238
+PLUS   239
+ID(N)     240
+MINUS   241
+INT(1)   242
+RBRACK   243
+OF   246
+INT(0)   248
+VAR   253
+ID(test_str)     262
+EQ   264
+STRING( &#23383;&#31526;&#20018;&#27979;&#35797;	string
+ test next line)     321
+FUNCTION   334
+ID(printboard)     345
+LPAREN   346
+RPAREN   347
+EQ   349
+LPAREN   358
+FOR   361
+ID(i)     363
+ASSIGN   366
+INT(0)   368
+TO   371
+ID(N)     373
+MINUS   374
+INT(1)   375
+DO   380
+LPAREN   382
+FOR   385
+ID(j)     387
+ASSIGN   390
+INT(0)   392
+TO   395
+ID(N)     397
+MINUS   398
+INT(1)   399
+DO   410
+ID(print)     416
+LPAREN   417
+IF   419
+ID(col)     423
+LBRACK   424
+ID(i)     425
+RBRACK   426
+EQ   427
+ID(j)     428
+THEN   433
+STRING( O)     438
+ELSE   443
+STRING( .)     448
+RPAREN   449
+SEMICOLON   450
+ID(print)     462
+LPAREN   463
+STRING(
+)     467
+RPAREN   468
+RPAREN   469
+SEMICOLON   470
+ID(print)     485
+LPAREN   486
+STRING(
+)     490
+RPAREN   491
+RPAREN   492
+FUNCTION   506
+ID(try)     510
+LPAREN   511
+ID(c)     512
+COLON   513
+ID(int)     516
+RPAREN   517
+EQ   519
+LPAREN   522
+
+IF   619
+ID(c)     621
+EQ   622
+ID(N)     623
+THEN   633
+ID(printboard)     644
+LPAREN   645
+RPAREN   646
+ELSE   656
+FOR   660
+ID(r)     662
+ASSIGN   665
+INT(0)   667
+TO   670
+ID(N)     672
+MINUS   673
+INT(1)   674
+DO   681
+IF   684
+ID(row)     688
+LBRACK   689
+ID(r)     690
+RBRACK   691
+EQ   692
+INT(0)   693
+AND   695
+ID(diag1)     701
+LBRACK   702
+ID(r)     703
+PLUS   704
+ID(c)     705
+RBRACK   706
+EQ   707
+INT(0)   708
+AND   710
+ID(diag2)     716
+LBRACK   717
+ID(r)     718
+PLUS   719
+INT(7)   720
+MINUS   721
+ID(c)     722
+RBRACK   723
+EQ   724
+INT(0)   725
+THEN   742
+LPAREN   744
+ID(row)     747
+LBRACK   748
+ID(r)     749
+RBRACK   750
+ASSIGN   752
+INT(1)   753
+SEMICOLON   754
+ID(diag1)     760
+LBRACK   761
+ID(r)     762
+PLUS   763
+ID(c)     764
+RBRACK   765
+ASSIGN   767
+INT(1)   768
+SEMICOLON   769
+ID(diag2)     775
+LBRACK   776
+ID(r)     777
+PLUS   778
+INT(7)   779
+MINUS   780
+ID(c)     781
+RBRACK   782
+ASSIGN   784
+INT(1)   785
+SEMICOLON   786
+ID(col)     801
+LBRACK   802
+ID(c)     803
+RBRACK   804
+ASSIGN   806
+ID(r)     807
+SEMICOLON   808
+ID(try)     830
+LPAREN   831
+ID(c)     832
+PLUS   833
+INT(1)   834
+RPAREN   835
+SEMICOLON   836
+ID(row)     844
+LBRACK   845
+ID(r)     846
+RBRACK   847
+ASSIGN   849
+INT(0)   850
+SEMICOLON   851
+ID(diag1)     857
+LBRACK   858
+ID(r)     859
+PLUS   860
+ID(c)     861
+RBRACK   862
+ASSIGN   864
+INT(0)   865
+SEMICOLON   866
+ID(diag2)     872
+LBRACK   873
+ID(r)     874
+PLUS   875
+INT(7)   876
+MINUS   877
+ID(c)     878
+RBRACK   879
+ASSIGN   881
+INT(0)   882
+RPAREN   883
+RPAREN   886
+IN   890
+ID(try)     894
+LPAREN   895
+INT(0)   896
+RPAREN   897
+END   901
+EOF   904
+#+end_example
+   
+
+   "</pre></td></tr>
+      <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
+   &#29616;&#20195;&#32534;&#35793;&#21407;&#29702;&#31532;2&#31456;&#35762;&#35299;&#35789;&#27861;&#20998;&#26512;,&#27491;&#21017;&#34920;&#36798;&#24335;&#26159;&#38745;&#24577;&#30340;&#21644;&#35828;&#26126;&#24615;&#30340;&#65292;&#33258;&#21160;&#26426;
+   &#26159;&#21160;&#24577;&#30340;&#21644;&#21629;&#20196;&#24335;&#30340;&#65307;&#20063;&#23601;&#26159;&#35828;&#65292;&#20320;&#19981;&#24517;&#29992;&#19968;&#20010;&#31639;&#27861;&#26469;&#27169;&#25311;&#23601;&#33021;&#30475;&#21040;&#27491;&#21017;&#34920;
+   &#36798;&#24335;&#30340;&#25104;&#20998;&#21644;&#32467;&#26500;&#65292;&#20294;&#26159;&#29702;&#35299;&#33258;&#21160;&#26426;&#24120;&#24120;&#38656;&#35201;&#20320;&#22312;&#33258;&#24049;&#30340;&#22836;&#33041;&#20013;&#26469;&#8220;&#25191;&#34892;&#8221;
+   &#23427;&#12290; &#22240;&#27492;&#65292;&#27491;&#21017;&#34920;&#36798;&#24335;&#19968;&#33324;&#26356;&#36866;&#21512;&#29992;&#26469;&#25351;&#26126;&#31243;&#24207;&#35774;&#35745;&#35821;&#35328;&#21333;&#35789;&#30340;&#35789;&#27861;&#32467;&#26500;&#12290;
+&lt;/p&gt;
+&lt;p&gt;
+   &#35789;&#27861;&#20998;&#26512;&#22120;&#29983;&#25104;&#22120;&#23601;&#26159;&#25226;&#27491;&#21017;&#34920;&#36798;&#24335;&#36716;&#25442;&#20026;DFA&#26469;&#36827;&#34892;&#35789;&#27861;&#35299;&#26512;&#65292;&#27492;&#31867;&#24037;&#20855;&#26377;
+   C&#19979;&#30340;lex, flex. OCaml&#19979;&#30340;ocamllex&#12290;
+&lt;/p&gt;
+&lt;p&gt;
+   &#31243;&#24207;&#32451;&#20064;&#20026;&#23454;&#29616;tiger&#35821;&#35328;&#30340;&#35789;&#27861;&#35299;&#26512;&#65292;&#20070;&#20013;&#37319;&#29992;SML&#31034;&#20363;&#65292;&#25105;&#29992;OCaml&#37325;&#20889;&#20102;&#65306;
+&lt;/p&gt;
+&lt;p&gt;   
+   &lt;b&gt;tokens.ml&lt;/b&gt; &#29992;&#20110;&#35789;&#27861;&#20998;&#26512;&#22120;&#26500;&#36896;token&#31867;&#22411;,&#23454;&#38469;&#19978;OCaml&#20013;&#29992;token&#31867;&#22411;&#36755;
+    &#20986;&#21644;&#20351;&#29992;&#40635;&#28902;&#65292;&#25105;&#22312;lexer&#20013;&#30452;&#25509;&#29992;string&#20195;&#26367;&#20102;:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#29992;&amp;#20110;&amp;#35843;&amp;#35797;lexers&amp;#30340;\"&amp;#33050;&amp;#25163;&amp;#26550;\",&amp;#30001;&amp;#20110;OCaml&amp;#20013;&amp;#19981;&amp;#25903;&amp;#25345;&amp;#20989;&amp;#25968;&amp;#21517;&amp;#22823;&amp;#20889;&amp;#24320;&amp;#22836;,&amp;#25105;&amp;#29992;v_&amp;#20195;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt;   &amp;#26367;&amp;#20102;&amp;#20070;&amp;#20013;&amp;#20363;&amp;#23376;&amp;#37324;&amp;#30340;&amp;#20989;&amp;#25968;&amp;#21517; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;linenum &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; int
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;token &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; string
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_type&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"TYPE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_var&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"VAR   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_function&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"FUNCTION   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_break&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"BREAK   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_of&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"OF   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_end&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"END   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_in&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"IN   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_nil&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"NIL   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_let&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LET   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_do&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"DO   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_to&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"TO   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_for&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"FOR   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_while&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"WHILE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_else&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"ELSE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_then&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"THEN   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_if&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"IF   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_array&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"ARRAY   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_assign&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"ASSIGN   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_or&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"OR   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_and&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"AND   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_ge&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"GE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_gt&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"GT   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_le&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_lt&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LT   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_neq&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"NEQ   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_eq&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"EQ   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_divide&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"DIVIDE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_times&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"TIMES   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_minus&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"MINUS   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_plus&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"PLUS   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_dot&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"DOT   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_rbrace&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"RBRACE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_lbrace&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LBRACE   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_rbrack&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"RBRACK   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_lbrack&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LBRACK   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_rparen&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"RPAREN   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_lparen&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"LPAREN   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_semicolon&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"SEMICOLON   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_colon&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"COLON   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_comma&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"COMMA   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_string&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; s i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"STRING(\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt;s&lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\")     \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_int&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; c i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"INT(\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;^(&lt;/span&gt;string_of_int c&lt;span style=\"color: #a52a2a;\"&gt;)^&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\")   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_id&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; s i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"ID(\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt;s&lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\")     \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;v_eof&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; i &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;j&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"EOF   \"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;string_of_int i&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   &lt;b&gt;errorMsg.ml&lt;/b&gt; &#36755;&#20986;&#24102;&#26377;&#25991;&#20214;&#21517;&#21644;&#34892;&#21495;&#30340;&#38169;&#35823;&#20449;&#24687;:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;any_errors &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; &lt;span style=\"color: #008b8b;\"&gt;false&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;file_name &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"\"&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;line_num &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; 1
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;line_pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#20445;&amp;#23384;&amp;#27599;&amp;#34892;&amp;#30340;&amp;#32467;&amp;#26463;&amp;#20301;&amp;#32622;,&amp;#30456;&amp;#23545;&amp;#20110;&amp;#25991;&amp;#20214;&amp;#24320;&amp;#22987;&amp;#30340;&amp;#20301;&amp;#32622; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;source_stream &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; stdin
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;reset&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  any_errors &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; &lt;span style=\"color: #008b8b;\"&gt;false&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  file_name &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  line_num &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  line_pos &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;];&lt;/span&gt;
+  source_stream &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; stdin
+
+&lt;span style=\"color: #6e9ac9;\"&gt;exception&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;Error&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;error&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;msg&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;string&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;rec&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;look&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; rest n &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;match&lt;/span&gt; rest &lt;span style=\"color: #6e9ac9;\"&gt;with&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[]&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; print_string &lt;span style=\"color: #b643aa;\"&gt;\"0.0\"&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; h &lt;span style=\"color: #a52a2a;\"&gt;::&lt;/span&gt; r &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt;
+      &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; h &lt;span style=\"color: #a52a2a;\"&gt;&amp;lt;&lt;/span&gt; pos &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\":%d.%d\"&lt;/span&gt; n &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;pos &lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt; h&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+      &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; look r &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;n &lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt; 1&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  any_errors &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; &lt;span style=\"color: #008b8b;\"&gt;true&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  print_string &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;file_name&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  look &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;line_pos &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;line_num&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  print_string &lt;span style=\"color: #b643aa;\"&gt;\":\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  print_string  msg&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  print_newline &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;impossible&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; msg &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"Error: Compiler bug: %s\\n\"&lt;/span&gt; msg&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  flush stdout&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  &lt;span style=\"color: #6e9ac9;\"&gt;raise&lt;/span&gt; Error
+
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   &lt;b&gt;driver.ml&lt;/b&gt; &#20027;&#31243;&#24207;&#65292;&#35843;&#29992;lexer:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;parse&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; filename &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;file &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; open_in filename &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;lexbuf &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.from_channel file &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;ErrorMsg&lt;/span&gt;.reset &lt;span style=\"color: #a52a2a;\"&gt;();&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;ErrorMsg&lt;/span&gt;.file_name &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; filename&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+
+  &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#36755;&amp;#20986;&amp;#25152;&amp;#26377;token &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;rec&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;do_it&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;result &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;TigerLexer&lt;/span&gt;.tokens lexbuf &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+    print_endline result&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+    &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length result&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;&amp;gt;&lt;/span&gt; 3 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.sub result 0 3&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"EOF\"&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+    &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; do_it &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  do_it &lt;span style=\"color: #a52a2a;\"&gt;();&lt;/span&gt;
+  close_in file &lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;main&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Array&lt;/span&gt;.length &lt;span style=\"color: #93e93f;\"&gt;Sys&lt;/span&gt;.argv &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 1 &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;
+    print_endline &lt;span style=\"color: #b643aa;\"&gt;\"usage: tigerlex.exe &amp;lt;source file&amp;gt;\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+    &lt;span style=\"color: #6e9ac9;\"&gt;exit&lt;/span&gt; 1
+  &lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+  parse &lt;span style=\"color: #93e93f;\"&gt;Sys&lt;/span&gt;.argv.&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
+
+&lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#38750;&amp;#20132;&amp;#20114;&amp;#27169;&amp;#24335;&amp;#19979;&amp;#25191;&amp;#34892;main,&amp;#22312;toplevel&amp;#20013;&amp;#19981;&amp;#25191;&amp;#34892;main,&amp;#21542;&amp;#21017;#load&amp;#27169;&amp;#22359;&amp;#26102;&amp;#23601;&amp;#20250;&amp;#24322;&amp;#24120; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;   
+&lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;not&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Sys&lt;/span&gt;.interactive &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt;
+  main &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   &lt;b&gt;tigerLexer.mll&lt;/b&gt; tiger&#35821;&#35328;&#30340;&#35789;&#27861;&#35299;&#26512;:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #a36238;\"&gt;(*&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#26631;&amp;#35782;&amp;#31526;: &amp;#20197;&amp;#23383;&amp;#27597;&amp;#24320;&amp;#22836;,&amp;#30001;&amp;#23383;&amp;#27597;&amp;#12289;&amp;#25968;&amp;#23383;&amp;#21644;&amp;#19979;&amp;#21010;&amp;#32447;&amp;#32452;&amp;#25104;&amp;#30340;&amp;#24207;&amp;#21015;&amp;#12290;&amp;#21306;&amp;#20998;&amp;#22823;&amp;#23567;&amp;#20889;&amp;#23383;&amp;#27597;&amp;#12290;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#27880;&amp;#37322;&amp;#65306;&amp;#27880;&amp;#37322;&amp;#21487;&amp;#20197;&amp;#20986;&amp;#29616;&amp;#22312;&amp;#20219;&amp;#24847;&amp;#20004;&amp;#20010;&amp;#21333;&amp;#35789;&amp;#20043;&amp;#38388;&amp;#12290;&amp;#20197;/*&amp;#24320;&amp;#22987;&amp;#65292;*/&amp;#32467;&amp;#26463;&amp;#65292;&amp;#21487;&amp;#20197;&amp;#23884;&amp;#22871;&amp;#12290;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#20869;&amp;#32622;&amp;#31867;&amp;#22411;&amp;#65306;int, string&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#24590;&amp;#26679;&amp;#22788;&amp;#29702;&amp;#27880;&amp;#37322;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#24590;&amp;#26679;&amp;#22788;&amp;#29702;&amp;#23383;&amp;#31526;&amp;#20018;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#38169;&amp;#35823;&amp;#22788;&amp;#29702;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#25991;&amp;#20214;&amp;#32467;&amp;#26463;&amp;#22788;&amp;#29702;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#20854;&amp;#23427;&amp;#29305;&amp;#24615;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+
+&lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; int
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;lexresult &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.token
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;line_num &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;ErrorMsg&lt;/span&gt;.line_num &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#24403;&amp;#21069;&amp;#34892;&amp;#21495; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;line_pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;ErrorMsg&lt;/span&gt;.line_pos &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#27599;&amp;#34892;&amp;#30340;&amp;#36215;&amp;#22987;&amp;#20301;&amp;#32622;,&amp;#30456;&amp;#23545;&amp;#20110;&amp;#25972;&amp;#20010;buffer &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;data_buff &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.create 100
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;add_lexeme&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; lexbuf &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;len &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_curr_pos &lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt; lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_start_pos &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_substring
+    data_buff
+    lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_buffer
+    lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_start_pos
+    len
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;err&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; lexbuf msg &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_curr_p.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.pos_cnum &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;ErrorMsg&lt;/span&gt;.error pos msg
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;eof&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;List&lt;/span&gt;.hd &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;line_pos &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_eof pos pos
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;newline&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; lexbuf &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  line_num &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;line_num &lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt; 1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+  line_pos &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_curr_p.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.pos_cnum &lt;span style=\"color: #a52a2a;\"&gt;::&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;line_pos
+
+&lt;span style=\"color: #a36238;\"&gt;(*&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * &amp;#35843;&amp;#29992;&amp;#36716;&amp;#25442;&amp;#20026;token&amp;#30340;&amp;#20989;&amp;#25968;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * f, &amp;#35201;&amp;#35843;&amp;#29992;&amp;#30340;&amp;#20989;&amp;#25968;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * len,&amp;#27492;token&amp;#30340;&amp;#38271;&amp;#24230;&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; * v,&amp;#38468;&amp;#24102;&amp;#30340;value&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;to_token&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; lexbuf f len &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+   &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;pos &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; lexbuf.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.lex_curr_p.&lt;span style=\"color: #93e93f;\"&gt;Lexing&lt;/span&gt;.pos_cnum &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+   f pos &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;pos &lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt; len&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;char_num&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; c &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+  &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;&amp;lt;&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'0'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;||&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;&amp;gt;&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'9'&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt;
+    &lt;span style=\"color: #6e9ac9;\"&gt;raise&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;Invalid_argument &lt;span style=\"color: #b643aa;\"&gt;\"char_num not digit char\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+ &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; int_of_char c &lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt; int_of_char &lt;span style=\"color: #b643aa;\"&gt;'0'&lt;/span&gt;
+
+&lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;digit &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'0'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'9'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;digits &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; digit&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;ident &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'a'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'z'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'A'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'Z'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;][&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'a'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'z'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'A'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'Z'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'0'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'9'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'_'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;]*&lt;/span&gt;
+
+rule tokens &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; parse
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'\\t'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\r'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;' '&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; tokens lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt;  &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; newline lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+                tokens lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"/*\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_comment lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\"'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.clear data_buff&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_string lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"while\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_while 5 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"for\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_for 3 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"to\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_to 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"break\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_break 5 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"let\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_let 3 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"in\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_in 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"end\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_end 3&lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"function\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_function 8 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"var\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_var 3 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"type\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_type 4 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"array\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_array 5 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"if\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_if 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"then\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_then 4 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"else\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_else 4 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"do\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_do 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"of\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_of 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"nil\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_nil 3 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\",\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_comma 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\":\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_colon 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\";\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_semicolon 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"(\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_lparen 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\")\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_rparen 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"[\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_lbrack 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"]\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_rbrack 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"{\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_lbrace 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"}\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_rbrace 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\".\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_dot 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"+\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_plus 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"-\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_minus 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"*\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_times 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"/\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_divide 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"=\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_eq 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;lt;&amp;gt;\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_neq 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;lt;\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_lt 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;lt;=\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_le 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;gt;\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_gt 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;gt;=\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_ge 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;amp;\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_and 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"|\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_or 1 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\":=\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_assign 2 &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; digits &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; num &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_int &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;int_of_string num&lt;span style=\"color: #a52a2a;\"&gt;))&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length num&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; ident &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; id &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; to_token lexbuf &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_id id&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length id&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; _ &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.sprintf &lt;span style=\"color: #b643aa;\"&gt;\"illegal character  %c\"&lt;/span&gt; c&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+               tokens lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+    &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; eof   &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+ &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#21305;&amp;#37197;&amp;#27880;&amp;#37322; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;     
+ &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;and&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;finish_comment &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; parse
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"*/\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"/*\"&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_comment lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_comment lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt; &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#23884;&amp;#22871;&amp;#27880;&amp;#37322; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; newline lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_comment lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; _  &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_comment lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"unterminated comment\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; ignore &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;eof &lt;span style=\"color: #a52a2a;\"&gt;())&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+ &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#21305;&amp;#37197;&amp;#23383;&amp;#31526;&amp;#20018; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+ &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;and&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;finish_string &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; parse
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\"'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;str &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.contents data_buff &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+          to_token lexbuf &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Tokens&lt;/span&gt;.v_string str&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;((&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length str&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt; 2&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\\\'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_escaped_char lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+           finish_string lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; newline lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char data_buff &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_string lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[^&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\"'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\\\'&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;]+&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; add_lexeme lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+                    finish_string lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"unterminated string\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+ &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#21305;&amp;#37197;&amp;#23383;&amp;#31526;&amp;#20018;&amp;#20013;&amp;#30340;&amp;#36716;&amp;#20041;&amp;#23383;&amp;#31526; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;     
+ &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;and&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;finish_escaped_char &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; parse
+  &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;\\^c &amp;#25511;&amp;#21046;&amp;#23383;&amp;#31526;&amp;#19981;&amp;#30693;&amp;#36947;&amp;#20160;&amp;#20040;&amp;#24847;&amp;#24605;,&amp;#27809;&amp;#26377;&amp;#28155;&amp;#21152; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char data_buff &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'t'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char data_buff &lt;span style=\"color: #b643aa;\"&gt;'\\t'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\"'&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\\\'&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char data_buff c &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;' '&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\t'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\r'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_multiline_escape lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; newline lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_multiline_escape lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;digit &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; a&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;digit &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; b&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;digit &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; c&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+      &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char data_buff
+        &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;Char&lt;/span&gt;.chr &lt;span style=\"color: #a52a2a;\"&gt;((&lt;/span&gt;char_num a&lt;span style=\"color: #a52a2a;\"&gt;)*&lt;/span&gt;100 &lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;char_num b&lt;span style=\"color: #a52a2a;\"&gt;)*&lt;/span&gt;10 &lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;char_num c&lt;span style=\"color: #a52a2a;\"&gt;)))&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#20986;&amp;#29616;&amp;#38169;&amp;#35823;,&amp;#36820;&amp;#22238; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; _ &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"Invalid escape sequence\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"unterminated escape sequence\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; ignore &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;eof &lt;span style=\"color: #a52a2a;\"&gt;());&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+ &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#21305;&amp;#37197;&amp;#23383;&amp;#31526;&amp;#20018;&amp;#20013;&amp;#36830;&amp;#25509;&amp;#22810;&amp;#34892;&amp;#30340;&amp;#26041;&amp;#24335; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;     
+ &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;and&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;finish_multiline_escape &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; parse
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\\\'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;' '&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\t'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\r'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; finish_multiline_escape lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'\\n'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; newline lexbuf&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; finish_multiline_escape lexbuf &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#20986;&amp;#29616;&amp;#38169;&amp;#35823;,&amp;#36820;&amp;#22238; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; _ &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"Invalid multiline escape char\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+  &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; eof &lt;span style=\"color: #a52a2a;\"&gt;{&lt;/span&gt; err lexbuf &lt;span style=\"color: #b643aa;\"&gt;\"unterminated multiline escape\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; ignore &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;eof &lt;span style=\"color: #a52a2a;\"&gt;());&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;}&lt;/span&gt;
+
+
+
+
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   &#32534;&#35793;:
+&lt;/p&gt;
+
+
+&lt;pre class=\"example\"&gt;&#29983;&#25104;&#35789;&#27861;&#20998;&#26512;&#22120;&#20026;.ml
+ocamllex tigerLexer.mll
+
+&#32534;&#35793;&#20026;&#23383;&#33410;&#30721;:
+ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+
+&#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#36890;&#36807;
+Driver.parse &amp;lt;file name&amp;gt;&#35843;&#29992;
+ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+   &#27979;&#35797;queens.tig,&#27880;&#24847;&#35201;&#29992;cp936&#32534;&#30721;&#20445;&#23384;&#65292;&#22914;&#26524;&#29992;utf-8&#20445;&#23384;&#65292;&#20013;&#25991;&#23383;&#31526;&#20250;&#35835;&#21462;&#38169;&#35823;:
+&lt;/p&gt;
+
+
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; A program &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; solve the 8&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;queens problem &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
+
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt;
+    &lt;span style=\"color: #ffe829;\"&gt;var&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; N &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 8
+
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;intArray &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; array &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; int
+
+    var row &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+    var col &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+    var diag1 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+    var diag2 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+    var test_str &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" &amp;#23383;&amp;#31526;&amp;#20018;&amp;#27979;&amp;#35797;\\tstring\\n test \\&lt;/span&gt;
+&lt;span style=\"color: #b643aa;\"&gt;               \\next line\"&lt;/span&gt;
+    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;printboard&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+       &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; i &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
+     &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; j &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1 
+          &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;i&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;j &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" O\"&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" .\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;));&lt;/span&gt;
+         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;))&lt;/span&gt;
+
+    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;c&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 
+&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#27979;&amp;#35797;&amp;#27880;&amp;#37322;  for i:= 0 to c do print(\".\"); print(\"\\n\"); flush();&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt;        multi line&lt;/span&gt;
+&lt;span style=\"color: #a36238;\"&gt;     &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
+     &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; c&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;N
+     &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; printboard&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+     &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; r &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
+       &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0
+               &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+                 col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+                     &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+             row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+
+&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+ &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;end&lt;/span&gt;
+
+&lt;/pre&gt;
+
+
+&lt;pre class=\"example\"&gt;tigerlex queens.tig
+
+LET   50
+VAR   58
+ID(N)     60
+ASSIGN   63
+INT(8)   65
+TYPE   75
+ID(intArray)     84
+EQ   86
+ARRAY   92
+OF   95
+ID(int)     99
+VAR   108
+ID(row)     112
+ASSIGN   115
+ID(intArray)     124
+LBRACK   126
+ID(N)     128
+RBRACK   130
+OF   133
+INT(0)   135
+VAR   143
+ID(col)     147
+ASSIGN   150
+ID(intArray)     159
+LBRACK   161
+ID(N)     163
+RBRACK   165
+OF   168
+INT(0)   170
+VAR   178
+ID(diag1)     184
+ASSIGN   187
+ID(intArray)     196
+LBRACK   198
+ID(N)     199
+PLUS   200
+ID(N)     201
+MINUS   202
+INT(1)   203
+RBRACK   204
+OF   207
+INT(0)   209
+VAR   217
+ID(diag2)     223
+ASSIGN   226
+ID(intArray)     235
+LBRACK   237
+ID(N)     238
+PLUS   239
+ID(N)     240
+MINUS   241
+INT(1)   242
+RBRACK   243
+OF   246
+INT(0)   248
+VAR   253
+ID(test_str)     262
+EQ   264
+STRING( &#23383;&#31526;&#20018;&#27979;&#35797;  string
+ test next line)     321
+FUNCTION   334
+ID(printboard)     345
+LPAREN   346
+RPAREN   347
+EQ   349
+LPAREN   358
+FOR   361
+ID(i)     363
+ASSIGN   366
+INT(0)   368
+TO   371
+ID(N)     373
+MINUS   374
+INT(1)   375
+DO   380
+LPAREN   382
+FOR   385
+ID(j)     387
+ASSIGN   390
+INT(0)   392
+TO   395
+ID(N)     397
+MINUS   398
+INT(1)   399
+DO   410
+ID(print)     416
+LPAREN   417
+IF   419
+ID(col)     423
+LBRACK   424
+ID(i)     425
+RBRACK   426
+EQ   427
+ID(j)     428
+THEN   433
+STRING( O)     438
+ELSE   443
+STRING( .)     448
+RPAREN   449
+SEMICOLON   450
+ID(print)     462
+LPAREN   463
+STRING(
+)     467
+RPAREN   468
+RPAREN   469
+SEMICOLON   470
+ID(print)     485
+LPAREN   486
+STRING(
+)     490
+RPAREN   491
+RPAREN   492
+FUNCTION   506
+ID(try)     510
+LPAREN   511
+ID(c)     512
+COLON   513
+ID(int)     516
+RPAREN   517
+EQ   519
+LPAREN   522
+
+IF   619
+ID(c)     621
+EQ   622
+ID(N)     623
+THEN   633
+ID(printboard)     644
+LPAREN   645
+RPAREN   646
+ELSE   656
+FOR   660
+ID(r)     662
+ASSIGN   665
+INT(0)   667
+TO   670
+ID(N)     672
+MINUS   673
+INT(1)   674
+DO   681
+IF   684
+ID(row)     688
+LBRACK   689
+ID(r)     690
+RBRACK   691
+EQ   692
+INT(0)   693
+AND   695
+ID(diag1)     701
+LBRACK   702
+ID(r)     703
+PLUS   704
+ID(c)     705
+RBRACK   706
+EQ   707
+INT(0)   708
+AND   710
+ID(diag2)     716
+LBRACK   717
+ID(r)     718
+PLUS   719
+INT(7)   720
+MINUS   721
+ID(c)     722
+RBRACK   723
+EQ   724
+INT(0)   725
+THEN   742
+LPAREN   744
+ID(row)     747
+LBRACK   748
+ID(r)     749
+RBRACK   750
+ASSIGN   752
+INT(1)   753
+SEMICOLON   754
+ID(diag1)     760
+LBRACK   761
+ID(r)     762
+PLUS   763
+ID(c)     764
+RBRACK   765
+ASSIGN   767
+INT(1)   768
+SEMICOLON   769
+ID(diag2)     775
+LBRACK   776
+ID(r)     777
+PLUS   778
+INT(7)   779
+MINUS   780
+ID(c)     781
+RBRACK   782
+ASSIGN   784
+INT(1)   785
+SEMICOLON   786
+ID(col)     801
+LBRACK   802
+ID(c)     803
+RBRACK   804
+ASSIGN   806
+ID(r)     807
+SEMICOLON   808
+ID(try)     830
+LPAREN   831
+ID(c)     832
+PLUS   833
+INT(1)   834
+RPAREN   835
+SEMICOLON   836
+ID(row)     844
+LBRACK   845
+ID(r)     846
+RBRACK   847
+ASSIGN   849
+INT(0)   850
+SEMICOLON   851
+ID(diag1)     857
+LBRACK   858
+ID(r)     859
+PLUS   860
+ID(c)     861
+RBRACK   862
+ASSIGN   864
+INT(0)   865
+SEMICOLON   866
+ID(diag2)     872
+LBRACK   873
+ID(r)     874
+PLUS   875
+INT(7)   876
+MINUS   877
+ID(c)     878
+RBRACK   879
+ASSIGN   881
+INT(0)   882
+RPAREN   883
+RPAREN   886
+IN   890
+ID(try)     894
+LPAREN   895
+INT(0)   896
+RPAREN   897
+END   901
+EOF   904
+&lt;/pre&gt;
+
+
+
+
+"</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="debug post">
   <h2>OCaml与C的互操作</h2>
   <table>
     <caption>导出博文信息 OCaml与C的互操作</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"OCaml&#19982;C&#30340;&#20114;&#25805;&#20316;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20503 15512)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -1002,9 +1952,7 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt \"ad
    [[http://caml.inria.fr/pub/docs/oreilly-book/html/book-ora112.html][ocaml-ora ch.12 Interoperability with C]]
    
    [[http://caml.inria.fr/pub/docs/manual-ocaml/manual032.html][ocaml manual ch.18 Interfacing C with OCaml]]
-
-   
-   "</pre></td></tr>
+*"</pre></td></tr>
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
   &#26412;&#25991;&#24635;&#32467;OCaml&#19982;C&#30340;&#20132;&#20114;&#65306;&#22312;C&#20013;&#22914;&#20309;&#20998;&#37197;&#21644;&#20462;&#25913;ocaml value&#65292;&#22914;&#20309;&#23558;ocaml
   value&#36716;&#25442;&#20026;C struct&#65292; &#20197;&#21450;&#24322;&#24120;&#22788;&#29702;&#12290;
@@ -2751,7 +3699,8 @@ CAMLprim &lt;span style=\"color: #93e93f;\"&gt;value&lt;/span&gt; &lt;span style
   &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;pname &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; None &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
   &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;kill_all &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;ref&lt;/span&gt; &lt;span style=\"color: #008b8b;\"&gt;false&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
 
-  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;usage &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;#36827;&amp;#31243;&amp;#32467;&amp;#26463;&amp;#24037;&amp;#20855;\\n&amp;#20351;&amp;#29992;&amp;#26041;&amp;#27861;:  kill [-a] [-n &amp;lt;process name&amp;gt;] [pid ...] \"&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+  &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;usage &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\"&amp;#36827;&amp;#31243;&amp;#32467;&amp;#26463;&amp;#24037;&amp;#20855;\\n&amp;#20351;&amp;#29992;&amp;#26041;&amp;#27861;:  kill [-a] [-n &amp;lt;process name&amp;gt;] [pid ...] \\&lt;/span&gt;
+&lt;span style=\"color: #b643aa;\"&gt; \\n&amp;#36827;&amp;#31243;&amp;#21517;&amp;#21487;&amp;#20197;&amp;#29992;&amp;#36890;&amp;#37197;&amp;#31526;?&amp;#21644;*\"&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
   &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;args &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Arg&lt;/span&gt;.align &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;
     &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"-n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;,&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Arg&lt;/span&gt;.String &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;fun&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;s &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; pname &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; Some s&lt;span style=\"color: #a52a2a;\"&gt;),&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" &amp;#35201;&amp;#32467;&amp;#26463;&amp;#30340;&amp;#36827;&amp;#31243;&amp;#21517;\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
     &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"-a\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;,&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Arg&lt;/span&gt;.Set kill_all&lt;span style=\"color: #a52a2a;\"&gt;,&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" &amp;#32467;&amp;#26463;&amp;#25152;&amp;#26377;&amp;#36827;&amp;#31243;&amp;#21517;&amp;#21305;&amp;#37197;&amp;#30340;&amp;#36827;&amp;#31243;\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt;
@@ -2794,7 +3743,24 @@ CAMLprim &lt;span style=\"color: #93e93f;\"&gt;value&lt;/span&gt; &lt;span style
   &lt;span style=\"color: #6e9ac9;\"&gt;match&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;!&lt;/span&gt;pname &lt;span style=\"color: #6e9ac9;\"&gt;with&lt;/span&gt;
   &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; None &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
   &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; Some s &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;
-    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;is_proc_name&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;_&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;,&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; name&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; name &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; s &lt;span style=\"color: #a52a2a;\"&gt;||&lt;/span&gt; name &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; s &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\".exe\"&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+    &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#36716;&amp;#25442;?&amp;#21644;*&amp;#36890;&amp;#37197;&amp;#31526;&amp;#20026;&amp;#27491;&amp;#21017;&amp;#34920;&amp;#36798;&amp;#24335;&amp;#23383;&amp;#31526;&amp;#20018; &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt;
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;reg_str &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+      &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;buf &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.create 100 &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+      &lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; i &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length s &lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt; 1 &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt;
+        &lt;span style=\"color: #6e9ac9;\"&gt;match&lt;/span&gt; s.&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;i&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;with&lt;/span&gt;
+        &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'$'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'^'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'+'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'['&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;']'&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;as&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt;
+          &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char buf &lt;span style=\"color: #b643aa;\"&gt;'\\\\'&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+          &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char buf c
+        &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'?'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char buf &lt;span style=\"color: #b643aa;\"&gt;'.'&lt;/span&gt;
+        &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;'*'&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_string buf &lt;span style=\"color: #b643aa;\"&gt;\".*\"&lt;/span&gt;
+        &lt;span style=\"color: #a52a2a;\"&gt;|&lt;/span&gt; c &lt;span style=\"color: #a52a2a;\"&gt;-&amp;gt;&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.add_char buf c
+      &lt;span style=\"color: #6e9ac9;\"&gt;done&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+      &lt;span style=\"color: #93e93f;\"&gt;Buffer&lt;/span&gt;.contents buf
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;s_regex &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Str&lt;/span&gt;.regexp reg_str &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
+    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #ffe829;\"&gt;is_proc_name&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;_&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;,&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; name&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+      &lt;span style=\"color: #93e93f;\"&gt;Str&lt;/span&gt;.string_match s_regex name 0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;Str&lt;/span&gt;.match_end &lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;String&lt;/span&gt;.length name &lt;span style=\"color: #a52a2a;\"&gt;||&lt;/span&gt;
+      name &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; s &lt;span style=\"color: #a52a2a;\"&gt;^&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\".exe\"&lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
     &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;pids &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;List&lt;/span&gt;.filter is_proc_name all_proc &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt;
     &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; pids &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;[]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;
       &lt;span style=\"color: #93e93f;\"&gt;Printf&lt;/span&gt;.printf &lt;span style=\"color: #b643aa;\"&gt;\"&amp;#25214;&amp;#19981;&amp;#21040;&amp;#36827;&amp;#31243;: %s\\n\"&lt;/span&gt; s&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
@@ -2873,8 +3839,13 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt \"ad
 &lt;/p&gt;
 &lt;p&gt;   
    &lt;a href=\"http://caml.inria.fr/pub/docs/manual-ocaml/manual032.html\"&gt;ocaml manual ch.18 Interfacing C with OCaml&lt;/a&gt;
-&lt;/p&gt;
+&lt;/p&gt;&lt;/div&gt;
 
+&lt;/div&gt;
+
+&lt;div id=\"outline-container-ocaml_call_c_id\" class=\"outline-2\"&gt;
+&lt;h2 id=\"ocaml_call_c_id\"&gt;&lt;/h2&gt;
+&lt;div class=\"outline-text-2\" id=\"text-ocaml_call_c_id\"&gt;
 
 &lt;/div&gt;
 &lt;/div&gt;
@@ -2888,7 +3859,7 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt \"ad
     <caption>导出博文信息 学习现代编译器实现(1)</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#23398;&#20064;&#29616;&#20195;&#32534;&#35793;&#22120;&#23454;&#29616;(1)"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20496 5724)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3086,7 +4057,7 @@ interp test&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
     <caption>导出博文信息 一些emacs快捷键</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#19968;&#20123;emacs&#24555;&#25463;&#38190;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 21836)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3151,7 +4122,7 @@ interp test&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
     <caption>导出博文信息 学习Org-mode</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>4</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#23398;&#20064;Org-mode"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 17636)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3211,7 +4182,7 @@ interp test&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
     <caption>导出博文信息 vmware NAT设置</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>4</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"vmware NAT&#35774;&#32622;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 17276)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3244,7 +4215,7 @@ interp test&lt;span style=\"color: #a52a2a;\"&gt;;;&lt;/span&gt;
     <caption>导出博文信息 语法高亮测试</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>5</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>6</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35821;&#27861;&#39640;&#20142;&#27979;&#35797;"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 13436)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3320,7 +4291,7 @@ Printf.printf \"Hello, caml\";;
     <caption>导出博文信息 搭建o-blog</caption>
     <thead><tr><th>属性</th><th>值</th></tr></thead>
     <tbody>
-      <tr><td class="property"><code>id</code></td><td class="value"><pre>6</pre></td></tr>
+      <tr><td class="property"><code>id</code></td><td class="value"><pre>7</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#25645;&#24314;o-blog"</pre></td></tr>
       <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20494 2576)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
@@ -3360,10 +4331,10 @@ Printf.printf \"Hello, caml\";;
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#39318;&#39029;"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static_no_title.html"</pre></td></tr>
@@ -3401,10 +4372,10 @@ Printf.printf \"Hello, caml\";;
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#26356;&#26032;&#35760;&#24405;"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Tips" "tips"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_static.html"</pre></td></tr>
@@ -3444,10 +4415,10 @@ Printf.printf \"Hello, caml\";;
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"&#35843;&#35797;"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "&#38745;&#24577;&#39029;&#38754;" ""]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"debug.html"</pre></td></tr>
@@ -3477,16 +4448,16 @@ Printf.printf \"Hello, caml\";;
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>0</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"Copyright"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/08"</pre></td></tr>
       <tr><td class="property"><code>filename</code></td><td class="value"><pre>"copyright"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/31_copyright.html"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/08/05_copyright.html"</pre></td></tr>
       <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
@@ -3508,16 +4479,16 @@ Copyright &#169; 2012 nTest.
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>1</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"About"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/08"</pre></td></tr>
       <tr><td class="property"><code>filename</code></td><td class="value"><pre>"about"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/31_about.html"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/08/05_about.html"</pre></td></tr>
       <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
@@ -3539,16 +4510,16 @@ Copyright &#169; 2012 nTest.
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>2</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"Navigation"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/08"</pre></td></tr>
       <tr><td class="property"><code>filename</code></td><td class="value"><pre>"navigation"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/31_navigation.html"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/08/05_navigation.html"</pre></td></tr>
       <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
@@ -3608,16 +4579,16 @@ Copyright &#169; 2012 nTest.
     <tbody>
       <tr><td class="property"><code>id</code></td><td class="value"><pre>3</pre></td></tr>
       <tr><td class="property"><code>title</code></td><td class="value"><pre>"Navigation Footer"</pre></td></tr>
-      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20502 44928)</pre></td></tr>
+      <tr><td class="property"><code>timespamp</code></td><td class="value"><pre>(20509 18176)</pre></td></tr>
       <tr><td class="property"><code>year</code></td><td class="value"><pre>2012</pre></td></tr>
-      <tr><td class="property"><code>month</code></td><td class="value"><pre>7</pre></td></tr>
-      <tr><td class="property"><code>day</code></td><td class="value"><pre>31</pre></td></tr>
+      <tr><td class="property"><code>month</code></td><td class="value"><pre>8</pre></td></tr>
+      <tr><td class="property"><code>day</code></td><td class="value"><pre>5</pre></td></tr>
       <tr><td class="property"><code>category</code></td><td class="value"><pre>[cl-struct-ob:category "Blog&#35774;&#32622;" "blog"]</pre></td></tr>
       <tr><td class="property"><code>tags</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>template</code></td><td class="value"><pre>"blog_post.html"</pre></td></tr>
-      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/07"</pre></td></tr>
+      <tr><td class="property"><code>filepath</code></td><td class="value"><pre>"blog/2012/08"</pre></td></tr>
       <tr><td class="property"><code>filename</code></td><td class="value"><pre>"navigation-footer"</pre></td></tr>
-      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/07/31_navigation-footer.html"</pre></td></tr>
+      <tr><td class="property"><code>htmlfile</code></td><td class="value"><pre>"blog/2012/08/05_navigation-footer.html"</pre></td></tr>
       <tr><td class="property"><code>path-to-root</code></td><td class="value"><pre>"../../.."</pre></td></tr>
       <tr><td class="property"><code>sitemap</code></td><td class="value"><pre>nil</pre></td></tr>
       <tr><td class="property"><code>content</code></td><td class="value"><pre>"#+OPTIONS: H:7 num:nil  toc:nil d:nil todo:nil &lt;:nil pri:nil tags:nil
@@ -3684,7 +4655,7 @@ Copyright &#169; 2012 nTest.
       <tr><td class="property"><code>name</code></td><td class="value"><pre>"emacs"</pre></td></tr>
       <tr><td class="property"><code>safe</code></td><td class="value"><pre>"emacs"</pre></td></tr>
       <tr><td class="property"><code>count</code></td><td class="value"><pre>2</pre></td></tr>
-      <tr><td class="property"><code>size</code></td><td class="value"><pre>220.0</pre></td></tr>
+      <tr><td class="property"><code>size</code></td><td class="value"><pre>150.0</pre></td></tr>
     </tbody>
   </table>
 </div>
@@ -3735,7 +4706,7 @@ Copyright &#169; 2012 nTest.
     <tbody>
       <tr><td class="property"><code>name</code></td><td class="value"><pre>"ocaml"</pre></td></tr>
       <tr><td class="property"><code>safe</code></td><td class="value"><pre>"ocaml"</pre></td></tr>
-      <tr><td class="property"><code>count</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>count</code></td><td class="value"><pre>3</pre></td></tr>
       <tr><td class="property"><code>size</code></td><td class="value"><pre>220.0</pre></td></tr>
     </tbody>
   </table>
@@ -3787,8 +4758,8 @@ Copyright &#169; 2012 nTest.
     <tbody>
       <tr><td class="property"><code>name</code></td><td class="value"><pre>"&#32534;&#35793;&#22120;"</pre></td></tr>
       <tr><td class="property"><code>safe</code></td><td class="value"><pre>""</pre></td></tr>
-      <tr><td class="property"><code>count</code></td><td class="value"><pre>1</pre></td></tr>
-      <tr><td class="property"><code>size</code></td><td class="value"><pre>80.0</pre></td></tr>
+      <tr><td class="property"><code>count</code></td><td class="value"><pre>2</pre></td></tr>
+      <tr><td class="property"><code>size</code></td><td class="value"><pre>150.0</pre></td></tr>
     </tbody>
   </table>
 </div>
@@ -3813,7 +4784,7 @@ Copyright &#169; 2012 nTest.
 <li><a href="./index.html"><i>icon-home icon-white</i> 首页</a>
 
 </li>
-<li><a href="./blog/2012/07/31_ocamlc.html"><i>icon-file icon-white</i> 文章</a>
+<li><a href="./blog/2012/08/05_2.html"><i>icon-file icon-white</i> 文章</a>
 
 </li>
 <li><a href="./tags/index.html"><i>icon-tags icon-white</i> 标签</a>
@@ -3834,13 +4805,13 @@ Copyright &#169; 2012 nTest.
 	    <nav id="archives" class="span3">
 	      <h1><a href="./archives.html">归档</a></h1>
 	      <ul>
-		<li><a href="./blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="./blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="./blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="./blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="./blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="./blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="./blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+		<li><a href="./blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a></li> <li><a href="./blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="./blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="./blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="./blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="./blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="./blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="./blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
 	      </ul>
 	    </nav>
 	    <nav class="tags span3">
 	      <h1><a href="./tags/index.html">标签</a></h1>
 	      <ul>
-  <li style="font-size: 80.00%;"><a href="./tags/c.html">c</a></li> <li style="font-size: 220.00%;"><a href="./tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="./tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="./tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="./tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="./tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="./tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="./tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="./tags/vmware.html">vmware</a></li> <li style="font-size: 80.00%;"><a href="./tags/.html">编译器</a></li> 
+  <li style="font-size: 80.00%;"><a href="./tags/c.html">c</a></li> <li style="font-size: 150.00%;"><a href="./tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="./tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="./tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="./tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="./tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="./tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="./tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="./tags/vmware.html">vmware</a></li> <li style="font-size: 150.00%;"><a href="./tags/.html">编译器</a></li> 
 </ul>
 
 	    </nav>

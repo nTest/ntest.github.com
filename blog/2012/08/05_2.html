@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>学习现代编译器实现(2)--词法分析</title>
+    <link rel="stylesheet" type="text/less" href="../../../style/less/o-blog.less">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="o-blog version 1.2">
+    <script src="../../../style/js/less-1.3.0.min.js" type="text/javascript"></script>
+    <script src="../../../style/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-modal.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-transition.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-dropdown.js" type="text/javascript"></script>
+    <script src="../../../style/bootstrap/js/bootstrap-collapse.js" type="text/javascript"></script>
+    <script src="../../../style/js/prettify.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog.linenumber.js" type="text/javascript"></script>
+    <script src="../../../style/js/o-blog-fix.js"
+    type="text/javascript"></script>
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33764673-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+	
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+	  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+	  <a class="brand" href="../../../index.html">nTest blog</a>
+	  <div class="nav-collapse collapse">
+	    <ul>
+<li><a href="#"><i>icon-book icon-white</i> 文档</a>
+
+</li>
+<li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
+<ul>
+<li><a href="../../../blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a>
+</li>
+<li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a>
+</li>
+<li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a>
+</li>
+<li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a>
+
+</li>
+</ul>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档博文</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+	  </div>
+	</div>
+      </div>
+    </div>
+    <div class="subnav subnav-fixed visible-desktop">
+      <div class="container">
+	<ul class="breadcrumb">
+  <li><a href="../../../index.html">首页</a> <span class="divider">/</span></li>
+  <li><a href="../../../blog/index.html">blog</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/index.html">2012</a> <span class="divider">/</span></li><li><a href="../../../blog/2012/08/index.html">08</a> <span class="divider">/</span></li><li>学习现代编译器实现(2)--词法分析</li>
+  </ul>
+
+      </div>
+    </div>
+    <div id="page" class="container">
+
+  <header class="article-header">
+
+    <div class="well">
+      <div class="row">
+	<div class="date span1">
+	  <div class=" date-d">05</div>
+	  <div class=" date-m"><a href="../../../blog/2012/08/index.html">八月</a></div>
+	  <div class=" date-y"><a href="../../../blog/2012/index.html">2012</a>
+	  </div>
+	</div>
+	<div class="span1">
+	  <div class="qr-code">
+  <img src="http://chart.apis.google.com/chart?chs=50x50&cht=qr&chld=|0&chl=http%3a%2f%2fntest.github.com%2fblog%2f2012%2f08%2f05_2.html"
+       alt="qr-code" />
+</div>
+
+	</div>
+	<h1 class="offset2" style="font-size: 250%">学习现代编译器实现(2)--词法分析</h1>
+      </div>
+      <nav>
+	<ul class="pager">
+	  <li class="previous"><a href="../../../blog/2012/07/31_ocamlc.html"><i class="icon-chevron-left"></i>&nbsp;OCaml与C的互操作</a></li><li class="next">&nbsp;</li>
+	</ul>
+      </nav>
+    </div>
+
+  </header>
+  <div class="article-content">
+    <p>
+   现代编译原理第2章讲解词法分析,正则表达式是静态的和说明性的，自动机
+   是动态的和命令式的；也就是说，你不必用一个算法来模拟就能看到正则表
+   达式的成分和结构，但是理解自动机常常需要你在自己的头脑中来“执行”
+   它。 因此，正则表达式一般更适合用来指明程序设计语言单词的词法结构。
+</p>
+<p>
+   词法分析器生成器就是把正则表达式转换为DFA来进行词法解析，此类工具有
+   C下的lex, flex. OCaml下的ocamllex。
+</p>
+<p>
+   程序练习为实现tiger语言的词法解析，书中采用SML示例，我用OCaml重写了：
+</p>
+<p>   
+   <b>tokens.ml</b> 用于词法分析器构造token类型,实际上OCaml中用token类型输
+    出和使用麻烦，我在lexer中直接用string代替了:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(* </span><span style="color: #a36238;">&#29992;&#20110;&#35843;&#35797;lexers&#30340;"&#33050;&#25163;&#26550;",&#30001;&#20110;OCaml&#20013;&#19981;&#25903;&#25345;&#20989;&#25968;&#21517;&#22823;&#20889;&#24320;&#22836;,&#25105;&#29992;v_&#20195;</span>
+<span style="color: #a36238;">   &#26367;&#20102;&#20070;&#20013;&#20363;&#23376;&#37324;&#30340;&#20989;&#25968;&#21517; </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">linenum </span><span style="color: #a52a2a;">=</span> int
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">token </span><span style="color: #a52a2a;">=</span> string
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_type</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"TYPE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_var</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"VAR   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_function</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"FUNCTION   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_break</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"BREAK   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_of</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"OF   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_end</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"END   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_in</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"IN   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_nil</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"NIL   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_let</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LET   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_do</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"DO   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_to</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"TO   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_for</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"FOR   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_while</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"WHILE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_else</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"ELSE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_then</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"THEN   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_if</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"IF   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_array</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"ARRAY   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_assign</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"ASSIGN   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_or</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"OR   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_and</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"AND   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_ge</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"GE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_gt</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"GT   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_le</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_lt</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LT   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_neq</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"NEQ   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_eq</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"EQ   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_divide</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"DIVIDE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_times</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"TIMES   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_minus</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"MINUS   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_plus</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"PLUS   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_dot</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"DOT   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_rbrace</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"RBRACE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_lbrace</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LBRACE   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_rbrack</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"RBRACK   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_lbrack</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LBRACK   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_rparen</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"RPAREN   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_lparen</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"LPAREN   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_semicolon</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"SEMICOLON   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_colon</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"COLON   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_comma</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"COMMA   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_string</span><span style="color: #1fe0e5;"> s i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"STRING("</span><span style="color: #a52a2a;">^</span>s<span style="color: #a52a2a;">^</span><span style="color: #b643aa;">")     "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_int</span><span style="color: #1fe0e5;"> c i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"INT("</span><span style="color: #a52a2a;">^(</span>string_of_int c<span style="color: #a52a2a;">)^</span><span style="color: #b643aa;">")   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_id</span><span style="color: #1fe0e5;"> s i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"ID("</span><span style="color: #a52a2a;">^</span>s<span style="color: #a52a2a;">^</span><span style="color: #b643aa;">")     "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">v_eof</span><span style="color: #1fe0e5;"> i </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">j</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"EOF   "</span> <span style="color: #a52a2a;">^</span> <span style="color: #a52a2a;">(</span>string_of_int i<span style="color: #a52a2a;">)</span>
+
+</pre>
+
+
+<p>
+   <b>errorMsg.ml</b> 输出带有文件名和行号的错误信息:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">any_errors </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #008b8b;">false</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">file_name </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #b643aa;">""</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">line_num </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> 1
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">line_pos </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #a52a2a;">[</span>1<span style="color: #a52a2a;">]</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#20445;&#23384;&#27599;&#34892;&#30340;&#32467;&#26463;&#20301;&#32622;,&#30456;&#23545;&#20110;&#25991;&#20214;&#24320;&#22987;&#30340;&#20301;&#32622; </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">source_stream </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> stdin
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">reset</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+  any_errors <span style="color: #a52a2a;">:=</span> <span style="color: #008b8b;">false</span><span style="color: #a52a2a;">;</span>
+  file_name <span style="color: #a52a2a;">:=</span> <span style="color: #b643aa;">""</span><span style="color: #a52a2a;">;</span>
+  line_num <span style="color: #a52a2a;">:=</span> 1<span style="color: #a52a2a;">;</span>
+  line_pos <span style="color: #a52a2a;">:=</span> <span style="color: #a52a2a;">[</span>1<span style="color: #a52a2a;">];</span>
+  source_stream <span style="color: #a52a2a;">:=</span> stdin
+
+<span style="color: #6e9ac9;">exception</span> <span style="color: #1fe0e5;">Error</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">error</span><span style="color: #1fe0e5;"> pos </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">msg</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">string</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #0000ff; font-weight: bold;">rec</span> <span style="color: #ffe829;">look</span><span style="color: #1fe0e5;"> rest n </span><span style="color: #a52a2a;">=</span> <span style="color: #6e9ac9;">match</span> rest <span style="color: #6e9ac9;">with</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #a52a2a;">[]</span> <span style="color: #a52a2a;">-&gt;</span> print_string <span style="color: #b643aa;">"0.0"</span>
+    <span style="color: #a52a2a;">|</span> h <span style="color: #a52a2a;">::</span> r <span style="color: #a52a2a;">-&gt;</span>
+      <span style="color: #6e9ac9;">if</span> h <span style="color: #a52a2a;">&lt;</span> pos <span style="color: #6e9ac9;">then</span> <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">":%d.%d"</span> n <span style="color: #a52a2a;">(</span>pos <span style="color: #a52a2a;">-</span> h<span style="color: #a52a2a;">)</span>
+      <span style="color: #6e9ac9;">else</span> look r <span style="color: #a52a2a;">(</span>n <span style="color: #a52a2a;">-</span> 1<span style="color: #a52a2a;">)</span>
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+  any_errors <span style="color: #a52a2a;">:=</span> <span style="color: #008b8b;">true</span><span style="color: #a52a2a;">;</span>
+  print_string <span style="color: #a52a2a;">!</span>file_name<span style="color: #a52a2a;">;</span>
+  look <span style="color: #a52a2a;">!</span>line_pos <span style="color: #a52a2a;">!</span>line_num<span style="color: #a52a2a;">;</span>
+  print_string <span style="color: #b643aa;">":"</span><span style="color: #a52a2a;">;</span>
+  print_string  msg<span style="color: #a52a2a;">;</span>
+  print_newline <span style="color: #a52a2a;">()</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">impossible</span><span style="color: #1fe0e5;"> msg </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"Error: Compiler bug: %s\n"</span> msg<span style="color: #a52a2a;">;</span>
+  flush stdout<span style="color: #a52a2a;">;</span>
+  <span style="color: #6e9ac9;">raise</span> Error
+
+</pre>
+
+
+<p>
+   <b>driver.ml</b> 主程序，调用lexer:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">parse</span><span style="color: #1fe0e5;"> filename </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">file </span><span style="color: #a52a2a;">=</span> open_in filename <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">lexbuf </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Lexing</span>.from_channel file <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">ErrorMsg</span>.reset <span style="color: #a52a2a;">();</span>
+  <span style="color: #93e93f;">ErrorMsg</span>.file_name <span style="color: #a52a2a;">:=</span> filename<span style="color: #a52a2a;">;</span>
+
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#36755;&#20986;&#25152;&#26377;token </span><span style="color: #a36238;">*)</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #0000ff; font-weight: bold;">rec</span> <span style="color: #ffe829;">do_it</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span> 
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">result </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">TigerLexer</span>.tokens lexbuf <span style="color: #0000ff; font-weight: bold;">in</span>
+    print_endline result<span style="color: #a52a2a;">;</span>
+    <span style="color: #6e9ac9;">if</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">String</span>.length result<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">&gt;</span> 3 <span style="color: #a52a2a;">&amp;&amp;</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">String</span>.sub result 0 3<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"EOF"</span> <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">()</span>
+    <span style="color: #6e9ac9;">else</span> do_it <span style="color: #a52a2a;">()</span>
+  <span style="color: #0000ff; font-weight: bold;">in</span>
+  do_it <span style="color: #a52a2a;">();</span>
+  close_in file <span style="color: #a52a2a;">;;</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">main</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #6e9ac9;">if</span> <span style="color: #93e93f;">Array</span>.length <span style="color: #93e93f;">Sys</span>.argv <span style="color: #a52a2a;">=</span> 1 <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>
+    print_endline <span style="color: #b643aa;">"usage: tigerlex.exe &lt;source file&gt;"</span><span style="color: #a52a2a;">;</span>
+    <span style="color: #6e9ac9;">exit</span> 1
+  <span style="color: #a52a2a;">);</span>
+  parse <span style="color: #93e93f;">Sys</span>.argv.<span style="color: #a52a2a;">(</span>1<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">;;</span>
+
+<span style="color: #a36238;">(* </span><span style="color: #a36238;">&#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#25191;&#34892;main,&#22312;toplevel&#20013;&#19981;&#25191;&#34892;main,&#21542;&#21017;#load&#27169;&#22359;&#26102;&#23601;&#20250;&#24322;&#24120; </span><span style="color: #a36238;">*)</span>   
+<span style="color: #6e9ac9;">if</span> <span style="color: #a52a2a;">not</span> <span style="color: #a52a2a;">!</span><span style="color: #93e93f;">Sys</span>.interactive <span style="color: #6e9ac9;">then</span>
+  main <span style="color: #a52a2a;">()</span>
+
+</pre>
+
+
+<p>
+   <b>tigerLexer.mll</b> tiger语言的词法解析:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#26631;&#35782;&#31526;: &#20197;&#23383;&#27597;&#24320;&#22836;,&#30001;&#23383;&#27597;&#12289;&#25968;&#23383;&#21644;&#19979;&#21010;&#32447;&#32452;&#25104;&#30340;&#24207;&#21015;&#12290;&#21306;&#20998;&#22823;&#23567;&#20889;&#23383;&#27597;&#12290;</span>
+<span style="color: #a36238;"> * &#27880;&#37322;&#65306;&#27880;&#37322;&#21487;&#20197;&#20986;&#29616;&#22312;&#20219;&#24847;&#20004;&#20010;&#21333;&#35789;&#20043;&#38388;&#12290;&#20197;/*&#24320;&#22987;&#65292;*/&#32467;&#26463;&#65292;&#21487;&#20197;&#23884;&#22871;&#12290;</span>
+<span style="color: #a36238;"> * &#20869;&#32622;&#31867;&#22411;&#65306;int, string</span>
+<span style="color: #a36238;"> * </span>
+<span style="color: #a36238;"> * </span>
+<span style="color: #a36238;"> * &#24590;&#26679;&#22788;&#29702;&#27880;&#37322;</span>
+<span style="color: #a36238;"> * &#24590;&#26679;&#22788;&#29702;&#23383;&#31526;&#20018;</span>
+<span style="color: #a36238;"> * &#38169;&#35823;&#22788;&#29702;</span>
+<span style="color: #a36238;"> * &#25991;&#20214;&#32467;&#26463;&#22788;&#29702;</span>
+<span style="color: #a36238;"> * &#20854;&#23427;&#29305;&#24615;</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+
+<span style="color: #a52a2a;">{</span>
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">pos </span><span style="color: #a52a2a;">=</span> int
+<span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">lexresult </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Tokens</span>.token
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">line_num </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">ErrorMsg</span>.line_num <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#24403;&#21069;&#34892;&#21495; </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">line_pos </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">ErrorMsg</span>.line_pos <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27599;&#34892;&#30340;&#36215;&#22987;&#20301;&#32622;,&#30456;&#23545;&#20110;&#25972;&#20010;buffer </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">data_buff </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Buffer</span>.create 100
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">add_lexeme</span><span style="color: #1fe0e5;"> lexbuf </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">len </span><span style="color: #a52a2a;">=</span> lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_curr_pos <span style="color: #a52a2a;">-</span> lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_start_pos <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">Buffer</span>.add_substring
+    data_buff
+    lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_buffer
+    lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_start_pos
+    len
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">err</span><span style="color: #1fe0e5;"> lexbuf msg </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pos </span><span style="color: #a52a2a;">=</span> lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_curr_p.<span style="color: #93e93f;">Lexing</span>.pos_cnum <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">ErrorMsg</span>.error pos msg
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">eof</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pos </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.hd <span style="color: #a52a2a;">!</span>line_pos <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #93e93f;">Tokens</span>.v_eof pos pos
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">newline</span><span style="color: #1fe0e5;"> lexbuf </span><span style="color: #a52a2a;">=</span>
+  line_num <span style="color: #a52a2a;">:=</span> <span style="color: #a52a2a;">!</span>line_num <span style="color: #a52a2a;">+</span> 1<span style="color: #a52a2a;">;</span>
+  line_pos <span style="color: #a52a2a;">:=</span> lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_curr_p.<span style="color: #93e93f;">Lexing</span>.pos_cnum <span style="color: #a52a2a;">::</span> <span style="color: #a52a2a;">!</span>line_pos
+
+<span style="color: #a36238;">(*</span>
+<span style="color: #a36238;"> * &#35843;&#29992;&#36716;&#25442;&#20026;token&#30340;&#20989;&#25968;</span>
+<span style="color: #a36238;"> * f, &#35201;&#35843;&#29992;&#30340;&#20989;&#25968;</span>
+<span style="color: #a36238;"> * len,&#27492;token&#30340;&#38271;&#24230;</span>
+<span style="color: #a36238;"> * v,&#38468;&#24102;&#30340;value</span>
+<span style="color: #a36238;"> </span><span style="color: #a36238;">*)</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">to_token</span><span style="color: #1fe0e5;"> lexbuf f len </span><span style="color: #a52a2a;">=</span>
+   <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pos </span><span style="color: #a52a2a;">=</span> lexbuf.<span style="color: #93e93f;">Lexing</span>.lex_curr_p.<span style="color: #93e93f;">Lexing</span>.pos_cnum <span style="color: #0000ff; font-weight: bold;">in</span>
+   f pos <span style="color: #a52a2a;">(</span>pos <span style="color: #a52a2a;">+</span> len<span style="color: #a52a2a;">)</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">char_num</span><span style="color: #1fe0e5;"> c </span><span style="color: #a52a2a;">=</span>
+  <span style="color: #6e9ac9;">if</span> c <span style="color: #a52a2a;">&lt;</span> <span style="color: #b643aa;">'0'</span> <span style="color: #a52a2a;">||</span> c <span style="color: #a52a2a;">&gt;</span> <span style="color: #b643aa;">'9'</span> <span style="color: #6e9ac9;">then</span>
+    <span style="color: #6e9ac9;">raise</span> <span style="color: #a52a2a;">(</span>Invalid_argument <span style="color: #b643aa;">"char_num not digit char"</span><span style="color: #a52a2a;">)</span>
+ <span style="color: #6e9ac9;">else</span> int_of_char c <span style="color: #a52a2a;">-</span> int_of_char <span style="color: #b643aa;">'0'</span>
+
+<span style="color: #a52a2a;">}</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">digit </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[</span><span style="color: #b643aa;">'0'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'9'</span><span style="color: #a52a2a;">]</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">digits </span><span style="color: #a52a2a;">=</span> digit<span style="color: #a52a2a;">+</span>
+<span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">ident </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[</span><span style="color: #b643aa;">'a'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'z'</span> <span style="color: #b643aa;">'A'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'Z'</span><span style="color: #a52a2a;">][</span><span style="color: #b643aa;">'a'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'z'</span> <span style="color: #b643aa;">'A'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'Z'</span> <span style="color: #b643aa;">'0'</span><span style="color: #a52a2a;">-</span><span style="color: #b643aa;">'9'</span> <span style="color: #b643aa;">'_'</span><span style="color: #a52a2a;">]*</span>
+
+rule tokens <span style="color: #a52a2a;">=</span> parse
+    <span style="color: #a52a2a;">|</span> <span style="color: #a52a2a;">[</span><span style="color: #b643aa;">'\t'</span> <span style="color: #b643aa;">'\r'</span> <span style="color: #b643aa;">' '</span><span style="color: #a52a2a;">]</span> <span style="color: #a52a2a;">{</span> tokens lexbuf <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #a52a2a;">[</span><span style="color: #b643aa;">'\n'</span><span style="color: #a52a2a;">]</span>  <span style="color: #a52a2a;">{</span> newline lexbuf<span style="color: #a52a2a;">;</span>
+                tokens lexbuf <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"/*"</span> <span style="color: #a52a2a;">{</span> finish_comment lexbuf<span style="color: #a52a2a;">;</span> <span style="color: #b643aa;">""</span> <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'"'</span> <span style="color: #a52a2a;">{</span> <span style="color: #93e93f;">Buffer</span>.clear data_buff<span style="color: #a52a2a;">;</span> finish_string lexbuf <span style="color: #a52a2a;">}</span>
+
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"while"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_while 5 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"for"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_for 3 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"to"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_to 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"break"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_break 5 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"let"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_let 3 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"in"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_in 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"end"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_end 3<span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"function"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_function 8 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"var"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_var 3 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"type"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_type 4 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"array"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_array 5 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"if"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_if 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"then"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_then 4 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"else"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_else 4 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"do"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_do 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"of"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_of 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"nil"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_nil 3 <span style="color: #a52a2a;">}</span>
+
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">","</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_comma 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">":"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_colon 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">";"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_semicolon 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"("</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_lparen 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">")"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_rparen 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"["</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_lbrack 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"]"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_rbrack 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"{"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_lbrace 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"}"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_rbrace 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"."</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_dot 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"+"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_plus 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"-"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_minus 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"*"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_times 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"/"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_divide 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"="</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_eq 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&lt;&gt;"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_neq 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&lt;"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_lt 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&lt;="</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_le 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&gt;"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_gt 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&gt;="</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_ge 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"&amp;"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_and 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"|"</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_or 1 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">":="</span> <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #93e93f;">Tokens</span>.v_assign 2 <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> digits <span style="color: #6e9ac9;">as</span> num <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Tokens</span>.v_int <span style="color: #a52a2a;">(</span>int_of_string num<span style="color: #a52a2a;">))</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">String</span>.length num<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> ident <span style="color: #6e9ac9;">as</span> id <span style="color: #a52a2a;">{</span> to_token lexbuf <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Tokens</span>.v_id id<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">String</span>.length id<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> _ <span style="color: #6e9ac9;">as</span> c <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Printf</span>.sprintf <span style="color: #b643aa;">"illegal character  %c"</span> c<span style="color: #a52a2a;">);</span>
+               tokens lexbuf <span style="color: #a52a2a;">}</span>
+    <span style="color: #a52a2a;">|</span> eof   <span style="color: #a52a2a;">{</span> eof <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+ <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#21305;&#37197;&#27880;&#37322; </span><span style="color: #a36238;">*)</span>     
+ <span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #1fe0e5;">finish_comment </span><span style="color: #a52a2a;">=</span> parse
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"*/"</span> <span style="color: #a52a2a;">{</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">"/*"</span> <span style="color: #a52a2a;">{</span> finish_comment lexbuf<span style="color: #a52a2a;">;</span> finish_comment lexbuf <span style="color: #a52a2a;">}</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#23884;&#22871;&#27880;&#37322; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\n'</span> <span style="color: #a52a2a;">{</span> newline lexbuf<span style="color: #a52a2a;">;</span> finish_comment lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> _  <span style="color: #a52a2a;">{</span> finish_comment lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> eof <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"unterminated comment"</span><span style="color: #a52a2a;">;</span> ignore <span style="color: #a52a2a;">(</span>eof <span style="color: #a52a2a;">())</span> <span style="color: #a52a2a;">}</span>
+ <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#21305;&#37197;&#23383;&#31526;&#20018; </span><span style="color: #a36238;">*)</span>
+ <span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #1fe0e5;">finish_string </span><span style="color: #a52a2a;">=</span> parse
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'"'</span> <span style="color: #a52a2a;">{</span> <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">str </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Buffer</span>.contents data_buff <span style="color: #0000ff; font-weight: bold;">in</span>
+          to_token lexbuf <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Tokens</span>.v_string str<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">((</span><span style="color: #93e93f;">String</span>.length str<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">+</span> 2<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\\'</span> <span style="color: #a52a2a;">{</span> finish_escaped_char lexbuf<span style="color: #a52a2a;">;</span>
+           finish_string lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\n'</span> <span style="color: #a52a2a;">{</span> newline lexbuf<span style="color: #a52a2a;">;</span> <span style="color: #93e93f;">Buffer</span>.add_char data_buff <span style="color: #b643aa;">'\n'</span><span style="color: #a52a2a;">;</span> finish_string lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #a52a2a;">[^</span> <span style="color: #b643aa;">'"'</span> <span style="color: #b643aa;">'\\'</span> <span style="color: #b643aa;">'\n'</span><span style="color: #a52a2a;">]+</span> <span style="color: #a52a2a;">{</span> add_lexeme lexbuf<span style="color: #a52a2a;">;</span>
+                    finish_string lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> eof <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"unterminated string"</span><span style="color: #a52a2a;">;</span> eof <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+ <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#21305;&#37197;&#23383;&#31526;&#20018;&#20013;&#30340;&#36716;&#20041;&#23383;&#31526; </span><span style="color: #a36238;">*)</span>     
+ <span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #1fe0e5;">finish_escaped_char </span><span style="color: #a52a2a;">=</span> parse
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">\^c &#25511;&#21046;&#23383;&#31526;&#19981;&#30693;&#36947;&#20160;&#20040;&#24847;&#24605;,&#27809;&#26377;&#28155;&#21152; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'n'</span> <span style="color: #a52a2a;">{</span> <span style="color: #93e93f;">Buffer</span>.add_char data_buff <span style="color: #b643aa;">'\n'</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'t'</span> <span style="color: #a52a2a;">{</span> <span style="color: #93e93f;">Buffer</span>.add_char data_buff <span style="color: #b643aa;">'\t'</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'"'</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\\'</span> <span style="color: #6e9ac9;">as</span> c <span style="color: #a52a2a;">{</span> <span style="color: #93e93f;">Buffer</span>.add_char data_buff c <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">' '</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\t'</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\r'</span> <span style="color: #a52a2a;">{</span> finish_multiline_escape lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\n'</span> <span style="color: #a52a2a;">{</span> newline lexbuf<span style="color: #a52a2a;">;</span> finish_multiline_escape lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #a52a2a;">(</span>digit <span style="color: #6e9ac9;">as</span> a<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">(</span>digit <span style="color: #6e9ac9;">as</span> b<span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">(</span>digit <span style="color: #6e9ac9;">as</span> c<span style="color: #a52a2a;">)</span>
+      <span style="color: #a52a2a;">{</span> <span style="color: #93e93f;">Buffer</span>.add_char data_buff
+        <span style="color: #a52a2a;">(</span><span style="color: #93e93f;">Char</span>.chr <span style="color: #a52a2a;">((</span>char_num a<span style="color: #a52a2a;">)*</span>100 <span style="color: #a52a2a;">+</span> <span style="color: #a52a2a;">(</span>char_num b<span style="color: #a52a2a;">)*</span>10 <span style="color: #a52a2a;">+</span> <span style="color: #a52a2a;">(</span>char_num c<span style="color: #a52a2a;">)))</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#20986;&#29616;&#38169;&#35823;,&#36820;&#22238; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #a52a2a;">|</span> _ <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"Invalid escape sequence"</span><span style="color: #a52a2a;">;</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> eof <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"unterminated escape sequence"</span><span style="color: #a52a2a;">;</span> ignore <span style="color: #a52a2a;">(</span>eof <span style="color: #a52a2a;">());</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+ <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#21305;&#37197;&#23383;&#31526;&#20018;&#20013;&#36830;&#25509;&#22810;&#34892;&#30340;&#26041;&#24335; </span><span style="color: #a36238;">*)</span>     
+ <span style="color: #0000ff; font-weight: bold;">and</span> <span style="color: #1fe0e5;">finish_multiline_escape </span><span style="color: #a52a2a;">=</span> parse
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\\'</span> <span style="color: #a52a2a;">{</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">' '</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\t'</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\r'</span> <span style="color: #a52a2a;">{</span> finish_multiline_escape lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'\n'</span> <span style="color: #a52a2a;">{</span> newline lexbuf<span style="color: #a52a2a;">;</span> finish_multiline_escape lexbuf <span style="color: #a52a2a;">}</span>
+  <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#20986;&#29616;&#38169;&#35823;,&#36820;&#22238; </span><span style="color: #a36238;">*)</span>
+  <span style="color: #a52a2a;">|</span> _ <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"Invalid multiline escape char"</span><span style="color: #a52a2a;">;</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+  <span style="color: #a52a2a;">|</span> eof <span style="color: #a52a2a;">{</span> err lexbuf <span style="color: #b643aa;">"unterminated multiline escape"</span><span style="color: #a52a2a;">;</span> ignore <span style="color: #a52a2a;">(</span>eof <span style="color: #a52a2a;">());</span> <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">}</span>
+
+
+
+
+</pre>
+
+
+<p>
+   编译:
+</p>
+
+
+<pre class="example">生成词法分析器为.ml
+ocamllex tigerLexer.mll
+
+编译为字节码:
+ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+
+编译为模块: 可以在toplevel中#load "tigerlex.cma"加载，然后通过
+Driver.parse &lt;file name&gt;调用
+ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
+</pre>
+
+
+<p>
+   测试queens.tig,注意要用cp936编码保存，如果用utf-8保存，中文字符会读取错误:
+</p>
+
+
+<pre class="src src-ocaml"><span style="color: #a52a2a;">/*</span> A program <span style="color: #6e9ac9;">to</span> solve the 8<span style="color: #a52a2a;">-</span>queens problem <span style="color: #a52a2a;">*/</span>
+
+<span style="color: #0000ff; font-weight: bold;">let</span>
+    <span style="color: #ffe829;">var</span><span style="color: #1fe0e5;"> N </span><span style="color: #a52a2a;">:=</span> 8
+
+    <span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">intArray </span><span style="color: #a52a2a;">=</span> array <span style="color: #6e9ac9;">of</span> int
+
+    var row <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+    var col <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+    var diag1 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+    var diag2 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+    var test_str <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">" &#23383;&#31526;&#20018;&#27979;&#35797;\tstring\n test \</span>
+<span style="color: #b643aa;">               \next line"</span>
+    <span style="color: #6e9ac9;">function</span> <span style="color: #1fe0e5;">printboard</span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+       <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> i <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
+     <span style="color: #6e9ac9;">do</span> <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> j <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1 
+          <span style="color: #6e9ac9;">do</span> print<span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">if</span> col<span style="color: #a52a2a;">[</span>i<span style="color: #a52a2a;">]=</span>j <span style="color: #6e9ac9;">then</span> <span style="color: #b643aa;">" O"</span> <span style="color: #6e9ac9;">else</span> <span style="color: #b643aa;">" ."</span><span style="color: #a52a2a;">);</span>
+         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">));</span>
+         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">))</span>
+
+    <span style="color: #6e9ac9;">function</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">c</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> 
+<span style="color: #a52a2a;">(</span> <span style="color: #a52a2a;">/*</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;&#27880;&#37322;  for i:= 0 to c do print("."); print("\n"); flush();</span>
+<span style="color: #a36238;">        multi line</span>
+<span style="color: #a36238;">     </span><span style="color: #a36238;">*)</span> <span style="color: #a52a2a;">*/</span>
+     <span style="color: #6e9ac9;">if</span> c<span style="color: #a52a2a;">=</span>N
+     <span style="color: #6e9ac9;">then</span> printboard<span style="color: #a52a2a;">()</span>
+     <span style="color: #6e9ac9;">else</span> <span style="color: #6e9ac9;">for</span> r <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
+       <span style="color: #6e9ac9;">do</span> <span style="color: #6e9ac9;">if</span> row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]=</span>0
+               <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span>
+                 col<span style="color: #a52a2a;">[</span>c<span style="color: #a52a2a;">]:=</span>r<span style="color: #a52a2a;">;</span>
+                     <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>c<span style="color: #a52a2a;">+</span>1<span style="color: #a52a2a;">);</span>
+             row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">)</span>
+
+<span style="color: #a52a2a;">)</span>
+ <span style="color: #0000ff; font-weight: bold;">in</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span style="color: #0000ff; font-weight: bold;">end</span>
+
+</pre>
+
+
+<pre class="example">tigerlex queens.tig
+
+LET   50
+VAR   58
+ID(N)     60
+ASSIGN   63
+INT(8)   65
+TYPE   75
+ID(intArray)     84
+EQ   86
+ARRAY   92
+OF   95
+ID(int)     99
+VAR   108
+ID(row)     112
+ASSIGN   115
+ID(intArray)     124
+LBRACK   126
+ID(N)     128
+RBRACK   130
+OF   133
+INT(0)   135
+VAR   143
+ID(col)     147
+ASSIGN   150
+ID(intArray)     159
+LBRACK   161
+ID(N)     163
+RBRACK   165
+OF   168
+INT(0)   170
+VAR   178
+ID(diag1)     184
+ASSIGN   187
+ID(intArray)     196
+LBRACK   198
+ID(N)     199
+PLUS   200
+ID(N)     201
+MINUS   202
+INT(1)   203
+RBRACK   204
+OF   207
+INT(0)   209
+VAR   217
+ID(diag2)     223
+ASSIGN   226
+ID(intArray)     235
+LBRACK   237
+ID(N)     238
+PLUS   239
+ID(N)     240
+MINUS   241
+INT(1)   242
+RBRACK   243
+OF   246
+INT(0)   248
+VAR   253
+ID(test_str)     262
+EQ   264
+STRING( 字符串测试  string
+ test next line)     321
+FUNCTION   334
+ID(printboard)     345
+LPAREN   346
+RPAREN   347
+EQ   349
+LPAREN   358
+FOR   361
+ID(i)     363
+ASSIGN   366
+INT(0)   368
+TO   371
+ID(N)     373
+MINUS   374
+INT(1)   375
+DO   380
+LPAREN   382
+FOR   385
+ID(j)     387
+ASSIGN   390
+INT(0)   392
+TO   395
+ID(N)     397
+MINUS   398
+INT(1)   399
+DO   410
+ID(print)     416
+LPAREN   417
+IF   419
+ID(col)     423
+LBRACK   424
+ID(i)     425
+RBRACK   426
+EQ   427
+ID(j)     428
+THEN   433
+STRING( O)     438
+ELSE   443
+STRING( .)     448
+RPAREN   449
+SEMICOLON   450
+ID(print)     462
+LPAREN   463
+STRING(
+)     467
+RPAREN   468
+RPAREN   469
+SEMICOLON   470
+ID(print)     485
+LPAREN   486
+STRING(
+)     490
+RPAREN   491
+RPAREN   492
+FUNCTION   506
+ID(try)     510
+LPAREN   511
+ID(c)     512
+COLON   513
+ID(int)     516
+RPAREN   517
+EQ   519
+LPAREN   522
+
+IF   619
+ID(c)     621
+EQ   622
+ID(N)     623
+THEN   633
+ID(printboard)     644
+LPAREN   645
+RPAREN   646
+ELSE   656
+FOR   660
+ID(r)     662
+ASSIGN   665
+INT(0)   667
+TO   670
+ID(N)     672
+MINUS   673
+INT(1)   674
+DO   681
+IF   684
+ID(row)     688
+LBRACK   689
+ID(r)     690
+RBRACK   691
+EQ   692
+INT(0)   693
+AND   695
+ID(diag1)     701
+LBRACK   702
+ID(r)     703
+PLUS   704
+ID(c)     705
+RBRACK   706
+EQ   707
+INT(0)   708
+AND   710
+ID(diag2)     716
+LBRACK   717
+ID(r)     718
+PLUS   719
+INT(7)   720
+MINUS   721
+ID(c)     722
+RBRACK   723
+EQ   724
+INT(0)   725
+THEN   742
+LPAREN   744
+ID(row)     747
+LBRACK   748
+ID(r)     749
+RBRACK   750
+ASSIGN   752
+INT(1)   753
+SEMICOLON   754
+ID(diag1)     760
+LBRACK   761
+ID(r)     762
+PLUS   763
+ID(c)     764
+RBRACK   765
+ASSIGN   767
+INT(1)   768
+SEMICOLON   769
+ID(diag2)     775
+LBRACK   776
+ID(r)     777
+PLUS   778
+INT(7)   779
+MINUS   780
+ID(c)     781
+RBRACK   782
+ASSIGN   784
+INT(1)   785
+SEMICOLON   786
+ID(col)     801
+LBRACK   802
+ID(c)     803
+RBRACK   804
+ASSIGN   806
+ID(r)     807
+SEMICOLON   808
+ID(try)     830
+LPAREN   831
+ID(c)     832
+PLUS   833
+INT(1)   834
+RPAREN   835
+SEMICOLON   836
+ID(row)     844
+LBRACK   845
+ID(r)     846
+RBRACK   847
+ASSIGN   849
+INT(0)   850
+SEMICOLON   851
+ID(diag1)     857
+LBRACK   858
+ID(r)     859
+PLUS   860
+ID(c)     861
+RBRACK   862
+ASSIGN   864
+INT(0)   865
+SEMICOLON   866
+ID(diag2)     872
+LBRACK   873
+ID(r)     874
+PLUS   875
+INT(7)   876
+MINUS   877
+ID(c)     878
+RBRACK   879
+ASSIGN   881
+INT(0)   882
+RPAREN   883
+RPAREN   886
+IN   890
+ID(try)     894
+LPAREN   895
+INT(0)   896
+RPAREN   897
+END   901
+EOF   904
+</pre>
+
+
+
+
+
+  </div>
+  
+  <footer class="well article-footer">
+    发布于 <time datetime=\"2012-08-05T22:22:00Z\"> 2012-08-05 22:22:00</time>.
+    <nav class="tag-cloud">
+      <h1><i class="icon-tags"></i> 相关标签</h1>
+      <ul>
+	<li class="label label-inverse small"><a href="../../../tags/ocaml.html">ocaml</a></li><li class="label label-inverse small"><a href="../../../tags/.html">编译器</a></li>
+      </ul>
+    </nav>
+  </footer>
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'ntest'; // required: replace example with your forum shortname
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+      </div>
+      <div id="footer">
+	<div class="container">
+	  <div class="row">
+	    <section class="span3">
+	      <h1>关于</h1>
+	      <p>
+  基于o-blog
+</p>
+	    </section>
+	    <nav id="links" class="span3">
+	      <h1>链接</h1>
+	      <ul>
+		<ul>
+<li><a href="../../../index.html"><i>icon-home icon-white</i> 首页</a>
+
+</li>
+<li><a href="../../../blog/2012/08/05_2.html"><i>icon-file icon-white</i> 文章</a>
+
+</li>
+<li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
+
+</li>
+<li><a href="../../../archives.html"><i>icon-list icon-white</i> 归档</a>
+
+</li>
+<li><a href="../../../index.xml">RSS</a>
+</li>
+</ul>
+
+
+
+
+	      </ul>
+	    </nav>
+	    <nav id="archives" class="span3">
+	      <h1><a href="../../../archives.html">归档</a></h1>
+	      <ul>
+		<li><a href="../../../blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a></li> <li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="../../../blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="../../../blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+	      </ul>
+	    </nav>
+	    <nav class="tags span3">
+	      <h1><a href="../../../tags/index.html">标签</a></h1>
+	      <ul>
+  <li style="font-size: 80.00%;"><a href="../../../tags/c.html">c</a></li> <li style="font-size: 150.00%;"><a href="../../../tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/vmware.html">vmware</a></li> <li style="font-size: 150.00%;"><a href="../../../tags/.html">编译器</a></li> 
+</ul>
+
+	    </nav>
+	  </div>
+	</div>
+	<div class="copyright" style="text-align: center;">
+	  <p>
+Copyright © 2012 nTest. 
+</p>
+	  <p>功能取自 <a href="https://github.com/renard/o-blog">o-blog</a>.</p>
+	</div>
+      </div>
+</body>
+</html>
+

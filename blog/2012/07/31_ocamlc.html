@@ -50,13 +50,13 @@
 </li>
 <li><a href="#"><i>icon-file icon-white</i> 近期博文</a>
 <ul>
+<li><a href="../../../blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a>
+</li>
 <li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a>
 </li>
 <li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a>
 </li>
 <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a>
-</li>
-<li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a>
 
 </li>
 </ul>
@@ -109,7 +109,7 @@
       </div>
       <nav>
 	<ul class="pager">
-	  <li class="previous"><a href="../../../blog/2012/07/25_1.html"><i class="icon-chevron-left"></i>&nbsp;学习现代编译器实现(1)</a></li><li class="next">&nbsp;</li>
+	  <li class="previous"><a href="../../../blog/2012/07/25_1.html"><i class="icon-chevron-left"></i>&nbsp;学习现代编译器实现(1)</a></li><li class="next" style="text-align: right;"><a href="../../../blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析&nbsp;<i class="icon-chevron-right"></i></a></li>
 	</ul>
       </nav>
     </div>
@@ -1862,7 +1862,8 @@ CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;
   <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pname </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> None <span style="color: #0000ff; font-weight: bold;">in</span>
   <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">kill_all </span><span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">ref</span> <span style="color: #008b8b;">false</span> <span style="color: #0000ff; font-weight: bold;">in</span>
 
-  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">usage </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"&#36827;&#31243;&#32467;&#26463;&#24037;&#20855;\n&#20351;&#29992;&#26041;&#27861;:  kill [-a] [-n &lt;process name&gt;] [pid ...] "</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+  <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">usage </span><span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">"&#36827;&#31243;&#32467;&#26463;&#24037;&#20855;\n&#20351;&#29992;&#26041;&#27861;:  kill [-a] [-n &lt;process name&gt;] [pid ...] \</span>
+<span style="color: #b643aa;"> \n&#36827;&#31243;&#21517;&#21487;&#20197;&#29992;&#36890;&#37197;&#31526;?&#21644;*"</span> <span style="color: #0000ff; font-weight: bold;">in</span>
   <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">args </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Arg</span>.align <span style="color: #a52a2a;">[</span>
     <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"-n"</span><span style="color: #a52a2a;">,</span> <span style="color: #93e93f;">Arg</span>.String <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">fun</span> <span style="color: #1fe0e5;">s </span><span style="color: #a52a2a;">-&gt;</span> pname <span style="color: #a52a2a;">:=</span> Some s<span style="color: #a52a2a;">),</span> <span style="color: #b643aa;">" &#35201;&#32467;&#26463;&#30340;&#36827;&#31243;&#21517;"</span><span style="color: #a52a2a;">);</span>
     <span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"-a"</span><span style="color: #a52a2a;">,</span> <span style="color: #93e93f;">Arg</span>.Set kill_all<span style="color: #a52a2a;">,</span> <span style="color: #b643aa;">" &#32467;&#26463;&#25152;&#26377;&#36827;&#31243;&#21517;&#21305;&#37197;&#30340;&#36827;&#31243;"</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">]</span>
@@ -1905,7 +1906,24 @@ CAMLprim <span style="color: #93e93f;">value</span> <span style="color: #ffe829;
   <span style="color: #6e9ac9;">match</span> <span style="color: #a52a2a;">!</span>pname <span style="color: #6e9ac9;">with</span>
   <span style="color: #a52a2a;">|</span> None <span style="color: #a52a2a;">-&gt;</span> <span style="color: #a52a2a;">()</span>
   <span style="color: #a52a2a;">|</span> Some s <span style="color: #a52a2a;">-&gt;</span> <span style="color: #a52a2a;">(</span>
-    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">is_proc_name</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">_</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> name</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span> name <span style="color: #a52a2a;">=</span> s <span style="color: #a52a2a;">||</span> name <span style="color: #a52a2a;">=</span> s <span style="color: #a52a2a;">^</span> <span style="color: #b643aa;">".exe"</span> <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#36716;&#25442;?&#21644;*&#36890;&#37197;&#31526;&#20026;&#27491;&#21017;&#34920;&#36798;&#24335;&#23383;&#31526;&#20018; </span><span style="color: #a36238;">*)</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">reg_str </span><span style="color: #a52a2a;">=</span>
+      <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">buf </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Buffer</span>.create 100 <span style="color: #0000ff; font-weight: bold;">in</span>
+      <span style="color: #6e9ac9;">for</span> i <span style="color: #a52a2a;">=</span> 0 <span style="color: #6e9ac9;">to</span> <span style="color: #93e93f;">String</span>.length s <span style="color: #a52a2a;">-</span> 1 <span style="color: #6e9ac9;">do</span>
+        <span style="color: #6e9ac9;">match</span> s.<span style="color: #a52a2a;">[</span>i<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">with</span>
+        <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'$'</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'^'</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'+'</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'['</span> <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">']'</span> <span style="color: #6e9ac9;">as</span> c <span style="color: #a52a2a;">-&gt;</span>
+          <span style="color: #93e93f;">Buffer</span>.add_char buf <span style="color: #b643aa;">'\\'</span><span style="color: #a52a2a;">;</span>
+          <span style="color: #93e93f;">Buffer</span>.add_char buf c
+        <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'?'</span> <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Buffer</span>.add_char buf <span style="color: #b643aa;">'.'</span>
+        <span style="color: #a52a2a;">|</span> <span style="color: #b643aa;">'*'</span> <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Buffer</span>.add_string buf <span style="color: #b643aa;">".*"</span>
+        <span style="color: #a52a2a;">|</span> c <span style="color: #a52a2a;">-&gt;</span> <span style="color: #93e93f;">Buffer</span>.add_char buf c
+      <span style="color: #6e9ac9;">done</span><span style="color: #a52a2a;">;</span>
+      <span style="color: #93e93f;">Buffer</span>.contents buf
+    <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">s_regex </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">Str</span>.regexp reg_str <span style="color: #0000ff; font-weight: bold;">in</span>
+    <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #ffe829;">is_proc_name</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">_</span><span style="color: #a52a2a;">,</span><span style="color: #1fe0e5;"> name</span><span style="color: #a52a2a;">)</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+      <span style="color: #93e93f;">Str</span>.string_match s_regex name 0 <span style="color: #a52a2a;">&amp;&amp;</span> <span style="color: #93e93f;">Str</span>.match_end <span style="color: #a52a2a;">()</span> <span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">String</span>.length name <span style="color: #a52a2a;">||</span>
+      name <span style="color: #a52a2a;">=</span> s <span style="color: #a52a2a;">^</span> <span style="color: #b643aa;">".exe"</span> <span style="color: #0000ff; font-weight: bold;">in</span>
     <span style="color: #0000ff; font-weight: bold;">let</span> <span style="color: #1fe0e5;">pids </span><span style="color: #a52a2a;">=</span> <span style="color: #93e93f;">List</span>.filter is_proc_name all_proc <span style="color: #0000ff; font-weight: bold;">in</span>
     <span style="color: #6e9ac9;">if</span> pids <span style="color: #a52a2a;">=</span> <span style="color: #a52a2a;">[]</span> <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>
       <span style="color: #93e93f;">Printf</span>.printf <span style="color: #b643aa;">"&#25214;&#19981;&#21040;&#36827;&#31243;: %s\n"</span> s<span style="color: #a52a2a;">;</span>
@@ -1984,8 +2002,13 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt "adv
 </p>
 <p>   
    <a href="http://caml.inria.fr/pub/docs/manual-ocaml/manual032.html">ocaml manual ch.18 Interfacing C with OCaml</a>
-</p>
+</p></div>
 
+</div>
+
+<div id="outline-container-ocaml_call_c_id" class="outline-2">
+<h2 id="ocaml_call_c_id"></h2>
+<div class="outline-text-2" id="text-ocaml_call_c_id">
 
 </div>
 </div>
@@ -2033,7 +2056,7 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt "adv
 <li><a href="../../../index.html"><i>icon-home icon-white</i> 首页</a>
 
 </li>
-<li><a href="../../../blog/2012/07/31_ocamlc.html"><i>icon-file icon-white</i> 文章</a>
+<li><a href="../../../blog/2012/08/05_2.html"><i>icon-file icon-white</i> 文章</a>
 
 </li>
 <li><a href="../../../tags/index.html"><i>icon-tags icon-white</i> 标签</a>
@@ -2054,13 +2077,13 @@ ocamlmklib -linkall  -o process process.cmx win32_process_stubs.obj  -ldopt "adv
 	    <nav id="archives" class="span3">
 	      <h1><a href="../../../archives.html">归档</a></h1>
 	      <ul>
-		<li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="../../../blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="../../../blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
+		<li><a href="../../../blog/2012/08/05_2.html">学习现代编译器实现(2)--词法分析</a></li> <li><a href="../../../blog/2012/07/31_ocamlc.html">OCaml与C的互操作</a></li> <li><a href="../../../blog/2012/07/25_1.html">学习现代编译器实现(1)</a></li> <li><a href="../../../blog/2012/07/24_emacs.html">一些emacs快捷键</a></li> <li><a href="../../../blog/2012/07/24_org-mode.html">学习Org-mode</a></li> <li><a href="../../../blog/2012/07/24_vmware-nat.html">vmware NAT设置</a></li> <li><a href="../../../blog/2012/07/24_.html">语法高亮测试</a></li> <li><a href="../../../blog/2012/07/24_o-blog.html">搭建o-blog</a></li> 
 	      </ul>
 	    </nav>
 	    <nav class="tags span3">
 	      <h1><a href="../../../tags/index.html">标签</a></h1>
 	      <ul>
-  <li style="font-size: 80.00%;"><a href="../../../tags/c.html">c</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/vmware.html">vmware</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/.html">编译器</a></li> 
+  <li style="font-size: 80.00%;"><a href="../../../tags/c.html">c</a></li> <li style="font-size: 150.00%;"><a href="../../../tags/emacs.html">emacs</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/github.html">github</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/highlight.html">highlight</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/o-blog.html">o blog</a></li> <li style="font-size: 220.00%;"><a href="../../../tags/ocaml.html">ocaml</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/openbsd.html">openbsd</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/org-mode.html">org-mode</a></li> <li style="font-size: 80.00%;"><a href="../../../tags/vmware.html">vmware</a></li> <li style="font-size: 150.00%;"><a href="../../../tags/.html">编译器</a></li> 
 </ul>
 
 	    </nav>
