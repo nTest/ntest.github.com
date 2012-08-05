@@ -203,13 +203,14 @@
     &#32534;&#35793;&#20026;&#23383;&#33410;&#30721;:
     ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 
-    &#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#36890;&#36807;
-    Driver.parse &lt;file name&gt;&#35843;&#29992;
+    &#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#35843;&#29992;
+    Driver.parse -&gt; file_name:string -&gt; unit&#36827;&#34892;&#27979;&#35797;&#65292;&#36824;&#21487;&#20197;&#29992;#trace&#36319;
+    &#36394;&#20989;&#25968;&#30340;&#25191;&#34892;&#36807;&#31243;&#12290;
     ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 #+end_example
 
    &#27979;&#35797;queens.tig,&#27880;&#24847;&#35201;&#29992;cp936&#32534;&#30721;&#20445;&#23384;&#65292;&#22914;&#26524;&#29992;utf-8&#20445;&#23384;&#65292;&#20013;&#25991;&#23383;&#31526;&#20250;&#35835;&#21462;&#38169;&#35823;:
-#+include \"f:/nTest/ocaml/tiger/chap2/queens.tig\" src ocaml
+#+include \"f:/nTest/ocaml/tiger/chap2/queens.tig\" src ocaml +n
 #+begin_example
 tigerlex queens.tig
 
@@ -457,11 +458,10 @@ ID(try)     894
 LPAREN   895
 INT(0)   896
 RPAREN   897
-END   901
-EOF   904
-#+end_example
-   
+queens.tig:40.2:unterminated comment
 
+EOF   932
+#+end_example
    "</pre></td></tr>
       <tr><td class="property"><code>content-html</code></td><td class="value"><pre>"&lt;p&gt;
    &#29616;&#20195;&#32534;&#35793;&#21407;&#29702;&#31532;2&#31456;&#35762;&#35299;&#35789;&#27861;&#20998;&#26512;,&#27491;&#21017;&#34920;&#36798;&#24335;&#26159;&#38745;&#24577;&#30340;&#21644;&#35828;&#26126;&#24615;&#30340;&#65292;&#33258;&#21160;&#26426;
@@ -791,8 +791,9 @@ ocamllex tigerLexer.mll
 &#32534;&#35793;&#20026;&#23383;&#33410;&#30721;:
 ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 
-&#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#36890;&#36807;
-Driver.parse &amp;lt;file name&amp;gt;&#35843;&#29992;
+&#32534;&#35793;&#20026;&#27169;&#22359;: &#21487;&#20197;&#22312;toplevel&#20013;#load \"tigerlex.cma\"&#21152;&#36733;&#65292;&#28982;&#21518;&#35843;&#29992;
+Driver.parse -&amp;gt; file_name:string -&amp;gt; unit&#36827;&#34892;&#27979;&#35797;&#65292;&#36824;&#21487;&#20197;&#29992;#trace&#36319;
+&#36394;&#20989;&#25968;&#30340;&#25191;&#34892;&#36807;&#31243;&#12290;
 ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 &lt;/pre&gt;
 
@@ -802,43 +803,46 @@ ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml
 &lt;/p&gt;
 
 
-&lt;pre class=\"src src-ocaml\"&gt;&lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; A program &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; solve the 8&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;queens problem &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
-
-&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt;
-    &lt;span style=\"color: #ffe829;\"&gt;var&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; N &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 8
-
-    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;intArray &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; array &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; int
-
-    var row &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
-    var col &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
-    var diag1 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
-    var diag2 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
-    var test_str &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" &amp;#23383;&amp;#31526;&amp;#20018;&amp;#27979;&amp;#35797;\\tstring\\n test \\&lt;/span&gt;
-&lt;span style=\"color: #b643aa;\"&gt;               \\next line\"&lt;/span&gt;
-    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;printboard&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
-       &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; i &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
-     &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; j &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1 
-          &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;i&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;j &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" O\"&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" .\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
-         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;));&lt;/span&gt;
-         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;))&lt;/span&gt;
-
-    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;c&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 
-&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#27979;&amp;#35797;&amp;#27880;&amp;#37322;  for i:= 0 to c do print(\".\"); print(\"\\n\"); flush();&lt;/span&gt;
-&lt;span style=\"color: #a36238;\"&gt;        multi line&lt;/span&gt;
-&lt;span style=\"color: #a36238;\"&gt;     &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
-     &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; c&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;N
-     &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; printboard&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
-     &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; r &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
-       &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0
-               &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
-                 col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
-                     &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
-             row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
-
-&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
- &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
-&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;end&lt;/span&gt;
-
+&lt;pre class=\"src src-ocaml\"&gt;&lt;span class=\"linenr\"&gt; 1:  &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; A program &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; solve the 8&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;queens problem &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
+&lt;span class=\"linenr\"&gt; 2:  &lt;/span&gt;
+&lt;span class=\"linenr\"&gt; 3:  &lt;/span&gt;&lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;let&lt;/span&gt;
+&lt;span class=\"linenr\"&gt; 4:  &lt;/span&gt;    &lt;span style=\"color: #ffe829;\"&gt;var&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; N &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 8
+&lt;span class=\"linenr\"&gt; 5:  &lt;/span&gt;
+&lt;span class=\"linenr\"&gt; 6:  &lt;/span&gt;    &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;type&lt;/span&gt; &lt;span style=\"color: #93e93f;\"&gt;intArray &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; array &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; int
+&lt;span class=\"linenr\"&gt; 7:  &lt;/span&gt;
+&lt;span class=\"linenr\"&gt; 8:  &lt;/span&gt;    var row &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+&lt;span class=\"linenr\"&gt; 9:  &lt;/span&gt;    var col &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt; N &lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+&lt;span class=\"linenr\"&gt;10:  &lt;/span&gt;    var diag1 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+&lt;span class=\"linenr\"&gt;11:  &lt;/span&gt;    var diag2 &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; intArray &lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;]&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;of&lt;/span&gt; 0
+&lt;span class=\"linenr\"&gt;12:  &lt;/span&gt;    var test_str &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" &amp;#23383;&amp;#31526;&amp;#20018;&amp;#27979;&amp;#35797;\\tstring\\n test \\&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;13:  &lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;               \\next line\"&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;14:  &lt;/span&gt;    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #1fe0e5;\"&gt;printboard&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt; &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;15:  &lt;/span&gt;       &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; i &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
+&lt;span class=\"linenr\"&gt;16:  &lt;/span&gt;     &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; j &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1 
+&lt;span class=\"linenr\"&gt;17:  &lt;/span&gt;          &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;i&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;j &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" O\"&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" .\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;18:  &lt;/span&gt;         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;));&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;19:  &lt;/span&gt;         print&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;\"\\n\"&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;))&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;20:  &lt;/span&gt;
+&lt;span class=\"linenr\"&gt;21:  &lt;/span&gt;    &lt;span style=\"color: #6e9ac9;\"&gt;function&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;&lt;span style=\"color: #1fe0e5;\"&gt;c&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;:&lt;/span&gt;&lt;span style=\"color: #93e93f;\"&gt;int&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt; 
+&lt;span class=\"linenr\"&gt;22:  &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; &lt;span style=\"color: #a36238;\"&gt;(* &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;&amp;#27979;&amp;#35797;&amp;#27880;&amp;#37322;  for i:= 0 to c do print(\".\"); print(\"\\n\"); flush();&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;23:  &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;        multi line&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;24:  &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;     &lt;/span&gt;&lt;span style=\"color: #a36238;\"&gt;*)&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;*/&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;25:  &lt;/span&gt;     &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; c&lt;span style=\"color: #a52a2a;\"&gt;=&lt;/span&gt;N
+&lt;span class=\"linenr\"&gt;26:  &lt;/span&gt;     &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; printboard&lt;span style=\"color: #a52a2a;\"&gt;()&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;27:  &lt;/span&gt;     &lt;span style=\"color: #6e9ac9;\"&gt;else&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;for&lt;/span&gt; r &lt;span style=\"color: #a52a2a;\"&gt;:=&lt;/span&gt; 0 &lt;span style=\"color: #6e9ac9;\"&gt;to&lt;/span&gt; N&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;1
+&lt;span class=\"linenr\"&gt;28:  &lt;/span&gt;       &lt;span style=\"color: #6e9ac9;\"&gt;do&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;if&lt;/span&gt; row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0 &lt;span style=\"color: #a52a2a;\"&gt;&amp;amp;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]=&lt;/span&gt;0
+&lt;span class=\"linenr\"&gt;29:  &lt;/span&gt;               &lt;span style=\"color: #6e9ac9;\"&gt;then&lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;30:  &lt;/span&gt;                 col&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;31:  &lt;/span&gt;                     &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;1&lt;span style=\"color: #a52a2a;\"&gt;);&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;32:  &lt;/span&gt;             row&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag1&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;;&lt;/span&gt; diag2&lt;span style=\"color: #a52a2a;\"&gt;[&lt;/span&gt;r&lt;span style=\"color: #a52a2a;\"&gt;+&lt;/span&gt;7&lt;span style=\"color: #a52a2a;\"&gt;-&lt;/span&gt;c&lt;span style=\"color: #a52a2a;\"&gt;]:=&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;33:  &lt;/span&gt;
+&lt;span class=\"linenr\"&gt;34:  &lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;35:  &lt;/span&gt; &lt;span style=\"color: #0000ff; font-weight: bold;\"&gt;in&lt;/span&gt; &lt;span style=\"color: #6e9ac9;\"&gt;try&lt;/span&gt;&lt;span style=\"color: #a52a2a;\"&gt;(&lt;/span&gt;0&lt;span style=\"color: #a52a2a;\"&gt;)&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;36:  &lt;/span&gt; &lt;span style=\"color: #a52a2a;\"&gt;/*&lt;/span&gt; comment
+&lt;span class=\"linenr\"&gt;37:  &lt;/span&gt; &lt;span style=\"color: #b643aa;\"&gt;\" string&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;38:  &lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt; test&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;39:  &lt;/span&gt;&lt;span style=\"color: #b643aa;\"&gt;end&lt;/span&gt;
+&lt;span class=\"linenr\"&gt;40:  &lt;/span&gt;
 &lt;/pre&gt;
 
 
@@ -1088,11 +1092,10 @@ ID(try)     894
 LPAREN   895
 INT(0)   896
 RPAREN   897
-END   901
-EOF   904
+queens.tig:40.2:unterminated comment
+
+EOF   932
 &lt;/pre&gt;
-
-
 
 
 "</pre></td></tr>

@@ -444,8 +444,9 @@ ocamllex tigerLexer.mll
 编译为字节码:
 ocamlc -o tigerlex.exe  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 
-编译为模块: 可以在toplevel中#load "tigerlex.cma"加载，然后通过
-Driver.parse &lt;file name&gt;调用
+编译为模块: 可以在toplevel中#load "tigerlex.cma"加载，然后调用
+Driver.parse -&gt; file_name:string -&gt; unit进行测试，还可以用#trace跟
+踪函数的执行过程。
 ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml 
 </pre>
 
@@ -455,43 +456,46 @@ ocamlc  -a -g -o tigerlex.cma  tokens.ml errorMsg.ml  tigerLexer.ml driver.ml
 </p>
 
 
-<pre class="src src-ocaml"><span style="color: #a52a2a;">/*</span> A program <span style="color: #6e9ac9;">to</span> solve the 8<span style="color: #a52a2a;">-</span>queens problem <span style="color: #a52a2a;">*/</span>
-
-<span style="color: #0000ff; font-weight: bold;">let</span>
-    <span style="color: #ffe829;">var</span><span style="color: #1fe0e5;"> N </span><span style="color: #a52a2a;">:=</span> 8
-
-    <span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">intArray </span><span style="color: #a52a2a;">=</span> array <span style="color: #6e9ac9;">of</span> int
-
-    var row <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
-    var col <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
-    var diag1 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
-    var diag2 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
-    var test_str <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">" &#23383;&#31526;&#20018;&#27979;&#35797;\tstring\n test \</span>
-<span style="color: #b643aa;">               \next line"</span>
-    <span style="color: #6e9ac9;">function</span> <span style="color: #1fe0e5;">printboard</span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
-       <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> i <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
-     <span style="color: #6e9ac9;">do</span> <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> j <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1 
-          <span style="color: #6e9ac9;">do</span> print<span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">if</span> col<span style="color: #a52a2a;">[</span>i<span style="color: #a52a2a;">]=</span>j <span style="color: #6e9ac9;">then</span> <span style="color: #b643aa;">" O"</span> <span style="color: #6e9ac9;">else</span> <span style="color: #b643aa;">" ."</span><span style="color: #a52a2a;">);</span>
-         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">));</span>
-         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">))</span>
-
-    <span style="color: #6e9ac9;">function</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">c</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> 
-<span style="color: #a52a2a;">(</span> <span style="color: #a52a2a;">/*</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;&#27880;&#37322;  for i:= 0 to c do print("."); print("\n"); flush();</span>
-<span style="color: #a36238;">        multi line</span>
-<span style="color: #a36238;">     </span><span style="color: #a36238;">*)</span> <span style="color: #a52a2a;">*/</span>
-     <span style="color: #6e9ac9;">if</span> c<span style="color: #a52a2a;">=</span>N
-     <span style="color: #6e9ac9;">then</span> printboard<span style="color: #a52a2a;">()</span>
-     <span style="color: #6e9ac9;">else</span> <span style="color: #6e9ac9;">for</span> r <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
-       <span style="color: #6e9ac9;">do</span> <span style="color: #6e9ac9;">if</span> row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]=</span>0
-               <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span>
-                 col<span style="color: #a52a2a;">[</span>c<span style="color: #a52a2a;">]:=</span>r<span style="color: #a52a2a;">;</span>
-                     <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>c<span style="color: #a52a2a;">+</span>1<span style="color: #a52a2a;">);</span>
-             row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">)</span>
-
-<span style="color: #a52a2a;">)</span>
- <span style="color: #0000ff; font-weight: bold;">in</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
-<span style="color: #0000ff; font-weight: bold;">end</span>
-
+<pre class="src src-ocaml"><span class="linenr"> 1:  </span><span style="color: #a52a2a;">/*</span> A program <span style="color: #6e9ac9;">to</span> solve the 8<span style="color: #a52a2a;">-</span>queens problem <span style="color: #a52a2a;">*/</span>
+<span class="linenr"> 2:  </span>
+<span class="linenr"> 3:  </span><span style="color: #0000ff; font-weight: bold;">let</span>
+<span class="linenr"> 4:  </span>    <span style="color: #ffe829;">var</span><span style="color: #1fe0e5;"> N </span><span style="color: #a52a2a;">:=</span> 8
+<span class="linenr"> 5:  </span>
+<span class="linenr"> 6:  </span>    <span style="color: #0000ff; font-weight: bold;">type</span> <span style="color: #93e93f;">intArray </span><span style="color: #a52a2a;">=</span> array <span style="color: #6e9ac9;">of</span> int
+<span class="linenr"> 7:  </span>
+<span class="linenr"> 8:  </span>    var row <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+<span class="linenr"> 9:  </span>    var col <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span> N <span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+<span class="linenr">10:  </span>    var diag1 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+<span class="linenr">11:  </span>    var diag2 <span style="color: #a52a2a;">:=</span> intArray <span style="color: #a52a2a;">[</span>N<span style="color: #a52a2a;">+</span>N<span style="color: #a52a2a;">-</span>1<span style="color: #a52a2a;">]</span> <span style="color: #6e9ac9;">of</span> 0
+<span class="linenr">12:  </span>    var test_str <span style="color: #a52a2a;">=</span> <span style="color: #b643aa;">" &#23383;&#31526;&#20018;&#27979;&#35797;\tstring\n test \</span>
+<span class="linenr">13:  </span><span style="color: #b643aa;">               \next line"</span>
+<span class="linenr">14:  </span>    <span style="color: #6e9ac9;">function</span> <span style="color: #1fe0e5;">printboard</span><span style="color: #a52a2a;">()</span><span style="color: #1fe0e5;"> </span><span style="color: #a52a2a;">=</span>
+<span class="linenr">15:  </span>       <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> i <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
+<span class="linenr">16:  </span>     <span style="color: #6e9ac9;">do</span> <span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">for</span> j <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1 
+<span class="linenr">17:  </span>          <span style="color: #6e9ac9;">do</span> print<span style="color: #a52a2a;">(</span><span style="color: #6e9ac9;">if</span> col<span style="color: #a52a2a;">[</span>i<span style="color: #a52a2a;">]=</span>j <span style="color: #6e9ac9;">then</span> <span style="color: #b643aa;">" O"</span> <span style="color: #6e9ac9;">else</span> <span style="color: #b643aa;">" ."</span><span style="color: #a52a2a;">);</span>
+<span class="linenr">18:  </span>         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">));</span>
+<span class="linenr">19:  </span>         print<span style="color: #a52a2a;">(</span><span style="color: #b643aa;">"\n"</span><span style="color: #a52a2a;">))</span>
+<span class="linenr">20:  </span>
+<span class="linenr">21:  </span>    <span style="color: #6e9ac9;">function</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span><span style="color: #1fe0e5;">c</span><span style="color: #a52a2a;">:</span><span style="color: #93e93f;">int</span><span style="color: #a52a2a;">)</span> <span style="color: #a52a2a;">=</span> 
+<span class="linenr">22:  </span><span style="color: #a52a2a;">(</span> <span style="color: #a52a2a;">/*</span> <span style="color: #a36238;">(* </span><span style="color: #a36238;">&#27979;&#35797;&#27880;&#37322;  for i:= 0 to c do print("."); print("\n"); flush();</span>
+<span class="linenr">23:  </span><span style="color: #a36238;">        multi line</span>
+<span class="linenr">24:  </span><span style="color: #a36238;">     </span><span style="color: #a36238;">*)</span> <span style="color: #a52a2a;">*/</span>
+<span class="linenr">25:  </span>     <span style="color: #6e9ac9;">if</span> c<span style="color: #a52a2a;">=</span>N
+<span class="linenr">26:  </span>     <span style="color: #6e9ac9;">then</span> printboard<span style="color: #a52a2a;">()</span>
+<span class="linenr">27:  </span>     <span style="color: #6e9ac9;">else</span> <span style="color: #6e9ac9;">for</span> r <span style="color: #a52a2a;">:=</span> 0 <span style="color: #6e9ac9;">to</span> N<span style="color: #a52a2a;">-</span>1
+<span class="linenr">28:  </span>       <span style="color: #6e9ac9;">do</span> <span style="color: #6e9ac9;">if</span> row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]=</span>0 <span style="color: #a52a2a;">&amp;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]=</span>0
+<span class="linenr">29:  </span>               <span style="color: #6e9ac9;">then</span> <span style="color: #a52a2a;">(</span>row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>1<span style="color: #a52a2a;">;</span>
+<span class="linenr">30:  </span>                 col<span style="color: #a52a2a;">[</span>c<span style="color: #a52a2a;">]:=</span>r<span style="color: #a52a2a;">;</span>
+<span class="linenr">31:  </span>                     <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>c<span style="color: #a52a2a;">+</span>1<span style="color: #a52a2a;">);</span>
+<span class="linenr">32:  </span>             row<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag1<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">;</span> diag2<span style="color: #a52a2a;">[</span>r<span style="color: #a52a2a;">+</span>7<span style="color: #a52a2a;">-</span>c<span style="color: #a52a2a;">]:=</span>0<span style="color: #a52a2a;">)</span>
+<span class="linenr">33:  </span>
+<span class="linenr">34:  </span><span style="color: #a52a2a;">)</span>
+<span class="linenr">35:  </span> <span style="color: #0000ff; font-weight: bold;">in</span> <span style="color: #6e9ac9;">try</span><span style="color: #a52a2a;">(</span>0<span style="color: #a52a2a;">)</span>
+<span class="linenr">36:  </span> <span style="color: #a52a2a;">/*</span> comment
+<span class="linenr">37:  </span> <span style="color: #b643aa;">" string</span>
+<span class="linenr">38:  </span><span style="color: #b643aa;"> test</span>
+<span class="linenr">39:  </span><span style="color: #b643aa;">end</span>
+<span class="linenr">40:  </span>
 </pre>
 
 
@@ -741,11 +745,10 @@ ID(try)     894
 LPAREN   895
 INT(0)   896
 RPAREN   897
-END   901
-EOF   904
+queens.tig:40.2:unterminated comment
+
+EOF   932
 </pre>
-
-
 
 
 
